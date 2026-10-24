@@ -8,7 +8,7 @@ You are going to build with me a Claude Code plugin called **`nexurity`**. **Nex
 - Commands, hooks, agents and skills reach the plugin's files through `${CLAUDE_PLUGIN_ROOT}` (or the variable the documentation names), and the data through `~/.nexurity/`: never through a path relative to the current folder.
 
 **Run the whole installation in one go, without asking me anything.** Work through stages 1 to 6 in order. At the end of each stage, run its checks yourself, then move straight on to the next stage: never wait for my go-ahead, never ask me a question (no `AskUserQuestion` during the installation), never stop to show me something.
-- **The installation runs no tests**: no unit tests, no dry runs, no trial audits, nothing that analyses code, a server or a website. The end-of-stage checks only verify that the expected files exist and that the plugin loads.
+- **The installation runs no tests**, with one exception: the `guard.py` unit tests of stage 4 (plain Python, no Claude call, no audit). No dry runs, no trial audits, nothing that analyses code, a server or a website. The other end-of-stage checks only verify that the expected files exist and that the plugin loads.
 - **When a check fails**, find the cause, fix it and re-run the check, up to 3 attempts. If it still fails, write it down in the install report and go on with the next stages that don't depend on it.
 - **When this prompt and the official documentation disagree**, follow the documentation and write the difference in the install report.
 - **When a decision is needed**, take the safest option that respects the rules below, and write it in the install report.
@@ -178,9 +178,10 @@ The plugin is installed globally, so its hook runs in **every** Claude Code sess
   - `Bash` (local or `ssh host '…'`): **allowlist** of read-only commands: `cat`, `head`, `tail`, `less`, `grep`, `rg`, `find`, `ls`, `stat`, `wc`, `sha256sum`, `zcat`, `zgrep`, `journalctl`, `last`, `lastb`, `ss -tulpn`, `ps`, `crontab -l`, `systemctl list-*`, `systemctl status`, `dpkg -l`, `rpm -qa`, `apt list --upgradable`, `nginx -T`, `apachectl -S`, `php -i`, `php -m`, `docker ps`, `docker inspect`, `lynis audit system`, `semgrep`, `composer audit`, `npm audit`, `pip-audit`, `cargo audit`, `gitleaks`, `testssl.sh`, `curl -sI` (headers only), `dig`, `openssl s_client`. Everything else is refused with an explicit message. `>` and `>>` redirections are only allowed into the engagement folder.
   - Always refused: `rm`, `mv`, `chmod`, `chown`, `sed -i`, `tee` outside the engagement folder, `systemctl restart|stop|start`, `kill`, `apt|yum|dnf install|remove`, `mysql` with `UPDATE|DELETE|DROP|INSERT|ALTER`, `curl -X POST|PUT|DELETE`, `nmap`, `nikto`, `sqlmap`, `hydra`.
 - [ ] Hunters and the verifier do **not** have `Edit` or `Write` in their frontmatter. Only the main thread writes, and only in the engagement folder.
+- [ ] Unit tests for `guard.py` (plain Python, standard library only): 30 commands, allowed and forbidden, including bypass attempts (`;`, `&&`, `$(…)`, `bash -c`, `ssh host 'rm …'`), plus: no engagement → everything allowed; engagement started by another session → everything allowed.
 - [ ] Optional Semgrep hook after each edit: **disabled by default**, can be enabled in `~/.nexurity/config.json`.
 
-**End-of-stage check**: `hooks/hooks.json` declares the `PreToolUse` hook and points to `guard.py`.
+**End-of-stage check**: `hooks/hooks.json` declares the `PreToolUse` hook and points to `guard.py`, and all `guard.py` tests pass.
 
 ## 4b. Stage 4b: update check on every new audit
 
@@ -205,7 +206,7 @@ The plugin is installed globally, so its hook runs in **every** Claude Code sess
 2. Checks that the `LICENSE` has not changed. If it has, stops and shows me the difference.
 3. Fetches the new version into a temporary folder with `scripts/sources.py` (Git or archive), never over the current one. For a third-party source, copies nothing automatically: proposes the changes to carry over into the Nexurity agents and rules derived from it, and waits for my approval file by file.
 4. For a tool, shows the update command and waits for my approval before running it.
-5. Checks that the plugin still loads.
+5. Re-runs the `guard.py` tests and checks that the plugin still loads.
 6. If everything passes, updates the installed plugin (stage 2), then `~/.nexurity/sources.lock.json`, and adds an entry to `~/.nexurity/CHANGELOG.md`. Otherwise, rolls back to the previous version and explains why.
 
 **End-of-stage check**: `check_updates.py` and the `/nexurity-update` command exist, and `~/.nexurity/sources.lock.json` lists every source and tool.
@@ -270,7 +271,7 @@ The plugin is installed globally, so its hook runs in **every** Claude Code sess
 - Do not add any issuer, company, author, auditor or analyst name to the reports: they only name the client.
 - Do not stop between stages or ask me anything during the installation.
 - Do not install any system tool, and do not write outside `~/nexurity/`, `~/.nexurity/`, `~/nexurity-vendor/` and `~/audits/` (apart from what Claude Code itself writes when the plugin is installed).
-- Do not run any audit or test during the installation, and no command against a server, a website or someone else's code.
+- Do not run any audit or test during the installation other than the `guard.py` tests, and no command against a server, a website or someone else's code.
 
 ## Report structure (appendices A and B)
 

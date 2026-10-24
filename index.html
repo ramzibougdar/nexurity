@@ -486,7 +486,7 @@ details.more[open] .opt-list .req:nth-child(4){animation-delay:.18s}
 - Commands, hooks, agents and skills reach the plugin's files through `${CLAUDE_PLUGIN_ROOT}` (or the variable the documentation names), and the data through `~/.nexurity/`: never through a path relative to the current folder.
 
 **Run the whole installation in one go, without asking me anything.** Work through stages 1 to 6 in order. At the end of each stage, run its checks yourself, then move straight on to the next stage: never wait for my go-ahead, never ask me a question (no `AskUserQuestion` during the installation), never stop to show me something.
-- **The installation runs no tests**: no unit tests, no dry runs, no trial audits, nothing that analyses code, a server or a website. The end-of-stage checks only verify that the expected files exist and that the plugin loads.
+- **The installation runs no tests**, with one exception: the `guard.py` unit tests of stage 4 (plain Python, no Claude call, no audit). No dry runs, no trial audits, nothing that analyses code, a server or a website. The other end-of-stage checks only verify that the expected files exist and that the plugin loads.
 - **When a check fails**, find the cause, fix it and re-run the check, up to 3 attempts. If it still fails, write it down in the install report and go on with the next stages that don't depend on it.
 - **When this prompt and the official documentation disagree**, follow the documentation and write the difference in the install report.
 - **When a decision is needed**, take the safest option that respects the rules below, and write it in the install report.
@@ -656,9 +656,10 @@ The plugin is installed globally, so its hook runs in **every** Claude Code sess
   - `Bash` (local or `ssh host '…'`): **allowlist** of read-only commands: `cat`, `head`, `tail`, `less`, `grep`, `rg`, `find`, `ls`, `stat`, `wc`, `sha256sum`, `zcat`, `zgrep`, `journalctl`, `last`, `lastb`, `ss -tulpn`, `ps`, `crontab -l`, `systemctl list-*`, `systemctl status`, `dpkg -l`, `rpm -qa`, `apt list --upgradable`, `nginx -T`, `apachectl -S`, `php -i`, `php -m`, `docker ps`, `docker inspect`, `lynis audit system`, `semgrep`, `composer audit`, `npm audit`, `pip-audit`, `cargo audit`, `gitleaks`, `testssl.sh`, `curl -sI` (headers only), `dig`, `openssl s_client`. Everything else is refused with an explicit message. `&gt;` and `&gt;&gt;` redirections are only allowed into the engagement folder.
   - Always refused: `rm`, `mv`, `chmod`, `chown`, `sed -i`, `tee` outside the engagement folder, `systemctl restart|stop|start`, `kill`, `apt|yum|dnf install|remove`, `mysql` with `UPDATE|DELETE|DROP|INSERT|ALTER`, `curl -X POST|PUT|DELETE`, `nmap`, `nikto`, `sqlmap`, `hydra`.
 - [ ] Hunters and the verifier do **not** have `Edit` or `Write` in their frontmatter. Only the main thread writes, and only in the engagement folder.
+- [ ] Unit tests for `guard.py` (plain Python, standard library only): 30 commands, allowed and forbidden, including bypass attempts (`;`, `&amp;&amp;`, `$(…)`, `bash -c`, `ssh host 'rm …'`), plus: no engagement → everything allowed; engagement started by another session → everything allowed.
 - [ ] Optional Semgrep hook after each edit: **disabled by default**, can be enabled in `~/.nexurity/config.json`.
 
-**End-of-stage check**: `hooks/hooks.json` declares the `PreToolUse` hook and points to `guard.py`.
+**End-of-stage check**: `hooks/hooks.json` declares the `PreToolUse` hook and points to `guard.py`, and all `guard.py` tests pass.
 
 ## 4b. Stage 4b: update check on every new audit
 
@@ -683,7 +684,7 @@ The plugin is installed globally, so its hook runs in **every** Claude Code sess
 2. Checks that the `LICENSE` has not changed. If it has, stops and shows me the difference.
 3. Fetches the new version into a temporary folder with `scripts/sources.py` (Git or archive), never over the current one. For a third-party source, copies nothing automatically: proposes the changes to carry over into the Nexurity agents and rules derived from it, and waits for my approval file by file.
 4. For a tool, shows the update command and waits for my approval before running it.
-5. Checks that the plugin still loads.
+5. Re-runs the `guard.py` tests and checks that the plugin still loads.
 6. If everything passes, updates the installed plugin (stage 2), then `~/.nexurity/sources.lock.json`, and adds an entry to `~/.nexurity/CHANGELOG.md`. Otherwise, rolls back to the previous version and explains why.
 
 **End-of-stage check**: `check_updates.py` and the `/nexurity-update` command exist, and `~/.nexurity/sources.lock.json` lists every source and tool.
@@ -748,7 +749,7 @@ The plugin is installed globally, so its hook runs in **every** Claude Code sess
 - Do not add any issuer, company, author, auditor or analyst name to the reports: they only name the client.
 - Do not stop between stages or ask me anything during the installation.
 - Do not install any system tool, and do not write outside `~/nexurity/`, `~/.nexurity/`, `~/nexurity-vendor/` and `~/audits/` (apart from what Claude Code itself writes when the plugin is installed).
-- Do not run any audit or test during the installation, and no command against a server, a website or someone else's code.
+- Do not run any audit or test during the installation other than the `guard.py` tests, and no command against a server, a website or someone else's code.
 
 ## Report structure (appendices A and B)
 
@@ -1224,12 +1225,12 @@ Start with stage 1.<!-- PROMPT:END --></pre><button class="copy" type="button" d
 
     <section id="stages">
       <div class="sec-head"><span class="k">The build</span><h2>The 6 stages, and what is checked</h2></div>
-      <p class="muted">The installation runs no tests and no trial audits: each stage only checks that the expected files are in place. When a check fails, Claude Code fixes the cause and checks again, then moves on. Everything ends up in the install report.</p>
+      <p class="muted">The installation runs no trial audits: apart from the safeguard tests, each stage only checks that the expected files are in place. When a check fails, Claude Code fixes the cause and checks again, then moves on. Everything ends up in the install report.</p>
       <ol class="stages">
         <li><span class="n">Stage 1</span><b>Documentation and sources</b><span>Checks the current Claude Code plugin format, fetches the ten sources read-only (with Git, or as archives without it), records their licences and exact versions.</span><span class="gate"><strong>Checked:</strong> <code>NOTICE.md</code>, the sources summary and the list of missing tools.</span></li>
         <li><span class="n">Stage 2</span><b>Plugin skeleton</b><span>Creates the folders, commands, agents and schemas, then installs the plugin globally, for your user account.</span><span class="gate"><strong>Checked:</strong> the tree, and <code>/nexurity-audit</code> available from another folder.</span></li>
         <li><span class="n">Stage 3</span><b>Start-up wizard</b><span>Builds the clickable question screens for <code>/nexurity-audit</code> and <code>/nexurity-incident</code>.</span><span class="gate"><strong>Checked:</strong> every screen and every answer are described.</span></li>
-        <li><span class="n">Stage 4</span><b>Safeguards</b><span>Adds the hook that only allows read-only commands during an engagement, on your machine and over SSH.</span><span class="gate"><strong>Checked:</strong> the hook is declared and points to the guard script.</span></li>
+        <li><span class="n">Stage 4</span><b>Safeguards</b><span>Adds the hook that only allows read-only commands during an engagement, on your machine and over SSH.</span><span class="gate"><strong>Checked:</strong> the hook is declared, and 30 allow/deny tests pass, including bypass attempts.</span></li>
         <li><span class="n">Stage 4b</span><b>Update check</b><span>Before every audit, compares sources and tools with the recorded versions and asks before updating anything.</span><span class="gate"><strong>Checked:</strong> the update check and <code>/nexurity-update</code> are in place, with every source recorded.</span></li>
         <li><span class="n">Stage 5</span><b>Pipeline and agents</b><span>Recon, scanners, hunters in parallel, independent verifier, incident forensics.</span><span class="gate"><strong>Checked:</strong> the agents and their tools, and the routing rules.</span></li>
         <li><span class="n">Stage 6</span><b>Report generation</b><span>Turns findings into the Markdown report, computes the score and counts, and escapes every value from the target.</span><span class="gate"><strong>Checked:</strong> both report templates, with every section.</span></li>
@@ -1298,7 +1299,7 @@ Start with stage 1.<!-- PROMPT:END --></pre><button class="copy" type="button" d
         <details><summary>Claude Code keeps asking for permission</summary><div class="ans"><p>That's Claude Code's permission mode, not Nexurity. Switch to a mode that doesn't ask at every command with <kbd>Shift</kbd>+<kbd>Tab</kbd>, then type "Continue".</p></div></details>
         <details><summary>A tool is missing during an audit</summary><div class="ans"><p>Nexurity asks whether to install it, continue without it or cancel. The report's "Tools" section only lists what actually ran.</p></div></details>
         <details><summary>The update check is slow or I'm offline</summary><div class="ans"><p>The check stops after 15 seconds and the audit continues. The engagement log notes "updates not checked". You can turn the check off with <code>"check_updates": false</code> in <code>~/.nexurity/config.json</code>.</p></div></details>
-        <details><summary>A command was blocked during an audit</summary><div class="ans"><p>That's the safeguard hook. Only read-only commands are allowed while an engagement is active, and only in the session that started it: your other sessions are never blocked. If an interrupted audit left the engagement open, run <code>/nexurity-audit --close &lt;REF&gt;</code>. If a legitimate read command is missing from the allowlist, add it in <code>~/nexurity/scripts/guard.py</code> and update the plugin.</p></div></details>
+        <details><summary>A command was blocked during an audit</summary><div class="ans"><p>That's the safeguard hook. Only read-only commands are allowed while an engagement is active, and only in the session that started it: your other sessions are never blocked. If an interrupted audit left the engagement open, run <code>/nexurity-audit --close &lt;REF&gt;</code>. If a legitimate read command is missing from the allowlist, add it in <code>~/nexurity/scripts/guard.py</code>, re-run its tests and update the plugin.</p></div></details>
       </div>
     </section>
 
