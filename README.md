@@ -4,6 +4,8 @@ Nexurity is a security audit assistant for [Claude Code](https://claude.com/clau
 
 This repository is the **installation kit**: Claude Code builds the Nexurity plugin step by step from `PROMPT.md`.
 
+**Installation guide:** open [`index.html`](index.html), or the GitHub Pages site once it is enabled for this repository.
+
 ## What Nexurity does
 
 | Mode | Command | What it covers |
@@ -29,6 +31,7 @@ Every audit starts with a wizard, checks whether its sources and tools have new 
 ## Repository contents
 
 ```
+index.html                             # installation guide (web page)
 PROMPT.md                              # installation prompt for Claude Code
 base/
 ├── security-audit-template.html       # generic audit report template

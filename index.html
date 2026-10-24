@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Step-by-step guide to installing Nexurity, a security audit assistant for Claude Code.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232346FF'/%3E%3Cg transform='translate%284 4%29 scale%28.375%29'%3E%3Crect x='8' y='10' width='12' height='44' rx='6' fill='%23fff'/%3E%3Crect x='44' y='10' width='12' height='44' rx='6' fill='%23fff'/%3E%3Ccircle cx='32' cy='32' r='7' fill='%23FFB000'/%3E%3C/g%3E%3C/svg%3E" type="image/svg+xml">
+<title>Installing Nexurity</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+img{max-width:100%}
+
+/* Layout: indigo cover band, then a single reading column with a sticky stage rail on wide screens. */
+:root{
+  --bg:#E9EDF7; --surface:#FFFFFF; --ink:#0F1B3D; --muted:#4A5778; --rule:#D5DBE8;
+  --primary:#2346FF; --accent:#FFB000; --cover:#0F1B3D; --cover-ink:#E9EDF7; --cover-muted:#A9B4CF;
+  --code-bg:#0F1B3D; --code-ink:#E9EDF7; --chip:#F4F6FB; --ok:#1F7A4D; --warn:#7E0B18;
+  --display:'Schibsted Grotesk',Arial,Helvetica,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0A1230; --surface:#121D42; --ink:#E9EDF7; --muted:#A9B4CF; --rule:#26325C;
+  --primary:#7D93FF; --accent:#FFB000; --cover:#060C22; --cover-ink:#E9EDF7; --cover-muted:#A9B4CF;
+  --code-bg:#060C22; --code-ink:#E9EDF7; --chip:#1A2650; --ok:#5CC796; --warn:#FF8A93; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0A1230; --surface:#121D42; --ink:#E9EDF7; --muted:#A9B4CF; --rule:#26325C;
+  --primary:#7D93FF; --accent:#FFB000; --cover:#060C22; --cover-ink:#E9EDF7; --cover-muted:#A9B4CF;
+  --code-bg:#060C22; --code-ink:#E9EDF7; --chip:#1A2650; --ok:#5CC796; --warn:#FF8A93; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--display);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:var(--primary)} a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+h1,h2,h3{margin:0;letter-spacing:-0.03em;text-wrap:balance;line-height:1.1}
+p{margin:0;text-wrap:pretty}
+code{font-family:var(--mono);font-size:.86em;background:var(--chip);padding:1px 6px;border-radius:5px}
+.wrap{max-width:1080px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* Cover */
+.cover{background:var(--cover);color:var(--cover-ink)}
+.cover .wrap{padding-block:40px 48px;display:flex;flex-direction:column;gap:36px}
+.brand{display:flex;align-items:center;gap:12px}
+.brand svg{width:40px;height:40px;flex:none}
+.brand b{font-weight:700;font-size:30px;letter-spacing:-0.05em;line-height:1}
+.cover h1{font-size:clamp(34px,5.5vw,56px);font-weight:700;letter-spacing:-0.04em;max-width:720px;color:#fff}
+.eyebrow{font-weight:700;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--cover-muted)}
+.lede{font-size:18px;color:var(--cover-muted);max-width:640px;margin-top:14px}
+.facts{display:flex;flex-wrap:wrap;gap:10px 28px;border-top:1px solid rgba(233,237,247,.2);padding-top:20px;font-size:14px}
+.facts span{color:var(--cover-muted)} .facts b{color:#fff;font-weight:600}
+
+/* Body */
+main.wrap{padding-block:40px 80px;display:grid;grid-template-columns:200px minmax(0,1fr);gap:44px}
+.rail{position:sticky;top:max(24px,env(safe-area-inset-top,0px));align-self:start;display:flex;flex-direction:column;gap:10px}
+.rail .label{font-weight:700;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.rail ol{list-style:none;margin:0;padding:0;border-top:1px solid var(--ink)}
+.rail a{display:block;padding:8px 0;border-bottom:1px solid var(--rule);color:var(--ink);text-decoration:none;font-size:14px;font-weight:600}
+.rail a:hover{color:var(--primary)}
+.col{display:flex;flex-direction:column;gap:56px;min-width:0}
+section{display:flex;flex-direction:column;gap:18px;scroll-margin-top:24px}
+.sec-head{display:flex;flex-direction:column;gap:6px;border-bottom:1px solid var(--ink);padding-bottom:14px}
+.sec-head .k{font-weight:700;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--primary)}
+.sec-head h2{font-size:28px;font-weight:700}
+.muted{color:var(--muted)}
+ul.plain{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+
+/* Requirements checklist */
+.reqs{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.req{background:var(--surface);border:1px solid var(--rule);border-radius:12px;padding:16px 18px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.req b{font-size:15px}
+.tag{align-self:flex-start;font-weight:700;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:5px}
+.tag.need{background:var(--primary);color:#fff}
+.tag.opt{background:var(--chip);color:var(--muted);box-shadow:inset 0 0 0 1px var(--rule)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .tag.need{color:#0A1230}}
+:root[data-theme="dark"] .tag.need{color:#0A1230}
+
+/* Install steps */
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px;counter-reset:s}
+.steps>li{display:grid;grid-template-columns:40px minmax(0,1fr);gap:14px}
+.steps>li::before{counter-increment:s;content:counter(s);width:32px;height:32px;border-radius:50%;background:var(--ink);color:var(--bg);font-weight:700;display:grid;place-items:center;font-size:14px}
+.steps .body{display:flex;flex-direction:column;gap:10px;min-width:0;padding-top:4px}
+.steps h3{font-size:18px}
+
+/* Code blocks */
+.code{position:relative;background:var(--code-bg);color:var(--code-ink);border-radius:10px;min-width:0}
+.code pre{margin:0;padding:16px 92px 16px 18px;font-family:var(--mono);font-size:13.5px;line-height:1.7;overflow-x:auto;white-space:pre}
+.code .c{color:#A9B4CF}
+.copy{position:absolute;top:10px;right:10px;font-family:var(--display);font-weight:700;font-size:12px;border:1px solid rgba(233,237,247,.35);background:transparent;color:var(--code-ink);border-radius:6px;padding:5px 10px;cursor:pointer}
+.copy:hover{background:rgba(233,237,247,.12)}
+
+/* Stage timeline */
+.stages{list-style:none;margin:0;padding:0;border-left:2px solid var(--rule);margin-left:6px;display:flex;flex-direction:column}
+.stages li{position:relative;padding:0 0 22px 24px;display:flex;flex-direction:column;gap:4px}
+.stages li:last-child{padding-bottom:0}
+.stages li::before{content:"";position:absolute;left:-7px;top:6px;width:12px;height:12px;border-radius:50%;background:var(--surface);box-shadow:inset 0 0 0 2px var(--primary)}
+.stages li.later::before{box-shadow:inset 0 0 0 2px var(--muted)}
+.stages .n{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.stages b{font-size:16px}
+.stages .gate{font-size:13.5px;color:var(--muted)}
+.stages .gate strong{color:var(--ink);font-weight:600}
+
+/* Tables */
+.tbl{overflow-x:auto;background:var(--surface);border:1px solid var(--rule);border-radius:12px}
+table{width:100%;border-collapse:collapse;font-size:14.5px}
+th{font-weight:700;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:left;padding:12px 16px;border-bottom:1px solid var(--rule)}
+td{padding:12px 16px;border-bottom:1px solid var(--rule);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td code{white-space:nowrap}
+
+/* Callouts */
+.note{background:var(--surface);border:1px solid var(--rule);border-left:4px solid var(--accent);border-radius:10px;padding:14px 18px;display:flex;flex-direction:column;gap:6px}
+.note b{font-size:14px}
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}
+.rule{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:14px 16px;font-size:14.5px}
+.rule b{display:block;margin-bottom:2px}
+
+details{background:var(--surface);border:1px solid var(--rule);border-radius:10px}
+summary{cursor:pointer;padding:14px 18px;font-weight:600;list-style:none;display:flex;justify-content:space-between;gap:12px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";color:var(--muted);font-weight:700}
+details[open] summary::after{content:"–"}
+details .ans{padding:0 18px 16px;display:flex;flex-direction:column;gap:8px;color:var(--muted);font-size:15px}
+.faq{display:flex;flex-direction:column;gap:10px}
+
+footer.wrap{padding-block:24px 40px;border-top:1px solid var(--rule);font-size:13px;color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+
+@media (max-width:860px){
+  main.wrap{grid-template-columns:minmax(0,1fr);gap:28px}
+  .rail{position:static}
+  .rail ol{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));column-gap:16px}
+}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<header class="cover">
+  <div class="wrap">
+    <div class="brand" role="img" aria-label="Nexurity">
+      <svg viewBox="0 0 64 64" fill="none" aria-hidden="true"><rect x="8" y="10" width="11" height="44" rx="5.5" fill="#E9EDF7"/><rect x="45" y="10" width="11" height="44" rx="5.5" fill="#E9EDF7"/><circle cx="24" cy="24.9" r="4" fill="#E9EDF7"/><circle cx="32" cy="32" r="5" fill="#FFB000"/><circle cx="40" cy="39.1" r="4" fill="#E9EDF7"/></svg>
+      <b aria-hidden="true">nexurity</b>
+    </div>
+    <div>
+      <div class="eyebrow">Installation guide</div>
+      <h1 style="margin-top:12px">Install Nexurity in Claude Code</h1>
+      <p class="lede">Nexurity is a security audit assistant for Claude Code. It audits code, servers and live websites, handles incident response, and writes a client-ready HTML report. Claude Code builds it for you from a single prompt.</p>
+    </div>
+    <div class="facts">
+      <div><span>Repository </span><b>ramzibougdar/nexurity</b></div>
+      <div><span>Build </span><b>8 stages, approved one by one</b></div>
+      <div><span>Rating </span><b>CVSS 4.0</b></div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <nav class="rail" aria-label="On this page">
+    <div class="label">On this page</div>
+    <ol>
+      <li><a href="#before">Before you start</a></li>
+      <li><a href="#install">Install</a></li>
+      <li><a href="#stages">The 8 build stages</a></li>
+      <li><a href="#setup">Branding setup</a></li>
+      <li><a href="#first">Your first audit</a></li>
+      <li><a href="#commands">Commands</a></li>
+      <li><a href="#rules">Safety rules</a></li>
+      <li><a href="#faq">Troubleshooting</a></li>
+    </ol>
+  </nav>
+
+  <div class="col">
+
+    <section id="before">
+      <div class="sec-head"><span class="k">Before you start</span><h2>What you need</h2></div>
+      <div class="reqs">
+        <div class="req"><span class="tag need">Required</span><b>Claude Code</b><span class="muted">Installed and signed in, in a terminal or the desktop app.</span></div>
+        <div class="req"><span class="tag need">Required</span><b>Git and Python 3</b><span class="muted">Git to clone the kit and its sources, Python for the report and safety scripts.</span></div>
+        <div class="req"><span class="tag need">Required</span><b>Node.js and Playwright</b><span class="muted">Used to check the HTML reports in a real browser and export them to PDF.</span></div>
+        <div class="req"><span class="tag opt">Recommended</span><b>Audit tools</b><span class="muted"><code>semgrep</code>, <code>gitleaks</code>, <code>lynis</code>, <code>testssl.sh</code>, <code>pip-audit</code>. Stage 1 lists what is missing.</span></div>
+        <div class="req"><span class="tag opt">Optional</span><b>Your company identity</b><span class="muted">Name, SVG logo, colours, fonts and contact details, if reports should not carry the Nexurity brand.</span></div>
+        <div class="req"><span class="tag opt">Optional</span><b>CodeQL</b><span class="muted">Free for open-source code only. Closed-source code needs a GitHub licence.</span></div>
+      </div>
+      <p class="muted">Nothing is installed without your approval. When a tool is missing, Claude Code shows you the install command and waits.</p>
+    </section>
+
+    <section id="install">
+      <div class="sec-head"><span class="k">Install</span><h2>Three steps to start the build</h2></div>
+      <ol class="steps">
+        <li><div class="body">
+          <h3>Clone the kit</h3>
+          <p>The kit holds the installation prompt and the two base report templates. Nothing else is needed.</p>
+          <div class="code"><pre id="c1">git clone https://github.com/ramzibougdar/nexurity.git
+cd nexurity</pre><button class="copy" type="button" data-copy="c1">Copy</button></div>
+        </div></li>
+        <li><div class="body">
+          <h3>Open Claude Code in the folder</h3>
+          <div class="code"><pre id="c2">claude</pre><button class="copy" type="button" data-copy="c2">Copy</button></div>
+          <p class="muted">In the desktop app, open the <code>nexurity</code> folder instead.</p>
+        </div></li>
+        <li><div class="body">
+          <h3>Start the installation</h3>
+          <p>Send this as your first message:</p>
+          <div class="code"><pre id="c3">Read PROMPT.md and follow it</pre><button class="copy" type="button" data-copy="c3">Copy</button></div>
+          <p>Claude Code reads the prompt and starts stage 1. It stops at the end of every stage and waits for you to say it can continue.</p>
+        </div></li>
+      </ol>
+      <div class="code"><pre><span class="c"># What the kit contains</span>
+nexurity/
+├── PROMPT.md                          <span class="c"># installation prompt</span>
+├── README.md
+└── base/
+    ├── security-audit-template.html   <span class="c"># generic audit report</span>
+    └── incident-report-template.html  <span class="c"># generic incident report</span></pre></div>
+    </section>
+
+    <section id="stages">
+      <div class="sec-head"><span class="k">The build</span><h2>The 8 stages, and what you approve</h2></div>
+      <p class="muted">Each stage ends with a check you review. Reply "go ahead" to continue, or ask for changes first.</p>
+      <ol class="stages">
+        <li><span class="n">Stage 1</span><b>Documentation and sources</b><span>Checks the current Claude Code plugin format, clones the ten sources read-only, records their licences and exact versions.</span><span class="gate"><strong>You approve:</strong> <code>NOTICE.md</code>, the sources summary and the list of missing tools.</span></li>
+        <li><span class="n">Stage 2</span><b>Plugin skeleton</b><span>Creates the folders, commands, agents and schemas, then installs the plugin locally.</span><span class="gate"><strong>You approve:</strong> the tree and that <code>/audit</code> appears in Claude Code.</span></li>
+        <li><span class="n">Stage 2b</span><b>Branding and report documents</b><span>Asks for your company identity and creates the two HTML report documents from the base templates.</span><span class="gate"><strong>You approve:</strong> previews of both documents.</span></li>
+        <li><span class="n">Stage 3</span><b>Start-up wizard</b><span>Builds the clickable question screens for <code>/audit</code> and <code>/incident</code>.</span><span class="gate"><strong>You approve:</strong> a dry run of every screen.</span></li>
+        <li><span class="n">Stage 4</span><b>Safeguards</b><span>Adds the hook that only allows read-only commands during an engagement, on your machine and over SSH.</span><span class="gate"><strong>You approve:</strong> the results of 30 allow/deny tests, including bypass attempts.</span></li>
+        <li><span class="n">Stage 4b</span><b>Update check</b><span>Before every audit, compares sources and tools with the recorded versions and asks before updating anything.</span><span class="gate"><strong>You approve:</strong> a simulated update and the <code>/nexurity-update</code> flow.</span></li>
+        <li><span class="n">Stage 5</span><b>Pipeline and agents</b><span>Recon, scanners, hunters in parallel, independent verifier, incident forensics.</span><span class="gate"><strong>You approve:</strong> the agents, the routing rules and a dry run of <code>/audit-quick</code>.</span></li>
+        <li><span class="n">Stage 6</span><b>Report generation</b><span>Turns findings into the HTML report, with every value from the target escaped.</span><span class="gate"><strong>You approve:</strong> screenshots and the escaping tests.</span></li>
+        <li><span class="n">Stage 7</span><b>Trials</b><span>Runs Nexurity against deliberately vulnerable targets: OWASP Juice Shop, DVWA, a misconfigured server and a fake incident.</span><span class="gate"><strong>You review:</strong> the reports, false positives, missed flaws and token cost per mode.</span></li>
+        <li class="later"><span class="n">Stage 8 · later</span><b>Continuous integration</b><span>A GitHub Action that reviews pull requests and comments with confirmed findings.</span></li>
+      </ol>
+    </section>
+
+    <section id="setup">
+      <div class="sec-head"><span class="k">Stage 2b</span><h2>Branding setup</h2></div>
+      <p>The base templates carry the Nexurity identity. The <code>/nexurity-setup</code> command asks the questions below, then Nexurity creates the two report documents itself. You never edit the HTML by hand. Run the command again at any time to change the branding.</p>
+      <div class="tbl"><table>
+        <thead><tr><th>Question</th><th>Choices</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Company name</strong></td><td>Keep Nexurity, or type the issuing company's name</td></tr>
+          <tr><td><strong>Logo</strong></td><td>Keep the Nexurity logo, or give the path to an SVG file</td></tr>
+          <tr><td><strong>Colours</strong></td><td>Keep Nexurity's, enter your own (primary, dark, background, accent), or extract them from a CSS, SVG or HTML file</td></tr>
+          <tr><td><strong>Fonts</strong></td><td>Keep Schibsted Grotesk and JetBrains Mono, other Google Fonts, or system fonts only</td></tr>
+          <tr><td><strong>Contact details</strong></td><td>Address, email, phone and website for the report footer</td></tr>
+          <tr><td><strong>Default language</strong></td><td>English or French</td></tr>
+        </tbody>
+      </table></div>
+      <p class="muted">Colours are checked for readability before they are saved. Logos are always embedded in the report, so each report stays a single file.</p>
+    </section>
+
+    <section id="first">
+      <div class="sec-head"><span class="k">After installation</span><h2>Your first audit</h2></div>
+      <p>Type <code>/audit</code>. Nexurity first checks for updates to its sources and tools, then opens the wizard.</p>
+      <div class="tbl"><table>
+        <thead><tr><th>Screen</th><th>What you choose</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Engagement</strong></td><td>Code, server, live website or several · full, diff, quick or targeted · client or internal</td></tr>
+          <tr><td><strong>Target</strong></td><td>Folder, Git URL or PR · local server or SSH host · website URL</td></tr>
+          <tr><td><strong>Scope</strong></td><td>Areas to cover, stack (or auto-detect) and depth</td></tr>
+          <tr><td><strong>Client and report</strong></td><td>Client profile and report language</td></tr>
+          <tr><td><strong>Confirmation</strong></td><td>Full recap, and confirmation that the client gave written authorisation</td></tr>
+        </tbody>
+      </table></div>
+      <p>The report is saved with the evidence and findings in your audits folder:</p>
+      <div class="code"><pre>~/audits/&lt;client&gt;/AUD-2026-001/
+├── audit-config.json   <span class="c"># your wizard answers</span>
+├── evidence/
+├── findings.json
+├── log.md              <span class="c"># what was actually done</span>
+└── report.html         <span class="c"># the client report</span></pre></div>
+      <div class="note"><b>The report is confidential</b><span class="muted">It describes exploitable flaws in your client's systems. Send it directly to the client; don't publish it online.</span></div>
+    </section>
+
+    <section id="commands">
+      <div class="sec-head"><span class="k">Reference</span><h2>Commands</h2></div>
+      <div class="tbl"><table>
+        <thead><tr><th>Command</th><th>What it does</th></tr></thead>
+        <tbody>
+          <tr><td><code>/audit</code></td><td>Full audit of code, a server or a live website, with the wizard</td></tr>
+          <tr><td><code>/audit-quick</code></td><td>One hunter chosen automatically and one verifier, for a fast check</td></tr>
+          <tr><td><code>/audit-diff</code></td><td>Reviews a diff or pull request</td></tr>
+          <tr><td><code>/incident</code></td><td>Investigates a suspected hack: preserves evidence, reads the logs, rebuilds the timeline</td></tr>
+          <tr><td><code>/report &lt;REF&gt;</code></td><td>Regenerates the HTML report from an engagement's findings</td></tr>
+          <tr><td><code>/audit --resume &lt;REF&gt;</code></td><td>Re-runs an engagement with the same answers</td></tr>
+          <tr><td><code>/nexurity-setup</code></td><td>Changes the branding and recreates the report documents</td></tr>
+          <tr><td><code>/nexurity-update</code></td><td>Reviews and applies updates to sources and tools</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section id="rules">
+      <div class="sec-head"><span class="k">Built in</span><h2>Safety rules</h2></div>
+      <div class="rules">
+        <div class="rule"><b>Never changes the target</b>Proposes fixes for code and configuration, never applies them.</div>
+        <div class="rule"><b>Read-only on servers</b>Only an allowlist of read commands runs, locally or over SSH.</div>
+        <div class="rule"><b>Passive on live sites</b>No scanning, fuzzing, exploitation or brute force.</div>
+        <div class="rule"><b>Content is data</b>Instructions hidden in code or logs are ignored and flagged.</div>
+        <div class="rule"><b>Independent verification</b>A finding is always re-checked by a different agent.</div>
+        <div class="rule"><b>Authorisation first</b>No server, website or incident work without the client's go-ahead.</div>
+        <div class="rule"><b>Secrets masked</b>Only the first and last 4 characters ever appear.</div>
+        <div class="rule"><b>No silent updates</b>Every update is shown as a diff and needs your approval.</div>
+      </div>
+    </section>
+
+    <section id="faq">
+      <div class="sec-head"><span class="k">Help</span><h2>Troubleshooting</h2></div>
+      <div class="faq">
+        <details><summary>Claude Code moved to the next stage without asking</summary><div class="ans"><p>Remind it: "Stop. PROMPT.md says to wait for my go-ahead at the end of each stage." Then ask it to show the checks for the stage it skipped.</p></div></details>
+        <details><summary>A tool is missing during an audit</summary><div class="ans"><p>Nexurity asks whether to install it, continue without it or cancel. The report's "Tools" section only lists what actually ran.</p></div></details>
+        <details><summary>The update check is slow or I'm offline</summary><div class="ans"><p>The check stops after 15 seconds and the audit continues. The engagement log notes "updates not checked". You can turn the check off with <code>"check_updates": false</code> in <code>config.json</code>.</p></div></details>
+        <details><summary>A command was blocked during an audit</summary><div class="ans"><p>That's the safeguard hook. Only read-only commands are allowed while an engagement is active. If a legitimate read command is missing from the allowlist, add it in <code>scripts/guard.py</code> and re-run its tests.</p></div></details>
+        <details><summary>I changed the logo or colours</summary><div class="ans"><p>Run <code>/nexurity-setup</code> again. It recreates both report documents and shows you a preview before saving.</p></div></details>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<footer class="wrap">
+  <span>Nexurity · installation guide</span>
+  <a href="https://github.com/ramzibougdar/nexurity" target="_blank" rel="noopener">github.com/ramzibougdar/nexurity</a>
+</footer>
+
+<script>
+document.querySelectorAll('[data-copy]').forEach(function(b){
+  b.addEventListener('click',function(){
+    var pre=document.getElementById(b.dataset.copy), text=pre.textContent;
+    var done=function(){ b.textContent='Copied'; setTimeout(function(){ b.textContent='Copy'; },1500); };
+    var fallback=function(){ var r=document.createRange(); r.selectNodeContents(pre); var s=window.getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent='Selected'; setTimeout(function(){ b.textContent='Copy'; },1500); };
+    try{ navigator.clipboard.writeText(text).then(done,fallback); }catch(e){ fallback(); }
+  });
+});
+</script>
+</body>
+</html>
