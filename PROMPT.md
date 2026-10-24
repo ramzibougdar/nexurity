@@ -227,7 +227,7 @@ The plugin is installed globally, so its hook runs in **every** Claude Code sess
 **Routing (`ROUTING.md`)**
 - PHP → `hunter-php` + `hunter-web` + `hunter-deps-secrets`
 - JS / Node / front end → `hunter-web` + `hunter-deps-secrets`
-- Odoo / Python → `hunter-web` + `hunter-deps-secrets` (Python rules)
+- Python → `hunter-web` + `hunter-deps-secrets` (Python rules)
 - Solana / Anchor / Rust → `hunter-solana` + `hunter-deps-secrets`
 - `wrangler.toml` present → + `hunter-infra-cloudflare`
 - Server → `recon-server` + `hunter-server` (SSH, web server, PHP-FPM, database, firewall, updates, accounts, sudoers, crons, Docker, permissions, backups)
