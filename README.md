@@ -38,14 +38,19 @@ PROMPT.md     # installation prompt for Claude Code, including the report struct
 
 ## Installation
 
-1. Create an empty folder for the plugin and open Claude Code in it:
-   ```bash
-   mkdir nexurity && cd nexurity && claude
-   ```
-   Python 3 is required; Git and Pandoc (PDF or Word export of the report) are optional.
+1. Open Claude Code in any folder: `claude`. Python 3 is required; Git and Pandoc (PDF or Word export of the report) are optional.
 2. Open the installation guide, copy the prompt shown there (the content of `PROMPT.md`) and paste it into Claude Code as your first message.
 
-Claude Code builds the plugin in eight stages and waits for your approval at the end of each one.
+Claude Code builds the plugin in eight stages and waits for your approval at the end of each one. Nexurity is installed globally, for your user account, so it works in every project:
+
+| Folder | What it holds |
+|---|---|
+| `~/nexurity/` | Plugin code, installed at user scope |
+| `~/.nexurity/` | Settings, client profiles and source versions, kept across updates |
+| `~/nexurity-vendor/` | Third-party sources and test targets, never part of the plugin |
+| `~/audits/` | Engagements and reports |
+
+The safeguard hook runs in every session but only blocks commands during an audit, in the session that started it.
 
 ## Third-party sources
 
