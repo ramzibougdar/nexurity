@@ -1,8 +1,8 @@
 # Nexurity
 
-Nexurity is a security audit assistant for [Claude Code](https://claude.com/claude-code). It audits a project's code, a server or a live website, or analyses a security incident, then produces a self-contained HTML report ready to send to a client.
+Nexurity is a security audit assistant for [Claude Code](https://claude.com/claude-code). It audits a project's code, a server or a live website, or analyses a security incident, then produces a self-contained Markdown report (`.md`) ready to send to a client.
 
-This repository is the **installation kit**: Claude Code builds the Nexurity plugin step by step from `PROMPT.md`.
+Nothing to download: Claude Code builds the Nexurity plugin step by step from a single prompt, [`PROMPT.md`](PROMPT.md), which also defines the structure of both reports.
 
 **Installation guide:** open [`index.html`](index.html), or the GitHub Pages site once it is enabled for this repository.
 
@@ -10,14 +10,14 @@ This repository is the **installation kit**: Claude Code builds the Nexurity plu
 
 | Mode | Command | What it covers |
 |---|---|---|
-| Code audit | `/audit` | Vulnerabilities, dependencies and secrets (PHP, JS, Python, Solana…) |
-| Server audit | `/audit` | Read-only configuration review: SSH, web server, PHP, database, firewall, accounts, crons, Docker |
-| Website audit | `/audit` | Passive checks only: HTTP headers, TLS, DNS, cookies, exposed files |
-| Quick audit | `/audit-quick` | One auto-routed hunter and one verifier |
-| Diff review | `/audit-diff` | Review of a diff or pull request |
-| Incident response | `/incident` | Evidence preservation, log triage, timeline, indicators of compromise, GDPR deadline |
+| Code audit | `/nexurity-audit` | Vulnerabilities, dependencies and secrets (PHP, JS, Python, Solana…) |
+| Server audit | `/nexurity-audit` | Read-only configuration review: SSH, web server, PHP, database, firewall, accounts, crons, Docker |
+| Website audit | `/nexurity-audit` | Passive checks only: HTTP headers, TLS, DNS, cookies, exposed files |
+| Quick audit | `/nexurity-audit-quick` | One auto-routed hunter and one verifier |
+| Diff review | `/nexurity-audit-diff` | Review of a diff or pull request |
+| Incident response | `/nexurity-incident` | Evidence preservation, log triage, timeline, indicators of compromise, GDPR deadline |
 
-Every audit starts with a wizard, checks whether its sources and tools have new versions, and ends with an HTML report rated in **CVSS 4.0**.
+Every audit starts with a wizard, checks whether its sources and tools have new versions, and ends with a Markdown report rated in **CVSS 4.0**.
 
 ## Safety rules
 
@@ -31,30 +31,26 @@ Every audit starts with a wizard, checks whether its sources and tools have new 
 ## Repository contents
 
 ```
-index.html                             # installation guide (web page)
-PROMPT.md                              # installation prompt for Claude Code
-base/
-├── security-audit-template.html       # generic audit report template
-└── incident-report-template.html      # generic incident report template
+index.html    # installation guide (web page), shows the prompt to copy
+PROMPT.md     # installation prompt for Claude Code, including the report structure
+.github/      # Pages deployment; copies PROMPT.md into the guide
 ```
-
-The two templates are generic and carry the Nexurity identity by default. During installation, `/nexurity-setup` asks for the issuing company's name, logo, colours, fonts and contact details, then **creates the branded HTML documents** from these base templates.
 
 ## Installation
 
-1. Get the kit, with either option:
-   - **With Git**: clone the repository.
-     ```bash
-     git clone https://github.com/ramzibougdar/nexurity.git
-     cd nexurity
-     ```
-   - **Without Git**: download [the ZIP](https://github.com/ramzibougdar/nexurity/archive/refs/heads/main.zip), unzip it and go into the `nexurity-main` folder.
+1. Open Claude Code in any folder: `claude`. Python 3 is required; Git and Pandoc (PDF or Word export of the report) are optional.
+2. Open the installation guide, copy the prompt shown there (the content of `PROMPT.md`) and paste it into Claude Code as your first message.
 
-   Then open Claude Code in the folder: `claude`. Python 3 is required; Git, Node.js and Playwright are optional.
-2. If the reports must carry another company's identity, have its name, SVG logo, colours, fonts and contact details ready.
-3. In Claude Code, type: `Read PROMPT.md and follow it`.
+Claude Code builds the plugin in eight stages, in one go, without asking you anything: each stage is checked automatically, and the results end up in an install report, `~/.nexurity/INSTALL-REPORT.md`. Pick a Claude Code permission mode that doesn't ask at every command (Shift+Tab) before pasting the prompt. Nexurity is installed globally, for your user account, so it works in every project:
 
-Claude Code builds the plugin in eight stages and waits for your approval at the end of each one.
+| Folder | What it holds |
+|---|---|
+| `~/nexurity/` | Plugin code, installed at user scope |
+| `~/.nexurity/` | Settings, client profiles and source versions, kept across updates |
+| `~/nexurity-vendor/` | Third-party sources and test targets, never part of the plugin |
+| `~/audits/` | Engagements and reports |
+
+The safeguard hook runs in every session but only blocks commands during an audit, in the session that started it.
 
 ## Third-party sources
 

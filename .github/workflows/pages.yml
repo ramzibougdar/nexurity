@@ -26,9 +26,9 @@ jobs:
 
       - name: Prepare site
         run: |
+          python3 .github/scripts/embed_prompt.py
           mkdir -p _site
           cp index.html _site/
-          [ -d base ] && cp -r base _site/
           cp PROMPT.md README.md _site/ 2>/dev/null || true
           touch _site/.nojekyll
 
