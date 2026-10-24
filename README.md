@@ -10,12 +10,12 @@ Nothing to download: Claude Code builds the Nexurity plugin step by step from a 
 
 | Mode | Command | What it covers |
 |---|---|---|
-| Code audit | `/audit` | Vulnerabilities, dependencies and secrets (PHP, JS, Python, Solana…) |
-| Server audit | `/audit` | Read-only configuration review: SSH, web server, PHP, database, firewall, accounts, crons, Docker |
-| Website audit | `/audit` | Passive checks only: HTTP headers, TLS, DNS, cookies, exposed files |
-| Quick audit | `/audit-quick` | One auto-routed hunter and one verifier |
-| Diff review | `/audit-diff` | Review of a diff or pull request |
-| Incident response | `/incident` | Evidence preservation, log triage, timeline, indicators of compromise, GDPR deadline |
+| Code audit | `/nexurity-audit` | Vulnerabilities, dependencies and secrets (PHP, JS, Python, Solana…) |
+| Server audit | `/nexurity-audit` | Read-only configuration review: SSH, web server, PHP, database, firewall, accounts, crons, Docker |
+| Website audit | `/nexurity-audit` | Passive checks only: HTTP headers, TLS, DNS, cookies, exposed files |
+| Quick audit | `/nexurity-audit-quick` | One auto-routed hunter and one verifier |
+| Diff review | `/nexurity-audit-diff` | Review of a diff or pull request |
+| Incident response | `/nexurity-incident` | Evidence preservation, log triage, timeline, indicators of compromise, GDPR deadline |
 
 Every audit starts with a wizard, checks whether its sources and tools have new versions, and ends with a Markdown report rated in **CVSS 4.0**.
 

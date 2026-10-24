@@ -510,6 +510,7 @@ Work **in stages**. At the end of each stage, show me what was created, run the 
 
 - [ ] Check the current official Claude Code documentation for the exact format of: `.claude-plugin/plugin.json`, `marketplace.json`, agent frontmatter (`name`, `description`, `tools`, `model`), slash commands, skills (`SKILL.md`), `hooks/hooks.json` (`PreToolUse` event, blocking exit code) and the `AskUserQuestion` tool (limits: questions per call, options per question). If anything differs from this prompt, **the documentation wins**: tell me.
 - [ ] Check how a plugin is installed at **user scope** from a local marketplace, where Claude Code copies it, how it is updated after a change to its source folder, and the name of the variable that gives the plugin's installed path.
+- [ ] Check how a plugin's slash commands are named once installed. Every Nexurity command must be typed as `/nexurity-&lt;name&gt;` (`/nexurity-audit`, `/nexurity-incident`…): if Claude Code adds a plugin prefix (such as `/nexurity:…`), tell me and propose how to keep the `/nexurity-&lt;name&gt;` form.
 - [ ] Check whether a subagent can launch other subagents. If not, all orchestration happens in the main thread (commands and SKILL.md).
 - [ ] **Git is optional.** Every Git operation in this prompt must also work without Git. Write the logic once in `scripts/sources.py` (Python standard library only: `urllib`, `tarfile`, `zipfile`, `json`), used in this stage and again in stage 4b:
   - **Git installed**: `git clone --depth 1`, then read the commit with `git rev-parse HEAD`.
@@ -557,11 +558,11 @@ Target tree (adapt it if the documentation requires):
 │   ├── verifier.md
 │   └── report-writer.md          # writes the text, never the Markdown file
 ├── commands/
-│   ├── audit.md                  # full wizard
-│   ├── audit-quick.md            # 1 auto-routed hunter + 1 verifier
-│   ├── audit-diff.md             # review of a diff or PR
-│   ├── incident.md               # incident response
-│   ├── report.md                 # regenerates the Markdown report from an existing findings.json
+│   ├── nexurity-audit.md         # full wizard
+│   ├── nexurity-audit-quick.md   # 1 auto-routed hunter + 1 verifier
+│   ├── nexurity-audit-diff.md    # review of a diff or PR
+│   ├── nexurity-incident.md      # incident response
+│   ├── nexurity-report.md        # regenerates the Markdown report from an existing findings.json
 │   └── nexurity-update.md        # checks for and applies updates (stage 4b)
 ├── schemas/
 │   ├── findings.schema.json      # derived from Cloudflare's report-schema.json
@@ -599,9 +600,9 @@ Target tree (adapt it if the documentation requires):
 - [ ] Install the plugin **globally**: add `~/nexurity/` as a local marketplace, then install `nexurity` at **user scope** (for example `/plugin marketplace add ~/nexurity` then `/plugin install nexurity@nexurity`; the documentation gives the exact syntax). Never at project scope.
 - [ ] After any later change to `~/nexurity/`, update the installed plugin with the mechanism described in the documentation, then check that the change is live.
 
-**End-of-stage check**: tree, then open Claude Code **in another folder** (for example `/tmp`) and check that the plugin loads there: `/audit` visible, agents listed. Wait for my go-ahead.
+**End-of-stage check**: tree, then open Claude Code **in another folder** (for example `/tmp`) and check that the plugin loads there: `/nexurity-audit` visible, agents listed. Wait for my go-ahead.
 
-## 3. Stage 3: start-up wizard (`/audit` and `/incident`)
+## 3. Stage 3: start-up wizard (`/nexurity-audit` and `/nexurity-incident`)
 
 The wizard uses **`AskUserQuestion`** in the main thread (clickable choices, always with an "Other" option). Respect the tool's limits: group as many questions as allowed per screen, and make each screen depend on the previous answers.
 
@@ -627,26 +628,27 @@ The wizard uses **`AskUserQuestion`** in the main thread (clickable choices, alw
 **Screen 5 · Confirmation**
 - Full recap, then: "The client has given written authorisation. Start?" → Yes · Edit · Cancel
 
-**`/incident`, short wizard**
+**`/nexurity-incident`, short wizard**
 - Symptom: defaced website · suspicious redirects · spam being sent · unknown files · hosting provider alert · other
 - Suspected period: 24 h · 7 days · 30 days · specific date
 - Access: SSH root · sudo · regular user · logs provided manually
 - Is the website still online? · Time of awareness (date and time, for the 72-hour GDPR notification deadline)
 
 **Additional points**
-- [ ] Answers are saved in `audit-config.json`. `/audit --resume &lt;REF&gt;` re-runs an identical engagement and goes straight to confirmation.
+- [ ] Every Nexurity command starts with `nexurity-`: no command named `/audit`, `/incident` or `/report` on its own.
+- [ ] Answers are saved in `audit-config.json`. `/nexurity-audit --resume &lt;REF&gt;` re-runs an identical engagement and goes straight to confirmation.
 - [ ] Client profiles `~/.nexurity/profiles/&lt;client&gt;.json` (stack, host, URL, access) to prefill the screens. The folder starts empty: a profile is created only from a real engagement, with my approval.
 - [ ] Non-interactive mode: if `--config &lt;file&gt;` is provided (CI, scheduled task), no question is asked.
 - [ ] During an audit, if a decision is needed (missing tool, access denied), ask instead of guessing.
 
-**End-of-stage check**: run `/audit` as a dry run and show me each screen. Wait for my go-ahead.
+**End-of-stage check**: run `/nexurity-audit` as a dry run and show me each screen. Wait for my go-ahead.
 
 ## 4. Stage 4: safeguards (`hooks/hooks.json` + `scripts/guard.py`)
 
 The plugin is installed globally, so its hook runs in **every** Claude Code session. It must never get in the way of normal work:
 - [ ] If `~/audits/.engagement-active` does not exist, the hook allows everything at once, without reading anything else.
 - [ ] `~/audits/.engagement-active` contains the REF, the target path and the **session ID** that started the engagement (from the hook's input). The rules below only apply to that session; other sessions, in other projects, are never blocked.
-- [ ] The file is removed at the end of the engagement, including when it is cancelled or fails. `/audit --close &lt;REF&gt;` removes a file left behind by an interrupted session.
+- [ ] The file is removed at the end of the engagement, including when it is cancelled or fails. `/nexurity-audit --close &lt;REF&gt;` removes a file left behind by an interrupted session.
 - [ ] `PreToolUse` hook active **only during an engagement**, in the session that started it:
   - `Edit`/`Write`: allowed only in `~/audits/&lt;client&gt;/&lt;REF&gt;/`, refused everywhere else, and in particular in the target.
   - `Bash` (local or `ssh host '…'`): **allowlist** of read-only commands: `cat`, `head`, `tail`, `less`, `grep`, `rg`, `find`, `ls`, `stat`, `wc`, `sha256sum`, `zcat`, `zgrep`, `journalctl`, `last`, `lastb`, `ss -tulpn`, `ps`, `crontab -l`, `systemctl list-*`, `systemctl status`, `dpkg -l`, `rpm -qa`, `apt list --upgradable`, `nginx -T`, `apachectl -S`, `php -i`, `php -m`, `docker ps`, `docker inspect`, `lynis audit system`, `semgrep`, `composer audit`, `npm audit`, `pip-audit`, `cargo audit`, `gitleaks`, `testssl.sh`, `curl -sI` (headers only), `dig`, `openssl s_client`. Everything else is refused with an explicit message. `&gt;` and `&gt;&gt;` redirections are only allowed into the engagement folder.
@@ -659,7 +661,7 @@ The plugin is installed globally, so its hook runs in **every** Claude Code sess
 
 ## 4b. Stage 4b: update check on every new audit
 
-**Every time** `/audit`, `/audit-quick`, `/audit-diff` or `/incident` is launched, before the wizard, Nexurity checks whether its sources have changed.
+**Every time** `/nexurity-audit`, `/nexurity-audit-quick`, `/nexurity-audit-diff` or `/nexurity-incident` is launched, before the wizard, Nexurity checks whether its sources have changed.
 
 **What is checked (`scripts/check_updates.py`)**
 - [ ] **Third-party skills and sources** in `~/.nexurity/sources.lock.json`: read the remote commit and latest tag (`git ls-remote` if Git is installed, otherwise the GitHub API: `/commits/&lt;branch&gt;`, `/tags`), then compare them with the reference ones. For the gist, compare the latest revision. Summaries of changes come from `git log` or from the API's `/compare/&lt;old&gt;...&lt;new&gt;`.
@@ -705,7 +707,7 @@ The plugin is installed globally, so its hook runs in **every** Claude Code sess
 - Live website → `recon-site` + `hunter-site-passive` (headers, TLS, cookies, DNS/SPF/DKIM/DMARC, well-known exposed files such as `.git/` or `.env` checked with a single HEAD/GET request, visible versions)
 - `audit-quick` → a single hunter, chosen by routing, + one verifier, no CodeQL
 
-**Incident mode (`/incident`)**
+**Incident mode (`/nexurity-incident`)**
 1. `preserve_evidence.sh`: copy the relevant logs and files into `evidence/`, then `SHA-256SUMS`, **before any analysis**.
 2. `triage_logs.py`: pre-filtering (POSTs to unknown files, `eval`/`base64_decode`/`assert`, upload paths executing PHP, IP spikes, 200 responses on abnormal URLs, admin logins, SSH failures). Only the extracts go to the agents, never the full logs.
 3. In parallel: `forensic-logs` (timeline, entry point), `forensic-files` (files modified during the period, web shells, core integrity compared with the official CMS release), `forensic-persistence` (crons, `authorized_keys`, system and application accounts, added modules).
@@ -714,7 +716,7 @@ The plugin is installed globally, so its hook runs in **every** Claude Code sess
 
 **Rating: CVSS 4.0 only.** Base score + full vector (`CVSS:4.0/AV:…`). Severity thresholds are in `SEVERITY.md`: critical ≥ 9.0 · high ≥ 7.0 · medium ≥ 4.0 · low ≥ 0.1 · info. Severity may be adjusted for business impact, with a justification. If a source provides CVSS 3.1, recompute it in 4.0.
 
-**End-of-stage check**: list of agents with their tools, `ROUTING.md`, and a dry run of `/audit-quick` on a small test folder. Wait for my go-ahead.
+**End-of-stage check**: list of agents with their tools, `ROUTING.md`, and a dry run of `/nexurity-audit-quick` on a small test folder. Wait for my go-ahead.
 
 ## 6. Stage 6: report generation (`render_report.py`)
 
@@ -727,8 +729,8 @@ The plugin is installed globally, so its hook runs in **every** Claude Code sess
 - [ ] Table of contents and links to findings (`V-01`, `I-01`): anchors are computed from the final headings with GitHub's slug rules.
 - [ ] The report's "Approach" and "Tools" text reflects **what was actually done** in the engagement, read from `log.md`. It never mentions a test that did not take place.
 - [ ] Malicious URLs and domains are defanged (`hxxp`, `[.]`) and secrets masked.
-- [ ] The result is **a single Markdown file** (`report.md`), with no image and no local dependency. If Pandoc is installed, `/report &lt;REF&gt; --pdf` or `--docx` also exports it to PDF or Word; without Pandoc, say so and keep the Markdown.
-- [ ] `/report &lt;REF&gt;` command: regenerates the Markdown report from the JSON (after a manual fix to the JSON, for example).
+- [ ] The result is **a single Markdown file** (`report.md`), with no image and no local dependency. If Pandoc is installed, `/nexurity-report &lt;REF&gt; --pdf` or `--docx` also exports it to PDF or Word; without Pandoc, say so and keep the Markdown.
+- [ ] `/nexurity-report &lt;REF&gt;` command: regenerates the Markdown report from the JSON (after a manual fix to the JSON, for example).
 
 **Tests**
 - A test fixture `tests/findings.json` (never used as a template) with booby-trapped findings: title `&lt;/h3&gt;&lt;script&gt;alert(1)&lt;/script&gt;`, title `[click](https://evil.example) ![x](https://evil.example/t.png)`, category `A | B | C` and evidence containing ```` ``` ```` followed by `# Fake heading` and `&lt;img src=x onerror=alert(1)&gt;`. The report must display all of it as text: no link, no image, no extra column, no heading, the code block stays closed only where the script closes it.
@@ -1235,11 +1237,11 @@ Start with stage 1.<!-- PROMPT:END --></pre><button class="copy" type="button" d
       <p class="muted">Each stage ends with a check you review. Reply "go ahead" to continue, or ask for changes first.</p>
       <ol class="stages">
         <li><span class="n">Stage 1</span><b>Documentation and sources</b><span>Checks the current Claude Code plugin format, fetches the ten sources read-only (with Git, or as archives without it), records their licences and exact versions.</span><span class="gate"><strong>You approve:</strong> <code>NOTICE.md</code>, the sources summary and the list of missing tools.</span></li>
-        <li><span class="n">Stage 2</span><b>Plugin skeleton</b><span>Creates the folders, commands, agents and schemas, then installs the plugin globally, for your user account.</span><span class="gate"><strong>You approve:</strong> the tree and that <code>/audit</code> appears in Claude Code, opened in another folder.</span></li>
-        <li><span class="n">Stage 3</span><b>Start-up wizard</b><span>Builds the clickable question screens for <code>/audit</code> and <code>/incident</code>.</span><span class="gate"><strong>You approve:</strong> a dry run of every screen.</span></li>
+        <li><span class="n">Stage 2</span><b>Plugin skeleton</b><span>Creates the folders, commands, agents and schemas, then installs the plugin globally, for your user account.</span><span class="gate"><strong>You approve:</strong> the tree and that <code>/nexurity-audit</code> appears in Claude Code, opened in another folder.</span></li>
+        <li><span class="n">Stage 3</span><b>Start-up wizard</b><span>Builds the clickable question screens for <code>/nexurity-audit</code> and <code>/nexurity-incident</code>.</span><span class="gate"><strong>You approve:</strong> a dry run of every screen.</span></li>
         <li><span class="n">Stage 4</span><b>Safeguards</b><span>Adds the hook that only allows read-only commands during an engagement, on your machine and over SSH.</span><span class="gate"><strong>You approve:</strong> the results of 30 allow/deny tests, including bypass attempts.</span></li>
         <li><span class="n">Stage 4b</span><b>Update check</b><span>Before every audit, compares sources and tools with the recorded versions and asks before updating anything.</span><span class="gate"><strong>You approve:</strong> a simulated update and the <code>/nexurity-update</code> flow.</span></li>
-        <li><span class="n">Stage 5</span><b>Pipeline and agents</b><span>Recon, scanners, hunters in parallel, independent verifier, incident forensics.</span><span class="gate"><strong>You approve:</strong> the agents, the routing rules and a dry run of <code>/audit-quick</code>.</span></li>
+        <li><span class="n">Stage 5</span><b>Pipeline and agents</b><span>Recon, scanners, hunters in parallel, independent verifier, incident forensics.</span><span class="gate"><strong>You approve:</strong> the agents, the routing rules and a dry run of <code>/nexurity-audit-quick</code>.</span></li>
         <li><span class="n">Stage 6</span><b>Report generation</b><span>Turns findings into the Markdown report, computes the score and counts, and escapes every value from the target.</span><span class="gate"><strong>You approve:</strong> a sample report and the escaping tests.</span></li>
         <li><span class="n">Stage 7</span><b>Trials</b><span>Runs Nexurity against deliberately vulnerable targets: OWASP Juice Shop, DVWA, a misconfigured server and a fake incident.</span><span class="gate"><strong>You review:</strong> the reports, false positives, missed flaws and token cost per mode.</span></li>
         <li class="later"><span class="n">Stage 8 · later</span><b>Continuous integration</b><span>A GitHub Action that reviews pull requests and comments with confirmed findings.</span></li>
@@ -1248,7 +1250,7 @@ Start with stage 1.<!-- PROMPT:END --></pre><button class="copy" type="button" d
 
     <section id="first">
       <div class="sec-head"><span class="k">After installation</span><h2>Your first audit</h2></div>
-      <p>In any project, type <code>/audit</code>. Nexurity first checks for updates to its sources and tools, then opens the wizard.</p>
+      <p>In any project, type <code>/nexurity-audit</code>. Nexurity first checks for updates to its sources and tools, then opens the wizard.</p>
       <div class="tbl"><table>
         <thead><tr><th>Screen</th><th>What you choose</th></tr></thead>
         <tbody>
@@ -1274,13 +1276,13 @@ Start with stage 1.<!-- PROMPT:END --></pre><button class="copy" type="button" d
       <div class="tbl"><table>
         <thead><tr><th>Command</th><th>What it does</th></tr></thead>
         <tbody>
-          <tr><td><code>/audit</code></td><td>Full audit of code, a server or a live website, with the wizard</td></tr>
-          <tr><td><code>/audit-quick</code></td><td>One hunter chosen automatically and one verifier, for a fast check</td></tr>
-          <tr><td><code>/audit-diff</code></td><td>Reviews a diff or pull request</td></tr>
-          <tr><td><code>/incident</code></td><td>Investigates a suspected hack: preserves evidence, reads the logs, rebuilds the timeline</td></tr>
-          <tr><td><code>/report &lt;REF&gt;</code></td><td>Regenerates the Markdown report from an engagement's findings</td></tr>
-          <tr><td><code>/audit --resume &lt;REF&gt;</code></td><td>Re-runs an engagement with the same answers</td></tr>
-          <tr><td><code>/audit --close &lt;REF&gt;</code></td><td>Closes an engagement left open by an interrupted session</td></tr>
+          <tr><td><code>/nexurity-audit</code></td><td>Full audit of code, a server or a live website, with the wizard</td></tr>
+          <tr><td><code>/nexurity-audit-quick</code></td><td>One hunter chosen automatically and one verifier, for a fast check</td></tr>
+          <tr><td><code>/nexurity-audit-diff</code></td><td>Reviews a diff or pull request</td></tr>
+          <tr><td><code>/nexurity-incident</code></td><td>Investigates a suspected hack: preserves evidence, reads the logs, rebuilds the timeline</td></tr>
+          <tr><td><code>/nexurity-report &lt;REF&gt;</code></td><td>Regenerates the Markdown report from an engagement's findings</td></tr>
+          <tr><td><code>/nexurity-audit --resume &lt;REF&gt;</code></td><td>Re-runs an engagement with the same answers</td></tr>
+          <tr><td><code>/nexurity-audit --close &lt;REF&gt;</code></td><td>Closes an engagement left open by an interrupted session</td></tr>
           <tr><td><code>/nexurity-update</code></td><td>Reviews and applies updates to sources and tools</td></tr>
         </tbody>
       </table></div>
@@ -1306,7 +1308,7 @@ Start with stage 1.<!-- PROMPT:END --></pre><button class="copy" type="button" d
         <details><summary>Claude Code moved to the next stage without asking</summary><div class="ans"><p>Remind it: "Stop. PROMPT.md says to wait for my go-ahead at the end of each stage." Then ask it to show the checks for the stage it skipped.</p></div></details>
         <details><summary>A tool is missing during an audit</summary><div class="ans"><p>Nexurity asks whether to install it, continue without it or cancel. The report's "Tools" section only lists what actually ran.</p></div></details>
         <details><summary>The update check is slow or I'm offline</summary><div class="ans"><p>The check stops after 15 seconds and the audit continues. The engagement log notes "updates not checked". You can turn the check off with <code>"check_updates": false</code> in <code>~/.nexurity/config.json</code>.</p></div></details>
-        <details><summary>A command was blocked during an audit</summary><div class="ans"><p>That's the safeguard hook. Only read-only commands are allowed while an engagement is active, and only in the session that started it: your other sessions are never blocked. If an interrupted audit left the engagement open, run <code>/audit --close &lt;REF&gt;</code>. If a legitimate read command is missing from the allowlist, add it in <code>~/nexurity/scripts/guard.py</code>, re-run its tests and update the plugin.</p></div></details>
+        <details><summary>A command was blocked during an audit</summary><div class="ans"><p>That's the safeguard hook. Only read-only commands are allowed while an engagement is active, and only in the session that started it: your other sessions are never blocked. If an interrupted audit left the engagement open, run <code>/nexurity-audit --close &lt;REF&gt;</code>. If a legitimate read command is missing from the allowlist, add it in <code>~/nexurity/scripts/guard.py</code>, re-run its tests and update the plugin.</p></div></details>
       </div>
     </section>
 

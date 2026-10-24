@@ -33,6 +33,7 @@ Work **in stages**. At the end of each stage, show me what was created, run the 
 
 - [ ] Check the current official Claude Code documentation for the exact format of: `.claude-plugin/plugin.json`, `marketplace.json`, agent frontmatter (`name`, `description`, `tools`, `model`), slash commands, skills (`SKILL.md`), `hooks/hooks.json` (`PreToolUse` event, blocking exit code) and the `AskUserQuestion` tool (limits: questions per call, options per question). If anything differs from this prompt, **the documentation wins**: tell me.
 - [ ] Check how a plugin is installed at **user scope** from a local marketplace, where Claude Code copies it, how it is updated after a change to its source folder, and the name of the variable that gives the plugin's installed path.
+- [ ] Check how a plugin's slash commands are named once installed. Every Nexurity command must be typed as `/nexurity-<name>` (`/nexurity-audit`, `/nexurity-incident`…): if Claude Code adds a plugin prefix (such as `/nexurity:…`), tell me and propose how to keep the `/nexurity-<name>` form.
 - [ ] Check whether a subagent can launch other subagents. If not, all orchestration happens in the main thread (commands and SKILL.md).
 - [ ] **Git is optional.** Every Git operation in this prompt must also work without Git. Write the logic once in `scripts/sources.py` (Python standard library only: `urllib`, `tarfile`, `zipfile`, `json`), used in this stage and again in stage 4b:
   - **Git installed**: `git clone --depth 1`, then read the commit with `git rev-parse HEAD`.
@@ -80,11 +81,11 @@ Target tree (adapt it if the documentation requires):
 │   ├── verifier.md
 │   └── report-writer.md          # writes the text, never the Markdown file
 ├── commands/
-│   ├── audit.md                  # full wizard
-│   ├── audit-quick.md            # 1 auto-routed hunter + 1 verifier
-│   ├── audit-diff.md             # review of a diff or PR
-│   ├── incident.md               # incident response
-│   ├── report.md                 # regenerates the Markdown report from an existing findings.json
+│   ├── nexurity-audit.md         # full wizard
+│   ├── nexurity-audit-quick.md   # 1 auto-routed hunter + 1 verifier
+│   ├── nexurity-audit-diff.md    # review of a diff or PR
+│   ├── nexurity-incident.md      # incident response
+│   ├── nexurity-report.md        # regenerates the Markdown report from an existing findings.json
 │   └── nexurity-update.md        # checks for and applies updates (stage 4b)
 ├── schemas/
 │   ├── findings.schema.json      # derived from Cloudflare's report-schema.json
@@ -122,9 +123,9 @@ Target tree (adapt it if the documentation requires):
 - [ ] Install the plugin **globally**: add `~/nexurity/` as a local marketplace, then install `nexurity` at **user scope** (for example `/plugin marketplace add ~/nexurity` then `/plugin install nexurity@nexurity`; the documentation gives the exact syntax). Never at project scope.
 - [ ] After any later change to `~/nexurity/`, update the installed plugin with the mechanism described in the documentation, then check that the change is live.
 
-**End-of-stage check**: tree, then open Claude Code **in another folder** (for example `/tmp`) and check that the plugin loads there: `/audit` visible, agents listed. Wait for my go-ahead.
+**End-of-stage check**: tree, then open Claude Code **in another folder** (for example `/tmp`) and check that the plugin loads there: `/nexurity-audit` visible, agents listed. Wait for my go-ahead.
 
-## 3. Stage 3: start-up wizard (`/audit` and `/incident`)
+## 3. Stage 3: start-up wizard (`/nexurity-audit` and `/nexurity-incident`)
 
 The wizard uses **`AskUserQuestion`** in the main thread (clickable choices, always with an "Other" option). Respect the tool's limits: group as many questions as allowed per screen, and make each screen depend on the previous answers.
 
@@ -150,26 +151,27 @@ The wizard uses **`AskUserQuestion`** in the main thread (clickable choices, alw
 **Screen 5 · Confirmation**
 - Full recap, then: "The client has given written authorisation. Start?" → Yes · Edit · Cancel
 
-**`/incident`, short wizard**
+**`/nexurity-incident`, short wizard**
 - Symptom: defaced website · suspicious redirects · spam being sent · unknown files · hosting provider alert · other
 - Suspected period: 24 h · 7 days · 30 days · specific date
 - Access: SSH root · sudo · regular user · logs provided manually
 - Is the website still online? · Time of awareness (date and time, for the 72-hour GDPR notification deadline)
 
 **Additional points**
-- [ ] Answers are saved in `audit-config.json`. `/audit --resume <REF>` re-runs an identical engagement and goes straight to confirmation.
+- [ ] Every Nexurity command starts with `nexurity-`: no command named `/audit`, `/incident` or `/report` on its own.
+- [ ] Answers are saved in `audit-config.json`. `/nexurity-audit --resume <REF>` re-runs an identical engagement and goes straight to confirmation.
 - [ ] Client profiles `~/.nexurity/profiles/<client>.json` (stack, host, URL, access) to prefill the screens. The folder starts empty: a profile is created only from a real engagement, with my approval.
 - [ ] Non-interactive mode: if `--config <file>` is provided (CI, scheduled task), no question is asked.
 - [ ] During an audit, if a decision is needed (missing tool, access denied), ask instead of guessing.
 
-**End-of-stage check**: run `/audit` as a dry run and show me each screen. Wait for my go-ahead.
+**End-of-stage check**: run `/nexurity-audit` as a dry run and show me each screen. Wait for my go-ahead.
 
 ## 4. Stage 4: safeguards (`hooks/hooks.json` + `scripts/guard.py`)
 
 The plugin is installed globally, so its hook runs in **every** Claude Code session. It must never get in the way of normal work:
 - [ ] If `~/audits/.engagement-active` does not exist, the hook allows everything at once, without reading anything else.
 - [ ] `~/audits/.engagement-active` contains the REF, the target path and the **session ID** that started the engagement (from the hook's input). The rules below only apply to that session; other sessions, in other projects, are never blocked.
-- [ ] The file is removed at the end of the engagement, including when it is cancelled or fails. `/audit --close <REF>` removes a file left behind by an interrupted session.
+- [ ] The file is removed at the end of the engagement, including when it is cancelled or fails. `/nexurity-audit --close <REF>` removes a file left behind by an interrupted session.
 - [ ] `PreToolUse` hook active **only during an engagement**, in the session that started it:
   - `Edit`/`Write`: allowed only in `~/audits/<client>/<REF>/`, refused everywhere else, and in particular in the target.
   - `Bash` (local or `ssh host '…'`): **allowlist** of read-only commands: `cat`, `head`, `tail`, `less`, `grep`, `rg`, `find`, `ls`, `stat`, `wc`, `sha256sum`, `zcat`, `zgrep`, `journalctl`, `last`, `lastb`, `ss -tulpn`, `ps`, `crontab -l`, `systemctl list-*`, `systemctl status`, `dpkg -l`, `rpm -qa`, `apt list --upgradable`, `nginx -T`, `apachectl -S`, `php -i`, `php -m`, `docker ps`, `docker inspect`, `lynis audit system`, `semgrep`, `composer audit`, `npm audit`, `pip-audit`, `cargo audit`, `gitleaks`, `testssl.sh`, `curl -sI` (headers only), `dig`, `openssl s_client`. Everything else is refused with an explicit message. `>` and `>>` redirections are only allowed into the engagement folder.
@@ -182,7 +184,7 @@ The plugin is installed globally, so its hook runs in **every** Claude Code sess
 
 ## 4b. Stage 4b: update check on every new audit
 
-**Every time** `/audit`, `/audit-quick`, `/audit-diff` or `/incident` is launched, before the wizard, Nexurity checks whether its sources have changed.
+**Every time** `/nexurity-audit`, `/nexurity-audit-quick`, `/nexurity-audit-diff` or `/nexurity-incident` is launched, before the wizard, Nexurity checks whether its sources have changed.
 
 **What is checked (`scripts/check_updates.py`)**
 - [ ] **Third-party skills and sources** in `~/.nexurity/sources.lock.json`: read the remote commit and latest tag (`git ls-remote` if Git is installed, otherwise the GitHub API: `/commits/<branch>`, `/tags`), then compare them with the reference ones. For the gist, compare the latest revision. Summaries of changes come from `git log` or from the API's `/compare/<old>...<new>`.
@@ -228,7 +230,7 @@ The plugin is installed globally, so its hook runs in **every** Claude Code sess
 - Live website → `recon-site` + `hunter-site-passive` (headers, TLS, cookies, DNS/SPF/DKIM/DMARC, well-known exposed files such as `.git/` or `.env` checked with a single HEAD/GET request, visible versions)
 - `audit-quick` → a single hunter, chosen by routing, + one verifier, no CodeQL
 
-**Incident mode (`/incident`)**
+**Incident mode (`/nexurity-incident`)**
 1. `preserve_evidence.sh`: copy the relevant logs and files into `evidence/`, then `SHA-256SUMS`, **before any analysis**.
 2. `triage_logs.py`: pre-filtering (POSTs to unknown files, `eval`/`base64_decode`/`assert`, upload paths executing PHP, IP spikes, 200 responses on abnormal URLs, admin logins, SSH failures). Only the extracts go to the agents, never the full logs.
 3. In parallel: `forensic-logs` (timeline, entry point), `forensic-files` (files modified during the period, web shells, core integrity compared with the official CMS release), `forensic-persistence` (crons, `authorized_keys`, system and application accounts, added modules).
@@ -237,7 +239,7 @@ The plugin is installed globally, so its hook runs in **every** Claude Code sess
 
 **Rating: CVSS 4.0 only.** Base score + full vector (`CVSS:4.0/AV:…`). Severity thresholds are in `SEVERITY.md`: critical ≥ 9.0 · high ≥ 7.0 · medium ≥ 4.0 · low ≥ 0.1 · info. Severity may be adjusted for business impact, with a justification. If a source provides CVSS 3.1, recompute it in 4.0.
 
-**End-of-stage check**: list of agents with their tools, `ROUTING.md`, and a dry run of `/audit-quick` on a small test folder. Wait for my go-ahead.
+**End-of-stage check**: list of agents with their tools, `ROUTING.md`, and a dry run of `/nexurity-audit-quick` on a small test folder. Wait for my go-ahead.
 
 ## 6. Stage 6: report generation (`render_report.py`)
 
@@ -250,8 +252,8 @@ The plugin is installed globally, so its hook runs in **every** Claude Code sess
 - [ ] Table of contents and links to findings (`V-01`, `I-01`): anchors are computed from the final headings with GitHub's slug rules.
 - [ ] The report's "Approach" and "Tools" text reflects **what was actually done** in the engagement, read from `log.md`. It never mentions a test that did not take place.
 - [ ] Malicious URLs and domains are defanged (`hxxp`, `[.]`) and secrets masked.
-- [ ] The result is **a single Markdown file** (`report.md`), with no image and no local dependency. If Pandoc is installed, `/report <REF> --pdf` or `--docx` also exports it to PDF or Word; without Pandoc, say so and keep the Markdown.
-- [ ] `/report <REF>` command: regenerates the Markdown report from the JSON (after a manual fix to the JSON, for example).
+- [ ] The result is **a single Markdown file** (`report.md`), with no image and no local dependency. If Pandoc is installed, `/nexurity-report <REF> --pdf` or `--docx` also exports it to PDF or Word; without Pandoc, say so and keep the Markdown.
+- [ ] `/nexurity-report <REF>` command: regenerates the Markdown report from the JSON (after a manual fix to the JSON, for example).
 
 **Tests**
 - A test fixture `tests/findings.json` (never used as a template) with booby-trapped findings: title `</h3><script>alert(1)</script>`, title `[click](https://evil.example) ![x](https://evil.example/t.png)`, category `A | B | C` and evidence containing ```` ``` ```` followed by `# Fake heading` and `<img src=x onerror=alert(1)>`. The report must display all of it as text: no link, no image, no extra column, no heading, the code block stays closed only where the script closes it.
