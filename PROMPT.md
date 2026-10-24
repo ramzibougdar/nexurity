@@ -142,8 +142,8 @@ The wizard uses **`AskUserQuestion`** in the main thread (clickable choices, alw
 
 **Screen 3 · Scope**
 - Areas (multiple choice): code vulnerabilities · dependencies · secrets · server/web configuration
-- Stack: auto-detect · PrestaShop · Laravel · Odoo · Shopify · other
 - Depth: quick · standard · thorough
+- No stack question: the stack (PrestaShop, Laravel, Odoo, Shopify or other) is always detected automatically by the recon (stage 5), after the wizard. The recap on screen 5 shows "Stack: detected automatically", and the detected stack is written in `log.md` and in the report.
 
 **Screen 4 · Client and report**
 - Client and project ("Other" or an existing profile)
@@ -161,7 +161,7 @@ The wizard uses **`AskUserQuestion`** in the main thread (clickable choices, alw
 **Additional points**
 - [ ] Every Nexurity command starts with `nexurity-`: no command named `/audit`, `/incident` or `/report` on its own.
 - [ ] Answers are saved in `audit-config.json`. `/nexurity-audit --resume <REF>` re-runs an identical engagement and goes straight to confirmation.
-- [ ] Client profiles `~/.nexurity/profiles/<client>.json` (stack, host, URL, access) to prefill the screens. The folder starts empty: a profile is created only from a real engagement, with my approval.
+- [ ] Client profiles `~/.nexurity/profiles/<client>.json` (host, URL, access) to prefill the screens. The folder starts empty: a profile is created only from a real engagement, with my approval.
 - [ ] Non-interactive mode: if `--config <file>` is provided (CI, scheduled task), no question is asked.
 - [ ] During an audit, if a decision is needed (missing tool, access denied), ask instead of guessing.
 
@@ -215,7 +215,7 @@ The plugin is installed globally, so its hook runs in **every** Claude Code sess
 
 **Common pipeline (in the main thread)**
 0. Update check (stage 4b) → wizard → `audit-config.json` → creation of the engagement folder and of `.engagement-active`.
-1. **Recon** (agent depending on type): languages, frameworks, versions, exposed surface → `recon.json`.
+1. **Recon** (agent depending on type): languages, frameworks, **stack** (detected automatically, never asked), versions, exposed surface → `recon.json`. Routing uses this detected stack.
 2. **Deterministic tools** run by the main thread, as per `TOOLS.md`: Semgrep, dependency audits, secret detection, Lynis, testssl.sh. Their results are **leads**, not verdicts. CodeQL stays **optional**: used only if it is installed AND I confirm that the code is open source or covered by a licence.
 3. **Hunters in parallel**, all launched in **a single message**. Each hunter receives `recon.json`, its leads and its coverage map, and returns only JSON that conforms to the schema.
 4. **Adversarial verification**: a fresh verifier **per batch** of candidates (grouped by file or by vulnerability class). It receives only the structured finding and the paths, and returns `confirmed`, `needs_validation` or `rejected` with its reasoning.
