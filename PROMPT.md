@@ -1,11 +1,3 @@
-# Claude Code prompt · Installing Nexurity
-
-> **Before you start the installation**
-> 1. Nothing to download: this prompt is all Claude Code needs. Open Claude Code in any folder: Nexurity is built in `~/nexurity/` and installed globally, for every project.
-> 2. Paste this whole prompt as your first message. The installation then runs from start to finish without asking you anything; read the install report at the end.
-
----
-
 You are going to build with me a Claude Code plugin called **`nexurity`**. **Nexurity** is my security audit assistant, which I use for my own projects and for my clients. It audits code, a server or a live website, or analyses an incident (hacked website), then produces a **Markdown client report** (`.md`). The structure of the two reports (audit report and incident report) is given in **appendices A and B** of this prompt: you need nothing else to build Nexurity.
 
 **Global installation.** Nexurity must work in every Claude Code session, whatever the project:
