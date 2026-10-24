@@ -42,12 +42,15 @@ The two templates are generic and carry the Nexurity identity by default. During
 
 ## Installation
 
-1. Clone this repository and open Claude Code in it:
-   ```bash
-   git clone https://github.com/ramzibougdar/nexurity.git
-   cd nexurity
-   claude
-   ```
+1. Get the kit, with either option:
+   - **With Git**: clone the repository.
+     ```bash
+     git clone https://github.com/ramzibougdar/nexurity.git
+     cd nexurity
+     ```
+   - **Without Git**: download [the ZIP](https://github.com/ramzibougdar/nexurity/archive/refs/heads/main.zip), unzip it and go into the `nexurity-main` folder.
+
+   Then open Claude Code in the folder: `claude`. Python 3 is required; Git, Node.js and Playwright are optional.
 2. If the reports must carry another company's identity, have its name, SVG logo, colours, fonts and contact details ready.
 3. In Claude Code, type: `Read PROMPT.md and follow it`.
 
@@ -55,6 +58,6 @@ Claude Code builds the plugin in eight stages and waits for your approval at the
 
 ## Third-party sources
 
-Nexurity draws on the methodology of several open-source projects (listed in `PROMPT.md`). They are cloned read-only during installation, their licences are recorded in `NOTICE.md`, and they are never redistributed in this repository.
+Nexurity draws on the methodology of several open-source projects (listed in `PROMPT.md`). They are fetched read-only during installation (cloned with Git, or downloaded as archives without it), their licences are recorded in `NOTICE.md`, and they are never redistributed in this repository.
 
 Some tools have licence restrictions. In particular, the CodeQL CLI requires a commercial licence to analyse closed-source code, so Nexurity only uses it when you confirm it is allowed.
