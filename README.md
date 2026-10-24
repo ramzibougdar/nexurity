@@ -41,7 +41,7 @@ PROMPT.md     # installation prompt for Claude Code, including the report struct
 1. Open Claude Code in any folder: `claude`. Python 3 is required; Git and Pandoc (PDF or Word export of the report) are optional.
 2. Open the installation guide, copy the prompt shown there (the content of `PROMPT.md`) and paste it into Claude Code as your first message.
 
-Claude Code builds the plugin in eight stages and waits for your approval at the end of each one. Nexurity is installed globally, for your user account, so it works in every project:
+Claude Code builds the plugin in eight stages, in one go, without asking you anything: each stage is checked automatically, and the results end up in an install report, `~/.nexurity/INSTALL-REPORT.md`. Pick a Claude Code permission mode that doesn't ask at every command (Shift+Tab) before pasting the prompt. Nexurity is installed globally, for your user account, so it works in every project:
 
 | Folder | What it holds |
 |---|---|
