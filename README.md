@@ -2,7 +2,7 @@
 
 Nexurity is a security audit assistant for [Claude Code](https://claude.com/claude-code). It audits a project's code, a server or a live website, or analyses a security incident, then produces a self-contained Markdown report (`.md`) ready to send to a client.
 
-This repository is the **installation kit**: Claude Code builds the Nexurity plugin step by step from `PROMPT.md`.
+Nothing to download: Claude Code builds the Nexurity plugin step by step from a single prompt, [`PROMPT.md`](PROMPT.md), which also defines the structure of both reports.
 
 **Installation guide:** open [`index.html`](index.html), or the GitHub Pages site once it is enabled for this repository.
 
@@ -31,28 +31,22 @@ Every audit starts with a wizard, checks whether its sources and tools have new 
 ## Repository contents
 
 ```
-index.html                             # installation guide (web page)
-PROMPT.md                              # installation prompt for Claude Code
-base/
-├── security-audit-template.md         # generic audit report template
-└── incident-report-template.md        # generic incident report template
+index.html    # installation guide (web page)
+PROMPT.md     # installation prompt for Claude Code, including the report structure
 ```
-
-The two templates are generic and carry the Nexurity identity by default. During installation, `/nexurity-setup` asks for the issuing company's name and contact details, then **creates the branded Markdown documents** from these base templates.
 
 ## Installation
 
-1. Get the kit, with either option:
-   - **With Git**: clone the repository.
-     ```bash
-     git clone https://github.com/ramzibougdar/nexurity.git
-     cd nexurity
-     ```
-   - **Without Git**: download [the ZIP](https://github.com/ramzibougdar/nexurity/archive/refs/heads/main.zip), unzip it and go into the `nexurity-main` folder.
-
-   Then open Claude Code in the folder: `claude`. Python 3 is required; Git and Pandoc (PDF or Word export of the report) are optional.
-2. If the reports must carry another company's identity, have its name and contact details ready.
-3. In Claude Code, type: `Read PROMPT.md and follow it`.
+1. Create an empty folder for the plugin and open Claude Code in it:
+   ```bash
+   mkdir nexurity && cd nexurity && claude
+   ```
+   Python 3 is required; Git and Pandoc (PDF or Word export of the report) are optional.
+2. In Claude Code, type:
+   ```
+   Read https://raw.githubusercontent.com/ramzibougdar/nexurity/main/PROMPT.md and follow it
+   ```
+   Or paste the content of `PROMPT.md`.
 
 Claude Code builds the plugin in eight stages and waits for your approval at the end of each one.
 
