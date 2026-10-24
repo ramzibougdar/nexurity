@@ -225,7 +225,8 @@ The plugin is installed globally, so its hook runs in **every** Claude Code sess
 5. **Deduplication** → `findings.json` (statuses `Open` · `To confirm` · `Fixed`) → `report-writer` writes the summary, top three priorities, business impacts and action plan in plain language for management → `render_report.py` → `report.md`.
 
 **Routing (`ROUTING.md`)**
-- PHP / JS / Node / front end → `hunter-web` + `hunter-deps-secrets`
+- PHP → `hunter-php` + `hunter-web` + `hunter-deps-secrets`
+- JS / Node / front end → `hunter-web` + `hunter-deps-secrets`
 - Odoo / Python → `hunter-web` + `hunter-deps-secrets` (Python rules)
 - Solana / Anchor / Rust → `hunter-solana` + `hunter-deps-secrets`
 - `wrangler.toml` present → + `hunter-infra-cloudflare`
