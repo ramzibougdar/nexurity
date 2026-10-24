@@ -144,7 +144,7 @@ The wizard uses **`AskUserQuestion`** in the main thread (clickable choices, alw
 **Screen 3 · Scope**
 - Areas (multiple choice): code vulnerabilities · dependencies · secrets · server/web configuration
 - Depth: quick · standard · thorough
-- No stack question: the stack (PrestaShop, Laravel, Odoo, Shopify or other) is always detected automatically by the recon (stage 5), after the wizard. The recap on screen 5 shows "Stack: detected automatically", and the detected stack is written in `log.md` and in the report.
+- No stack question: the stack is always detected automatically by the recon (stage 5), after the wizard. The recap on screen 5 shows "Stack: detected automatically", and the detected stack is written in `log.md` and in the report.
 
 **Screen 4 · Client and report**
 - Client and project ("Other" or an existing profile)
@@ -225,8 +225,7 @@ The plugin is installed globally, so its hook runs in **every** Claude Code sess
 5. **Deduplication** → `findings.json` (statuses `Open` · `To confirm` · `Fixed`) → `report-writer` writes the summary, top three priorities, business impacts and action plan in plain language for management → `render_report.py` → `report.md`.
 
 **Routing (`ROUTING.md`)**
-- PHP / PrestaShop / Laravel → `hunter-php` + `hunter-web` + `hunter-deps-secrets`
-- JS / Node / front end → `hunter-web` + `hunter-deps-secrets`
+- PHP / JS / Node / front end → `hunter-web` + `hunter-deps-secrets`
 - Odoo / Python → `hunter-web` + `hunter-deps-secrets` (Python rules)
 - Solana / Anchor / Rust → `hunter-solana` + `hunter-deps-secrets`
 - `wrangler.toml` present → + `hunter-infra-cloudflare`
