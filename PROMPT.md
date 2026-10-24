@@ -2,7 +2,7 @@
 
 > **Before you start the installation**
 > 1. Nothing to download: this prompt is all Claude Code needs. Create an empty folder for the plugin and open Claude Code in it (`mkdir nexurity && cd nexurity && claude`).
-> 2. Type: "Read https://raw.githubusercontent.com/ramzibougdar/nexurity/main/PROMPT.md and follow it", or paste everything below the line.
+> 2. Paste this whole prompt as your first message.
 
 ---
 

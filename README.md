@@ -31,8 +31,9 @@ Every audit starts with a wizard, checks whether its sources and tools have new 
 ## Repository contents
 
 ```
-index.html    # installation guide (web page)
+index.html    # installation guide (web page), shows the prompt to copy
 PROMPT.md     # installation prompt for Claude Code, including the report structure
+.github/      # Pages deployment; copies PROMPT.md into the guide
 ```
 
 ## Installation
@@ -42,11 +43,7 @@ PROMPT.md     # installation prompt for Claude Code, including the report struct
    mkdir nexurity && cd nexurity && claude
    ```
    Python 3 is required; Git and Pandoc (PDF or Word export of the report) are optional.
-2. In Claude Code, type:
-   ```
-   Read https://raw.githubusercontent.com/ramzibougdar/nexurity/main/PROMPT.md and follow it
-   ```
-   Or paste the content of `PROMPT.md`.
+2. Open the installation guide, copy the prompt shown there (the content of `PROMPT.md`) and paste it into Claude Code as your first message.
 
 Claude Code builds the plugin in eight stages and waits for your approval at the end of each one.
 
