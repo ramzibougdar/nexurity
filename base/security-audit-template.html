@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Security audit · [Client name]</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"%3E%3Crect width="32" height="32" rx="8" fill="%232346FF"/%3E%3Cg transform="translate%284 4%29 scale%28.375%29"%3E%3Crect x="8" y="10" width="12" height="44" rx="6" fill="%23fff"/%3E%3Crect x="44" y="10" width="12" height="44" rx="6" fill="%23fff"/%3E%3Ccircle cx="32" cy="32" r="7" fill="%23FFB000"/%3E%3C/g%3E%3C/svg%3E" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<!--
+  TEMPLATE · SECURITY AUDIT REPORT · NEXURITY · v2.0
+  ---------------------------------------------------
+  Self-contained single file: icon and logo are inline SVG, no assets/ folder needed.
+  Only the web fonts are loaded online (Arial fallback when offline).
+  Rating: CVSS 4.0 (base score + vector).
+
+  BRANDING (generic template): everything the issuer can customise is marked
+  BRAND: colour tokens and fonts in :root, the logo and name in the cover, the
+  icon and contact line in the footer, and the favicon. Defaults = Nexurity.
+
+  Any text taken from the audited code, logs or configuration MUST be HTML-escaped
+  (&lt; &gt; &amp; &quot;) before insertion, especially inside <pre>.
+
+  1. Replace the fields in square brackets [ … ].
+  2. Duplicate one <article class="finding"> block per vulnerability.
+     The data-severity attribute (critical | high | medium | low | info) drives
+     the counters, the score, the summary table and the filters: nothing to recompute by hand.
+     data-status: Open | Fixed | To confirm. "Fixed" and "To confirm" findings are
+     not counted in the security score.
+     data-area: free text (e.g. Modules, Server, Back office); findings sharing the same
+     value are grouped in the "Breakdown by area" block.
+  3. Printing: File > Print > A4, default margins, "background graphics" enabled.
+-->
+<style>
+:root{
+  /* BRAND · colour tokens and fonts */
+  --blue:#2346FF; --indigo:#0F1B3D; --paper:#E9EDF7; --slate:#4A5778; --amber:#FFB000;
+  --mist:#A9B4CF; --light-grey:#C3CBDF; --rule:#D5DBE8; --veil:#F4F6FB; --white:#fff;
+  /* Severity: --tone background, --tone-fg text on top of it */
+  --sev-critical:#7E0B18; --sev-critical-fg:var(--white);
+  --sev-high:#7E0B18; --sev-high-fg:var(--white);
+  --sev-medium:#F27438; --sev-medium-fg:var(--indigo);
+  --sev-low:var(--slate); --sev-low-fg:var(--white);
+  --sev-info:var(--slate); --sev-info-fg:var(--slate);
+  --font-heading:'Schibsted Grotesk',Arial,Helvetica,sans-serif; --font-body:'Schibsted Grotesk',Arial,Helvetica,sans-serif;
+  --font-mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:24px}
+body{margin:0;background:var(--paper);color:var(--indigo);font-family:var(--font-body);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:var(--blue);text-decoration:none}a:hover{color:var(--indigo);text-decoration:underline}
+h1,h2,h3,h4{font-family:var(--font-heading);color:var(--indigo);margin:0;letter-spacing:-0.025em;text-wrap:balance}
+p{margin:0;text-wrap:pretty}
+code{font-family:var(--font-mono);font-size:.84em;background:var(--paper);padding:1px 5px;border-radius:4px}
+.num{font-variant-numeric:lining-nums}
+
+/* Layout */
+.page{max-width:1180px;margin:0 auto;padding:0 40px 96px;display:grid;grid-template-columns:220px minmax(0,1fr);gap:48px}
+.content{display:flex;flex-direction:column;gap:28px;min-width:0}
+.eyebrow{font-family:var(--font-heading);font-weight:700;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--blue)}
+.card{background:var(--white);border-radius:14px;padding:36px;display:flex;flex-direction:column;gap:22px}
+.section-title{display:flex;flex-direction:column;gap:8px;border-bottom:1px solid var(--indigo);padding-bottom:18px}
+.section-title h2{font-weight:700;font-size:30px;line-height:1.1;letter-spacing:-0.035em}
+.label{font-family:var(--font-heading);font-weight:700;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--slate)}
+.muted{color:var(--slate);font-size:14px}
+
+/* Cover */
+.cover{background:var(--indigo);color:var(--white);position:relative;overflow:hidden;margin-bottom:40px}
+.cover-inner{max-width:1180px;margin:0 auto;padding:48px 40px 56px;position:relative;display:flex;flex-direction:column;gap:56px}
+.cover .pattern{position:absolute;right:0;bottom:0;width:58%;height:100%;pointer-events:none}
+.cover-top{display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:14px;color:var(--paper)}
+.brand svg{width:48px;height:48px;flex:none}
+.brand b{font-family:var(--font-heading);font-weight:700;font-size:38px;letter-spacing:-0.05em;line-height:.95;display:block}
+.confidential{font-family:var(--font-heading);font-weight:700;font-size:11px;letter-spacing:.12em;text-transform:uppercase;border:1px solid rgba(233,237,247,.45);border-radius:6px;padding:6px 10px;color:var(--paper)}
+.cover h1{color:var(--white);font-weight:700;font-size:clamp(38px,5.4vw,64px);line-height:1.02;letter-spacing:-0.04em;max-width:760px}
+.cover .eyebrow{color:var(--mist)}
+.cover .lede{font-size:18px;color:var(--light-grey);max-width:620px;margin-top:14px}
+.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:20px 28px;border-top:1px solid rgba(233,237,247,.22);padding-top:24px;position:relative;max-width:860px}
+.meta .label{color:var(--mist)}
+.meta div div:last-child{font-size:15px;color:var(--white);font-weight:600}
+
+/* Table of contents */
+.toc{position:sticky;top:24px;align-self:start;display:flex;flex-direction:column;gap:14px}
+.toc ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;border-top:1px solid var(--indigo)}
+.toc li a{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--rule);color:var(--indigo);font-size:14px;font-weight:600}
+.toc li a span{font-family:var(--font-heading);font-weight:700;font-size:12px;color:var(--slate);width:20px;padding-top:2px}
+.toc li a:hover,.toc li a.active{color:var(--indigo);text-decoration:none}
+.toc li a.active span{color:var(--blue)}
+.btn{font-family:var(--font-heading);font-weight:700;font-size:13px;border:1px solid var(--indigo);background:var(--white);color:var(--indigo);border-radius:8px;padding:10px 14px;cursor:pointer;text-align:left}
+.btn:hover{background:var(--indigo);color:var(--white)}
+
+/* Summary */
+.summary-grid{display:grid;grid-template-columns:260px minmax(0,1fr);gap:36px;align-items:start}
+.score{background:var(--paper);border-radius:14px;padding:26px;display:flex;flex-direction:column;gap:6px}
+.score-value{font-family:var(--font-heading);font-weight:700;font-size:84px;line-height:1;letter-spacing:-0.04em;color:var(--indigo)}
+.score-value small{font-size:22px;color:var(--slate);letter-spacing:0}
+.score-level{font-family:var(--font-heading);font-weight:700;font-size:18px;color:var(--indigo)}
+.gauge{height:8px;background:var(--white);border-radius:4px;overflow:hidden;margin:10px 0 4px}
+.gauge i{display:block;height:100%;background:var(--blue);border-radius:4px}
+.counters{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+.counter{border-top:3px solid var(--tone);padding-top:10px;display:flex;flex-direction:column;gap:2px}
+.counter b{font-family:var(--font-heading);font-weight:700;font-size:34px;line-height:1.05;color:var(--indigo);font-variant-numeric:tabular-nums}
+.counter span{font-size:13px;color:var(--slate)}
+.distribution{display:flex;height:12px;border-radius:6px;overflow:hidden;background:var(--rule);gap:2px;margin-top:4px}
+.distribution i{display:block;height:100%}
+.block .areas{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:0;border-top:1px solid var(--indigo)}
+.areas li{display:grid;grid-template-columns:160px minmax(0,1fr) 72px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid var(--rule);font-size:14.5px}
+.areas li>b{font-weight:600;color:var(--indigo)}
+.area-bar{display:flex;gap:2px;height:12px}
+.area-bar i{display:block;height:100%;border-radius:3px}
+.areas li>span{text-align:right;color:var(--slate);font-variant-numeric:tabular-nums}
+.priorities{display:flex;flex-direction:column;border-top:1px solid var(--indigo)}
+.priorities li{display:grid;grid-template-columns:36px minmax(0,1fr) auto;gap:12px;padding:13px 0;border-bottom:1px solid var(--rule);align-items:baseline}
+.priorities li>b{font-family:var(--font-heading);font-weight:700;color:var(--slate);font-size:14px}
+.priorities{list-style:none;margin:0;padding:0}
+
+/* Severity badges */
+.badge{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-heading);font-weight:700;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;padding:4px 9px 4px 8px;border-radius:6px;color:var(--tone-fg);background:var(--tone);white-space:nowrap;line-height:1.3}
+.badge::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.85}
+.badge.info{background:var(--white);box-shadow:inset 0 0 0 1px var(--light-grey)}
+[data-severity="critical"],.critical{--tone:var(--sev-critical);--tone-fg:var(--sev-critical-fg)}
+[data-severity="high"],.high{--tone:var(--sev-high);--tone-fg:var(--sev-high-fg)}
+[data-severity="medium"],.medium{--tone:var(--sev-medium);--tone-fg:var(--sev-medium-fg)}
+[data-severity="low"],.low{--tone:var(--sev-low);--tone-fg:var(--sev-low-fg)}
+[data-severity="info"],.info{--tone:var(--sev-info);--tone-fg:var(--sev-info-fg)}
+
+/* Tables */
+table{width:100%;border-collapse:collapse;font-size:14.5px}
+th{font-family:var(--font-heading);font-weight:700;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--slate);text-align:left;padding:10px 12px 10px 0;border-bottom:1px solid var(--indigo)}
+td{padding:12px 12px 12px 0;border-bottom:1px solid var(--rule);vertical-align:top}
+td strong{color:var(--indigo);font-weight:600}
+.table-wrap{overflow-x:auto}
+
+/* Scope */
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:22px}
+.block{display:flex;flex-direction:column;gap:10px}
+.block ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:5px;font-size:15px}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;counter-reset:etape}
+.step{border-top:1px solid var(--indigo);padding-top:12px;display:flex;flex-direction:column;gap:4px;font-size:14px}
+.step::before{counter-increment:etape;content:"0" counter(etape);font-family:var(--font-heading);font-weight:700;font-size:12px;letter-spacing:.1em;color:var(--slate)}
+.step b{font-family:var(--font-heading);color:var(--indigo)}
+
+/* Findings */
+.filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.filter{font-family:var(--font-heading);font-weight:700;font-size:12.5px;border:1px solid var(--light-grey);background:var(--white);color:var(--indigo);border-radius:20px;padding:6px 13px;cursor:pointer;display:inline-flex;gap:7px;align-items:center}
+.filter .dot{width:8px;height:8px;border-radius:50%;background:var(--tone,var(--indigo))}
+.filter[aria-pressed="true"]{background:var(--indigo);border-color:var(--indigo);color:var(--white)}
+.filter em{font-style:normal;opacity:.7;font-variant-numeric:tabular-nums}
+.findings{display:flex;flex-direction:column;gap:16px}
+.finding{border:1px solid var(--rule);border-left:4px solid var(--tone);border-radius:10px;background:var(--white);scroll-margin-top:24px}
+.finding[hidden]{display:none}
+.finding-head{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:16px;align-items:center;padding:20px 24px;cursor:pointer;list-style:none}
+.finding-head::-webkit-details-marker{display:none}
+.finding-id{font-family:var(--font-heading);font-weight:700;font-size:13px;color:var(--slate);letter-spacing:.04em}
+.finding-head h3{font-size:18px;line-height:1.3;font-weight:700}
+.finding-head .chevron{width:18px;height:18px;transition:transform .2s;color:var(--slate)}
+details[open] .chevron{transform:rotate(180deg)}
+.finding-body{padding:0 24px 26px;display:flex;flex-direction:column;gap:20px}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;background:var(--veil);border-radius:10px;padding:14px 16px;font-size:14px}
+.facts div div:last-child{color:var(--indigo);font-weight:600}
+.facts>div{min-width:0}
+.facts code{overflow-wrap:anywhere}
+.facts .vector{grid-column:1/-1}
+.facts .vector code{background:var(--white)}
+.finding-body h4{font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--indigo);margin-bottom:6px}
+.finding-body ul,.finding-body ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px}
+pre{margin:0;background:var(--indigo);color:var(--paper);border-radius:10px;padding:18px 22px;font-family:var(--font-mono);font-size:13px;line-height:1.7;overflow-x:auto;white-space:pre}
+pre .comment{color:var(--mist)} pre .highlight{color:var(--amber);font-weight:600}
+.recommendation{background:var(--paper);border-radius:10px;padding:16px 18px}
+
+/* Severity scale */
+.scale{display:flex;flex-direction:column;border-top:1px solid var(--indigo)}
+.scale>div{display:grid;grid-template-columns:130px 90px minmax(0,1fr) 150px;gap:16px;padding:14px 0;border-bottom:1px solid var(--rule);align-items:center;font-size:14.5px}
+
+/* Action plan */
+.horizons{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.horizon{border:1px solid var(--rule);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:12px}
+.horizon.urgent{border-color:var(--indigo);box-shadow:inset 0 4px 0 var(--amber)}
+.horizon h3{font-size:18px}
+.horizon ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column}
+.horizon li{padding:9px 0;border-top:1px solid var(--rule);font-size:14.5px;display:flex;gap:10px}
+.horizon li code{flex:none;background:none;padding:0;font-family:var(--font-heading);font-weight:700;font-size:12px;color:var(--slate);padding-top:2px}
+
+/* Footer */
+.site-footer{max-width:1180px;margin:0 auto;padding:22px 40px 40px;display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;border-top:1px solid var(--light-grey);font-size:12.5px;color:var(--slate)}
+.site-footer svg{width:22px;height:22px;vertical-align:middle;margin-right:8px}
+
+/* Responsive */
+@media (max-width:980px){
+  .page{grid-template-columns:minmax(0,1fr);gap:24px}
+  .toc{position:static}
+  .toc ol{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));column-gap:20px}
+  .summary-grid{grid-template-columns:1fr}
+  .horizons{grid-template-columns:1fr}
+}
+@media (max-width:640px){
+  .page,.cover-inner,.site-footer{padding-left:16px;padding-right:16px}
+  .card{padding:22px 18px}
+  .cover .pattern{display:none}
+  .counters{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .finding-head{grid-template-columns:minmax(0,1fr) auto;padding:16px}
+  .finding-head .finding-id{grid-column:1/-1}
+  .finding-body{padding:0 16px 20px}
+  .scale>div{grid-template-columns:1fr 1fr}
+  .scale>div p{grid-column:1/-1}
+  .areas li{grid-template-columns:minmax(0,1fr) auto}
+  .areas .area-bar{grid-column:1/-1;grid-row:2}
+}
+
+/* A4 print */
+@page{size:A4;margin:16mm 15mm 18mm}
+@media print{
+  body{background:#fff;font-size:10.5pt}
+  .toc,.filters,.btn,.chevron{display:none!important}
+  .page{display:block;padding:0;max-width:none}
+  .cover{margin:0 0 10mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .cover-inner{padding:14mm 12mm}
+  .card{padding:0;border-radius:0;break-inside:auto;margin-bottom:10mm}
+  .content{gap:0}
+  section.card{break-before:page}
+  section.card#summary{break-before:avoid}
+  .finding{break-inside:avoid;border-left-width:3px}
+  .finding[hidden]{display:block!important}
+  .finding-body{display:flex!important}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  a{color:inherit}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ COVER ============ -->
+<header class="cover">
+  <svg class="pattern" viewBox="0 0 600 420" preserveAspectRatio="xMaxYMax slice" fill="none" stroke="#E9EDF7" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+    <g opacity="0.18">
+      <line x1="120" y1="70" x2="270" y2="140"/><line x1="270" y1="140" x2="440" y2="80"/><line x1="270" y1="140" x2="230" y2="300"/>
+      <line x1="230" y1="300" x2="410" y2="260"/><line x1="410" y1="260" x2="440" y2="80"/><line x1="410" y1="260" x2="560" y2="360"/>
+      <line x1="440" y1="80" x2="580" y2="150"/><line x1="580" y1="150" x2="410" y2="260"/>
+      <circle cx="120" cy="70" r="9"/><circle cx="270" cy="140" r="9"/><circle cx="440" cy="80" r="9"/><circle cx="230" cy="300" r="9"/>
+      <circle cx="560" cy="360" r="9"/><circle cx="580" cy="150" r="9"/>
+    </g>
+    <circle cx="410" cy="260" r="10" fill="#FFB000" stroke="none"/>
+  </svg>
+  <div class="cover-inner">
+    <div class="cover-top">
+      <!-- BRAND · issuer logo (inline SVG) and name -->
+      <div class="brand" role="img" aria-label="Nexurity">
+        <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
+          <rect x="8" y="10" width="11" height="44" rx="5.5" fill="#E9EDF7"/><rect x="45" y="10" width="11" height="44" rx="5.5" fill="#E9EDF7"/>
+          <circle cx="24" cy="24.9" r="4" fill="#E9EDF7"/><circle cx="32" cy="32" r="5" fill="#FFB000"/><circle cx="40" cy="39.1" r="4" fill="#E9EDF7"/>
+        </svg>
+        <div aria-hidden="true"><b>nexurity</b></div>
+      </div>
+      <span class="confidential">Confidential · restricted distribution</span>
+    </div>
+    <div style="position:relative">
+      <div class="eyebrow">Security audit report</div>
+      <h1 style="margin-top:14px">[Website or application name]</h1>
+      <p class="lede">[One sentence of context, e.g. Application and configuration audit of [Client]'s PrestaShop 8.1 store, carried out before go-live.]</p>
+    </div>
+    <div class="meta">
+      <div><div class="label">Client</div><div>[Company name]</div></div>
+      <div><div class="label">Reference</div><div class="num">AUD-2026-[000]</div></div>
+      <div><div class="label">Audit period</div><div class="num">[dd/mm] → [dd/mm/yyyy]</div></div>
+      <div><div class="label">Report version</div><div class="num">v1.0 · [dd month yyyy]</div></div>
+      <div><div class="label">Auditor</div><div>[First Last]</div></div>
+    </div>
+  </div>
+</header>
+
+<div class="page">
+
+  <!-- ============ TABLE OF CONTENTS ============ -->
+  <nav class="toc" aria-label="Contents">
+    <div class="label">Contents</div>
+    <ol>
+      <li><a href="#summary"><span>01</span>Executive summary</a></li>
+      <li><a href="#scope"><span>02</span>Scope and method</a></li>
+      <li><a href="#severity-scale"><span>03</span>Severity scale</a></li>
+      <li><a href="#findings"><span>04</span>Detailed findings</a></li>
+      <li><a href="#recap"><span>05</span>Summary table</a></li>
+      <li><a href="#action-plan"><span>06</span>Action plan</a></li>
+      <li><a href="#appendices"><span>07</span>Appendices</a></li>
+    </ol>
+    <button class="btn" type="button" onclick="window.print()">Print / export to PDF</button>
+  </nav>
+
+  <main class="content">
+
+    <!-- ============ 01 SUMMARY ============ -->
+    <section class="card" id="summary">
+      <div class="section-title">
+        <span class="eyebrow">01 · Executive summary</span>
+        <h2>Key takeaways</h2>
+      </div>
+      <div class="summary-grid">
+        <div class="score">
+          <div class="label">Security score</div>
+          <div class="score-value num"><span data-score>–</span><small> / 100</small></div>
+          <div class="gauge" aria-hidden="true"><i data-gauge style="width:0"></i></div>
+          <div class="score-level" data-level>–</div>
+          <p class="muted" style="font-size:13px">Based on the number and severity of open findings.<span data-toconfirm-note hidden> <span data-toconfirm>0</span> finding(s) to confirm not counted.</span></p>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:22px">
+          <p style="font-size:17px;line-height:1.65;color:var(--indigo)">[Summary paragraph for management: overall level, main risk, exposure. E.g.: We identified <strong>one critical vulnerability</strong> that allows the customer database to be read without authentication. It must be fixed before any go-live. The rest of the platform is sound: updates are recent and the administration area is properly protected.]</p>
+          <div>
+            <div class="counters">
+              <div class="counter critical"><b data-count="critical">0</b><span>Critical</span></div>
+              <div class="counter high"><b data-count="high">0</b><span>High</span></div>
+              <div class="counter medium"><b data-count="medium">0</b><span>Medium</span></div>
+              <div class="counter low"><b data-count="low">0</b><span>Low</span></div>
+              <div class="counter info"><b data-count="info">0</b><span>Informational</span></div>
+            </div>
+            <div class="distribution" data-distribution aria-hidden="true"></div>
+          </div>
+        </div>
+      </div>
+      <div class="block">
+        <div class="label">Breakdown by area</div>
+        <ul class="areas" data-areas></ul>
+      </div>
+      <div class="block">
+        <div class="label">Top three priorities</div>
+        <ol class="priorities">
+          <li><b>1</b><span>[Priority action no. 1, starting with a verb: Fix the SQL injection in the search module.]</span><span class="badge critical">Critical</span></li>
+          <li><b>2</b><span>[Priority action no. 2: Update the three outdated third-party modules.]</span><span class="badge high">High</span></li>
+          <li><b>3</b><span>[Priority action no. 3: Add the HTTP security headers.]</span><span class="badge medium">Medium</span></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ============ 02 SCOPE ============ -->
+    <section class="card" id="scope">
+      <div class="section-title">
+        <span class="eyebrow">02 · Scope and method</span>
+        <h2>What we tested, and how</h2>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Target</th><th>Type</th><th>Environment</th><th>Version</th></tr></thead>
+          <tbody>
+            <tr><td><strong>[https://www.example.com]</strong></td><td>Public website</td><td>Production</td><td class="num">[PrestaShop 8.1.7]</td></tr>
+            <tr><td><strong>[https://www.example.com/admin-xxx]</strong></td><td>Back office</td><td>Production</td><td class="num">—</td></tr>
+            <tr><td><strong>[Git repository / code archive]</strong></td><td>Source code</td><td>Static review</td><td class="num">[commit a1b2c3d]</td></tr>
+            <tr><td><strong>[Web server]</strong></td><td>Configuration</td><td>Production</td><td class="num">[PHP 8.2 · Nginx 1.24]</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="grid-2">
+        <div class="block">
+          <div class="label">In scope</div>
+          <ul><li>[Code review of modules and theme]</li><li>[Passive review of the public website: HTTP headers, TLS, DNS]</li><li>[Server configuration, TLS and HTTP headers]</li><li>[Search for indicators of compromise]</li></ul>
+        </div>
+        <div class="block">
+          <div class="label">Out of scope</div>
+          <ul><li>[Active penetration testing and exploitation]</li><li>[Denial-of-service testing]</li><li>[Social engineering]</li><li>[Hosting provider infrastructure]</li></ul>
+        </div>
+      </div>
+      <div class="block">
+        <div class="label">Approach</div>
+        <div class="steps">
+          <div class="step"><b>Reconnaissance</b><span>Mapping, versions, exposed surface</span></div>
+          <div class="step"><b>Automated analysis</b><span>Code, dependency and configuration scanners</span></div>
+          <div class="step"><b>Expert review</b><span>Targeted review of sensitive areas, without altering data</span></div>
+          <div class="step"><b>Validation</b><span>Every finding independently re-checked, CVSS 4.0 rating</span></div>
+          <div class="step"><b>Reporting</b><span>Report, action plan, walkthrough meeting</span></div>
+        </div>
+      </div>
+      <p class="muted">Standards: OWASP Top 10 (2021), OWASP ASVS 4.0, CWE Top 25, CVSS 4.0, ANSSI guidelines. Tools: [Semgrep, dependency audits (composer audit, npm audit, pip-audit), Lynis, testssl.sh, AI-assisted review with independent validation].</p>
+    </section>
+
+    <!-- ============ 03 SEVERITY SCALE ============ -->
+    <section class="card" id="severity-scale">
+      <div class="section-title">
+        <span class="eyebrow">03 · Severity scale</span>
+        <h2>How to read the levels</h2>
+      </div>
+      <p class="muted">CVSS 4.0 base scores (FIRST). The severity may be adjusted for business impact; any adjustment is justified in the finding.</p>
+      <div class="scale">
+        <div><span><span class="badge critical">Critical</span></span><span class="num muted">9.0 – 10</span><p>Simple remote exploitation, full compromise or massive data leak.</p><span class="muted">Fix immediately</span></div>
+        <div><span><span class="badge high">High</span></span><span class="num muted">7.0 – 8.9</span><p>Significant impact on data or service, realistic exploitation.</p><span class="muted">Within 7 days</span></div>
+        <div><span><span class="badge medium">Medium</span></span><span class="num muted">4.0 – 6.9</span><p>Exploitation under specific conditions, or limited impact.</p><span class="muted">Within 30 days</span></div>
+        <div><span><span class="badge low">Low</span></span><span class="num muted">0.1 – 3.9</span><p>Hardening gap, marginal impact.</p><span class="muted">Next maintenance</span></div>
+        <div><span><span class="badge info">Info</span></span><span class="num muted">—</span><p>Good practice or observation with no direct risk.</p><span class="muted">To be scheduled</span></div>
+      </div>
+    </section>
+
+    <!-- ============ 04 FINDINGS ============ -->
+    <section class="card" id="findings">
+      <div class="section-title">
+        <span class="eyebrow">04 · Detailed findings</span>
+        <h2>The vulnerabilities, one by one</h2>
+      </div>
+      <div class="filters" role="group" aria-label="Filter by severity">
+        <button class="filter" type="button" data-filter="all" aria-pressed="true">All <em data-count="all">0</em></button>
+        <button class="filter critical" type="button" data-filter="critical" aria-pressed="false"><i class="dot"></i>Critical <em data-count="critical">0</em></button>
+        <button class="filter high" type="button" data-filter="high" aria-pressed="false"><i class="dot"></i>High <em data-count="high">0</em></button>
+        <button class="filter medium" type="button" data-filter="medium" aria-pressed="false"><i class="dot"></i>Medium <em data-count="medium">0</em></button>
+        <button class="filter low" type="button" data-filter="low" aria-pressed="false"><i class="dot"></i>Low <em data-count="low">0</em></button>
+        <button class="filter info" type="button" data-filter="info" aria-pressed="false"><i class="dot"></i>Info <em data-count="info">0</em></button>
+      </div>
+
+      <div class="findings">
+
+        <!-- ▼ FINDING · template to duplicate -->
+        <article class="finding" id="V-01" data-severity="critical" data-status="Open" data-cvss="9.3" data-category="Injection" data-area="Modules">
+          <details open>
+            <summary class="finding-head">
+              <span class="finding-id">V-01</span>
+              <h3>[SQL injection in the search parameter of module X]</h3>
+              <span style="display:flex;gap:10px;align-items:center"><span class="badge critical">Critical</span><svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></span>
+            </summary>
+            <div class="finding-body">
+              <div class="facts">
+                <div><div class="label">CVSS 4.0 score</div><div class="num">9.3</div></div>
+                <div><div class="label">Category</div><div>A03 · Injection</div></div>
+                <div><div class="label">Component</div><div><code>[modules/x/controllers/front/search.php]</code></div></div>
+                <div><div class="label">Status</div><div>Open</div></div>
+                <div class="vector"><div class="label">CVSS 4.0 vector</div><div><code>CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N</code></div></div>
+              </div>
+              <div><h4>Description</h4><p>[Explain the flaw in two to four clear sentences. E.g.: the value of the <code>q</code> parameter is concatenated directly into the SQL query, with no escaping or prepared statement.]</p></div>
+              <div><h4>Evidence</h4>
+<pre><span class="comment">// [file:line]</span>
+$sql = 'SELECT * FROM '._DB_PREFIX_.'product_lang WHERE name LIKE "%'.<span class="highlight">Tools::getValue('q')</span>.'%"';
+
+<span class="comment">// Source: parameter q, controlled by any visitor, no authentication</span>
+<span class="comment">// Sink:   concatenated directly into the SQL query above</span></pre>
+              </div>
+              <div><h4>Impact</h4><p>[Concrete business consequence: the customer table can be read (emails, password hashes); if exploited, the breach must be reported to the data protection authority within 72 hours under the GDPR.]</p></div>
+              <div class="recommendation"><h4>Recommendation</h4>
+                <ol><li>[Use <code>pSQL()</code> or <code>DbQuery</code> with bound parameters.]</li><li>[Validate the input's type and length.]</li><li>[Check the logs to confirm no exploitation has occurred.]</li></ol>
+              </div>
+              <p class="muted">References: <a href="https://owasp.org/Top10/A03_2021-Injection/" target="_blank" rel="noopener">OWASP A03:2021</a> · <a href="https://cwe.mitre.org/data/definitions/89.html" target="_blank" rel="noopener">CWE-89</a></p>
+            </div>
+          </details>
+        </article>
+        <!-- ▲ end of template -->
+
+        <article class="finding" id="V-02" data-severity="high" data-status="Open" data-cvss="8.7" data-category="Vulnerable components" data-area="Modules">
+          <details>
+            <summary class="finding-head">
+              <span class="finding-id">V-02</span>
+              <h3>[Outdated third-party modules with published vulnerabilities]</h3>
+              <span style="display:flex;gap:10px;align-items:center"><span class="badge high">High</span><svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></span>
+            </summary>
+            <div class="finding-body">
+              <div class="facts">
+                <div><div class="label">CVSS 4.0 score</div><div class="num">8.7</div></div>
+                <div><div class="label">Category</div><div>A06 · Vulnerable components</div></div>
+                <div><div class="label">Component</div><div>[3 modules]</div></div>
+                <div><div class="label">Status</div><div>Open</div></div>
+              </div>
+              <div><h4>Description</h4><p>[Description.]</p></div>
+              <div class="table-wrap"><table>
+                <thead><tr><th>Module</th><th>Installed version</th><th>Fixed version</th><th>CVE</th></tr></thead>
+                <tbody>
+                  <tr><td><strong>[module_a]</strong></td><td class="num">[1.2.0]</td><td class="num">[1.4.3]</td><td><code>[CVE-2026-0000]</code></td></tr>
+                  <tr><td><strong>[module_b]</strong></td><td class="num">[2.0.1]</td><td class="num">[2.0.6]</td><td><code>[CVE-2026-0000]</code></td></tr>
+                </tbody>
+              </table></div>
+              <div><h4>Impact</h4><p>[Impact.]</p></div>
+              <div class="recommendation"><h4>Recommendation</h4><p>[Recommendation.]</p></div>
+            </div>
+          </details>
+        </article>
+
+        <article class="finding" id="V-03" data-severity="medium" data-status="Open" data-cvss="5.3" data-category="Configuration" data-area="Web server">
+          <details>
+            <summary class="finding-head">
+              <span class="finding-id">V-03</span>
+              <h3>[Missing HTTP security headers]</h3>
+              <span style="display:flex;gap:10px;align-items:center"><span class="badge medium">Medium</span><svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></span>
+            </summary>
+            <div class="finding-body">
+              <div class="facts">
+                <div><div class="label">CVSS 4.0 score</div><div class="num">5.3</div></div>
+                <div><div class="label">Category</div><div>A05 · Security misconfiguration</div></div>
+                <div><div class="label">Component</div><div>[Web server]</div></div>
+                <div><div class="label">Status</div><div>Open</div></div>
+              </div>
+              <div><h4>Description</h4><p>[The <code>Content-Security-Policy</code>, <code>Strict-Transport-Security</code> and <code>X-Frame-Options</code> headers are not sent.]</p></div>
+              <div class="recommendation"><h4>Recommendation</h4>
+<pre><span class="comment"># Nginx</span>
+add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+add_header X-Frame-Options "SAMEORIGIN" always;
+add_header X-Content-Type-Options "nosniff" always;</pre>
+              </div>
+            </div>
+          </details>
+        </article>
+
+        <article class="finding" id="V-04" data-severity="low" data-status="Fixed" data-cvss="2.1" data-category="Information disclosure" data-area="Web server">
+          <details>
+            <summary class="finding-head">
+              <span class="finding-id">V-04</span>
+              <h3>[PHP version exposed in the X-Powered-By header]</h3>
+              <span style="display:flex;gap:10px;align-items:center"><span class="badge low">Low</span><svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></span>
+            </summary>
+            <div class="finding-body">
+              <div><h4>Description</h4><p>[Description.]</p></div>
+              <div class="recommendation"><h4>Recommendation</h4><p>[Set <code>expose_php = Off</code> in <code>php.ini</code>.]</p></div>
+            </div>
+          </details>
+        </article>
+
+        <article class="finding" id="V-05" data-severity="info" data-status="To confirm" data-cvss="—" data-category="Good practice" data-area="Operations">
+          <details>
+            <summary class="finding-head">
+              <span class="finding-id">V-05</span>
+              <h3>[No documented backup policy]</h3>
+              <span style="display:flex;gap:10px;align-items:center"><span class="badge info">Info</span><svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></span>
+            </summary>
+            <div class="finding-body">
+              <div><h4>Observation</h4><p>[Observation.]</p></div>
+              <div class="recommendation"><h4>Suggestion</h4><p>[Suggestion.]</p></div>
+            </div>
+          </details>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- ============ 05 SUMMARY TABLE (generated) ============ -->
+    <section class="card" id="recap">
+      <div class="section-title">
+        <span class="eyebrow">05 · Summary table</span>
+        <h2>All findings</h2>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ID</th><th>Finding</th><th>Area</th><th>Category</th><th>CVSS</th><th>Severity</th><th>Status</th></tr></thead>
+          <tbody data-recap></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============ 06 ACTION PLAN ============ -->
+    <section class="card" id="action-plan">
+      <div class="section-title">
+        <span class="eyebrow">06 · Action plan</span>
+        <h2>What to fix first</h2>
+      </div>
+      <div class="horizons">
+        <div class="horizon urgent">
+          <div class="label">Immediate · 48 h</div><h3>Stop the exposure</h3>
+          <ul><li><code>V-01</code>[Fix the SQL injection]</li><li><code>—</code>[Change administrator passwords]</li></ul>
+        </div>
+        <div class="horizon">
+          <div class="label">Short term · 30 days</div><h3>Upgrade</h3>
+          <ul><li><code>V-02</code>[Update the modules]</li><li><code>V-03</code>[Add the HTTP headers]</li></ul>
+        </div>
+        <div class="horizon">
+          <div class="label">Medium term · 3 months</div><h3>Harden and monitor</h3>
+          <ul><li><code>V-04</code>[Hide version numbers]</li><li><code>V-05</code>[Formalise backups]</li><li><code>—</code>[Schedule a follow-up audit]</li></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 07 APPENDICES ============ -->
+    <section class="card" id="appendices">
+      <div class="section-title">
+        <span class="eyebrow">07 · Appendices</span>
+        <h2>Additional information</h2>
+      </div>
+      <div class="grid-2">
+        <div class="block">
+          <div class="label">Glossary</div>
+          <table><tbody>
+            <tr><td><strong>CVSS</strong></td><td>Standard 0–10 score that measures the technical severity of a vulnerability. This report uses version 4.0, published by FIRST.</td></tr>
+            <tr><td><strong>CVE</strong></td><td>Public identifier of a known vulnerability.</td></tr>
+            <tr><td><strong>OWASP</strong></td><td>Foundation that publishes the reference web security standards.</td></tr>
+          </tbody></table>
+        </div>
+        <div class="block">
+          <div class="label">Document history</div>
+          <table>
+            <thead><tr><th>Version</th><th>Date</th><th>Purpose</th></tr></thead>
+            <tbody>
+              <tr><td class="num"><strong>1.0</strong></td><td class="num">[dd/mm/yyyy]</td><td>Initial report</td></tr>
+              <tr><td class="num"><strong>1.1</strong></td><td class="num">[dd/mm/yyyy]</td><td>[Follow-up audit after fixes]</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <p class="muted" style="font-size:13px">This report reflects the state of the scope on the audit dates. It is strictly confidential and intended solely for the client named on the cover. Testing was carried out with the client's written authorisation, without altering production data.</p>
+    </section>
+
+  </main>
+</div>
+
+<footer class="site-footer">
+  <!-- BRAND · issuer icon, name and contact details -->
+  <span><svg viewBox="0 0 64 64" fill="none" aria-hidden="true"><rect x="8" y="10" width="11" height="44" rx="5.5" fill="#2346FF"/><rect x="45" y="10" width="11" height="44" rx="5.5" fill="#2346FF"/><circle cx="24" cy="24.9" r="4" fill="#2346FF"/><circle cx="32" cy="32" r="5" fill="#FFB000"/><circle cx="40" cy="39.1" r="4" fill="#2346FF"/></svg>Nexurity · [Address] · [Contact email] · [Phone]</span>
+  <span>Ref. AUD-2026-[000] · Confidential</span>
+</footer>
+
+<script>
+(function(){
+  var LEVELS = ['critical','high','medium','low','info'];
+  var LABELS = {critical:'Critical',high:'High',medium:'Medium',low:'Low',info:'Info'};
+  var WEIGHTS = {critical:25,high:12,medium:5,low:2,info:0};
+  var findings = Array.prototype.slice.call(document.querySelectorAll('.finding'));
+  var isOpen = function(f){ return !/fixed|confirm/i.test(f.dataset.status || ''); };
+  var toConfirm = findings.filter(function(f){ return /confirm/i.test(f.dataset.status || ''); }).length;
+  if (toConfirm) { document.querySelector('[data-toconfirm]').textContent = toConfirm; document.querySelector('[data-toconfirm-note]').hidden = false; }
+
+  // Counters
+  var n = {all:findings.length};
+  LEVELS.forEach(function(s){ n[s] = findings.filter(function(f){ return f.dataset.severity === s; }).length; });
+  document.querySelectorAll('[data-count]').forEach(function(el){ el.textContent = n[el.dataset.count] || 0; });
+
+  // Distribution bar
+  var dist = document.querySelector('[data-distribution]');
+  LEVELS.forEach(function(s){
+    if (!n[s]) return;
+    var i = document.createElement('i');
+    i.className = s; i.style.flex = n[s]; i.style.background = s === 'info' ? 'var(--rule)' : 'var(--tone)';
+    dist.appendChild(i);
+  });
+
+  // Breakdown by area (most at-risk first, bar length relative to the largest area)
+  var areas = {};
+  findings.forEach(function(f){
+    var a = f.dataset.area || 'Other';
+    areas[a] = areas[a] || {name:a, total:0, weight:0, n:{}};
+    areas[a].total++; areas[a].weight += WEIGHTS[f.dataset.severity] || 0;
+    areas[a].n[f.dataset.severity] = (areas[a].n[f.dataset.severity] || 0) + 1;
+  });
+  var areaList = Object.keys(areas).map(function(k){ return areas[k]; })
+    .sort(function(x,y){ return y.weight - x.weight || y.total - x.total; });
+  var maxTotal = Math.max.apply(null, areaList.map(function(a){ return a.total; }).concat(1));
+  var areasEl = document.querySelector('[data-areas]');
+  areaList.forEach(function(a){
+    var li = document.createElement('li');
+    var name = document.createElement('b'); name.textContent = a.name;
+    var bar = document.createElement('div'); bar.className = 'area-bar';
+    bar.style.width = (a.total / maxTotal * 100) + '%';
+    bar.setAttribute('aria-label', LEVELS.filter(function(s){ return a.n[s]; }).map(function(s){ return a.n[s] + ' ' + LABELS[s].toLowerCase(); }).join(', '));
+    LEVELS.forEach(function(s){
+      if (!a.n[s]) return;
+      var i = document.createElement('i');
+      i.className = s; i.style.flex = a.n[s]; i.style.background = s === 'info' ? 'var(--rule)' : 'var(--tone)';
+      bar.appendChild(i);
+    });
+    var count = document.createElement('span'); count.textContent = a.total + (a.total > 1 ? ' findings' : ' finding');
+    li.appendChild(name); li.appendChild(bar); li.appendChild(count);
+    areasEl.appendChild(li);
+  });
+
+  // Security score (open findings only)
+  var penalty = findings.filter(isOpen).reduce(function(t,f){ return t + (WEIGHTS[f.dataset.severity] || 0); }, 0);
+  var score = Math.max(0, 100 - penalty);
+  var band = score >= 85 ? 'low' : score >= 65 ? 'medium' : score >= 40 ? 'high' : 'critical';
+  var BAND_TEXT = {low:'Good',medium:'Fair, needs strengthening',high:'Insufficient',critical:'Critical'};
+  document.querySelector('[data-score]').textContent = score;
+  document.querySelector('[data-level]').textContent = BAND_TEXT[band];
+  var gauge = document.querySelector('[data-gauge]');
+  gauge.style.width = score + '%';
+  gauge.style.background = 'var(--sev-' + band + ')';
+
+  // Summary table
+  var tbody = document.querySelector('[data-recap]');
+  findings.forEach(function(f){
+    var s = f.dataset.severity, title = f.querySelector('h3').textContent;
+    var tr = document.createElement('tr');
+    tr.innerHTML = '<td><a href="#'+f.id+'"><strong>'+f.id+'</strong></a></td><td></td><td></td><td></td>'
+      + '<td class="num">'+(f.dataset.cvss || '—')+'</td>'
+      + '<td><span class="badge '+s+'">'+LABELS[s]+'</span></td><td></td>';
+    tr.children[1].textContent = title;
+    tr.children[2].textContent = f.dataset.area || '';
+    tr.children[3].textContent = f.dataset.category || '';
+    tr.children[6].textContent = f.dataset.status || '';
+    tbody.appendChild(tr);
+  });
+
+  // Filters
+  var filters = document.querySelectorAll('[data-filter]');
+  filters.forEach(function(b){
+    b.addEventListener('click', function(){
+      var v = b.dataset.filter;
+      filters.forEach(function(x){ x.setAttribute('aria-pressed', x === b); });
+      findings.forEach(function(f){ f.hidden = v !== 'all' && f.dataset.severity !== v; });
+    });
+  });
+
+  // Open the targeted finding from the table
+  document.addEventListener('click', function(e){
+    var a = e.target.closest('a[href^="#V-"]');
+    if (a) { var d = document.querySelector(a.getAttribute('href')+' details'); if (d) d.open = true; }
+  });
+
+  // Expand everything when printing
+  window.addEventListener('beforeprint', function(){ document.querySelectorAll('.finding details').forEach(function(d){ d.open = true; }); });
+
+  // Active table-of-contents link
+  var links = document.querySelectorAll('.toc a');
+  if ('IntersectionObserver' in window) {
+    var obs = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if (en.isIntersecting) links.forEach(function(l){ l.classList.toggle('active', l.getAttribute('href') === '#'+en.target.id); });
+      });
+    }, {rootMargin:'-20% 0px -70% 0px'});
+    document.querySelectorAll('main > section').forEach(function(sec){ obs.observe(sec); });
+  }
+})();
+</script>
+</body>
+</html>
