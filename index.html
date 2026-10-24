@@ -3,10 +3,63 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!--
+  Google Consent Mode v2: every storage is denied by default, before Google Tag Manager loads.
+  A choice made in the cookie banner (localStorage "consent", 6 months) is applied at once.
+  Same key as ramzibougdar.github.io, so a choice made on one page holds on the other.
+-->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() { window.dataLayer.push(arguments); }
+  gtag('consent', 'default', {
+    ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied',
+    analytics_storage: 'denied', functionality_storage: 'granted', security_storage: 'granted',
+    wait_for_update: 500
+  });
+  gtag('set', 'ads_data_redaction', true);
+  (function () {
+    var c = null;
+    try { c = JSON.parse(localStorage.getItem('consent')); } catch (e) { /* storage unavailable */ }
+    if (c && c.version === 1 && Date.now() - c.date < 182 * 24 * 3600 * 1000) {
+      var ads = c.ads ? 'granted' : 'denied';
+      gtag('consent', 'update', { analytics_storage: c.analytics ? 'granted' : 'denied', ad_storage: ads, ad_user_data: ads, ad_personalization: ads });
+    } else {
+      // No choice yet: the banner opens as soon as it is parsed (script right after it).
+      document.documentElement.classList.add('consent-pending');
+    }
+  })();
+</script>
+<!--
+  Google Tag Manager, loaded at the first interaction (pointer, key, scroll) or 3.5 s after
+  the page load event: tags never slow down the first display. Consent above still applies.
+-->
+<script>
+  (function (w, d) {
+    var events = ['pointerdown', 'keydown', 'scroll', 'touchstart'];
+    var done = false;
+    function load() {
+      if (done) return;
+      done = true;
+      events.forEach(function (e) { w.removeEventListener(e, load, true); });
+      w.dataLayer.push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
+      var script = d.createElement('script');
+      script.async = true;
+      script.src = 'https://www.googletagmanager.com/gtm.js?id=GTM-W86L38PQ';
+      d.head.appendChild(script);
+    }
+    events.forEach(function (e) { w.addEventListener(e, load, { capture: true, passive: true }); });
+    w.addEventListener('load', function () { w.setTimeout(load, 3500); });
+  })(window, document);
+</script>
+<!-- End Google Tag Manager -->
 <meta name="description" content="Step-by-step guide to installing Nexurity, a security audit assistant for Claude Code.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232346FF'/%3E%3Cg transform='translate%284 4%29 scale%28.375%29'%3E%3Crect x='8' y='10' width='12' height='44' rx='6' fill='%23fff'/%3E%3Crect x='44' y='10' width='12' height='44' rx='6' fill='%23fff'/%3E%3Ccircle cx='32' cy='32' r='7' fill='%23FFB000'/%3E%3C/g%3E%3C/svg%3E" type="image/svg+xml">
 <title>Installing Nexurity</title>
-<script>document.documentElement.classList.add("js")</script>
+<script>
+  document.documentElement.classList.add("js");
+  // Stored theme (same "theme" key as ramzibougdar.github.io), applied before the first paint to avoid a flash.
+  try { var t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t); } catch (e) { /* storage unavailable */ }
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -282,6 +335,53 @@ details.more[open] .opt-list .req:nth-child(2){animation-delay:.06s}
 details.more[open] .opt-list .req:nth-child(3){animation-delay:.12s}
 details.more[open] .opt-list .req:nth-child(4){animation-delay:.18s}
 
+
+/* Cookie banner */
+.visually-hidden{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.consent{position:fixed;z-index:70;inset:auto auto max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));margin:0;width:min(420px,calc(100vw - 32px));max-height:calc(100dvh - 32px);overflow:auto;padding:20px;border:1px solid rgba(233,237,247,.14);border-radius:14px;background:var(--cover);color:var(--cover-ink);box-shadow:0 24px 60px -20px rgba(6,12,34,.6);font-size:14.5px;line-height:1.55}
+.consent[open]{display:flex;flex-direction:column;gap:12px;animation:consent-in .5s var(--ease-out) both}
+@keyframes consent-in{from{opacity:0;transform:translateY(16px) scale(.98)}}
+.consent p{margin:0;color:var(--cover-muted)}
+.consent__header{display:flex;align-items:center;gap:10px}
+.consent__icon{display:grid;place-items:center;width:40px;height:40px;border-radius:10px;background:rgba(255,176,0,.14);color:var(--accent);flex:none}
+.consent__icon svg{transform-origin:center;animation:cookie-wobble 2.4s var(--ease-out) .6s}
+@keyframes cookie-wobble{20%{transform:rotate(-14deg)}40%{transform:rotate(10deg)}60%{transform:rotate(-5deg)}80%{transform:rotate(0)}}
+.consent .consent__title{font-weight:700;font-size:17px;color:#fff;letter-spacing:-.01em}
+.consent fieldset{margin:0;padding:0;border:0;display:flex;flex-direction:column;gap:8px}
+.consent__option{position:relative;display:flex;gap:12px;align-items:flex-start;padding:10px 12px;border-radius:10px;background:rgba(233,237,247,.06);cursor:pointer}
+.consent__option input{position:absolute;opacity:0;width:1px;height:1px}
+.consent__option strong{display:block;color:#fff;font-weight:600}
+.consent__option small{display:block;color:var(--cover-muted);font-size:13px}
+.consent__switch{position:relative;flex:none;width:38px;height:22px;margin-top:1px;border-radius:11px;background:rgba(233,237,247,.25);transition:background .25s}
+.consent__switch::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .3s var(--ease-out)}
+.consent__option input:checked+.consent__switch{background:var(--accent)}
+.consent__option input:checked+.consent__switch::after{transform:translateX(16px)}
+.consent__option input:focus-visible+.consent__switch{outline:2px solid var(--accent);outline-offset:2px}
+.consent__actions{display:flex;flex-wrap:wrap;gap:8px}
+.cbtn{flex:1 1 auto;min-height:44px;padding:8px 14px;border-radius:8px;border:1px solid #fff;background:#fff;color:#0F1B3D;font:700 14px/1.2 var(--display);cursor:pointer;transition:background .2s,color .2s,border-color .2s,transform .15s}
+.cbtn:hover{background:var(--accent);border-color:var(--accent)}
+.cbtn:active{transform:scale(.97)}
+.cbtn--ghost{background:transparent;color:#fff;border-color:rgba(233,237,247,.35)}
+.cbtn--ghost:hover{background:rgba(233,237,247,.1);border-color:#fff;color:#fff}
+.cbtn[hidden]{display:none}
+.foot-left{display:inline-flex;flex-wrap:wrap;align-items:center;gap:6px 16px}
+.foot-link{min-height:44px;padding:0;border:0;background:none;color:var(--muted);font:inherit;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.foot-link:hover{color:var(--primary)}
+
+
+/* Theme toggle: sun morphs into a moon */
+.theme-btn{position:fixed;z-index:60;top:max(14px,env(safe-area-inset-top,0px));right:max(16px,env(safe-area-inset-right,0px));display:grid;place-items:center;width:44px;height:44px;padding:0;border-radius:50%;border:1px solid var(--rule);background:color-mix(in srgb,var(--surface) 85%,transparent);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:var(--ink);cursor:pointer;box-shadow:0 6px 18px -10px rgba(6,12,34,.5);transition:background .3s,color .3s,border-color .3s,transform .2s var(--ease-out)}
+.theme-btn:hover{transform:rotate(-15deg) scale(1.06)}
+.theme-btn:active{transform:scale(.92)}
+.theme-btn svg{width:22px;height:22px;overflow:visible}
+.theme-btn .orb{transform-origin:12px 12px;transition:transform .5s var(--ease-out)}
+.theme-btn .cut{transition:cx .5s var(--ease-out),cy .5s var(--ease-out)}
+.theme-btn .rays{transform-origin:12px 12px;transition:transform .5s var(--ease-out),opacity .3s}
+.theme-btn[aria-pressed="true"] .orb{transform:scale(1.7)}
+.theme-btn[aria-pressed="true"] .cut{cx:17px;cy:8px}
+.theme-btn[aria-pressed="true"] .rays{transform:rotate(90deg) scale(.4);opacity:0}
+::view-transition-old(root),::view-transition-new(root){animation:none;mix-blend-mode:normal}
+
 /* ---------- GSAP layer ---------- */
 .cover canvas.net{position:absolute;inset:0;width:100%;height:100%}
 .cover .spot{position:absolute;left:0;top:0;width:460px;height:460px;margin:-230px 0 0 -230px;border-radius:50%;background:radial-gradient(circle,rgba(125,147,255,.22),transparent 62%);opacity:0;will-change:transform}
@@ -299,7 +399,38 @@ details.more[open] .opt-list .req:nth-child(4){animation-delay:.18s}
 </style>
 </head>
 <body>
+<!-- Cookie banner (Google Consent Mode v2): non-modal dialog shown while no choice is stored,
+     and from the "Cookies" footer button. Never shown without JavaScript (nothing is measured then). -->
+<dialog id="consent" class="consent" aria-labelledby="title-consent" aria-describedby="text-consent">
+  <div class="consent__header">
+    <span class="consent__icon"><svg aria-hidden="true" focusable="false" width="26" height="26" viewBox="0 0 24 24"><path d="M21 12.3A9 9 0 1 1 11.7 3a3 3 0 0 0 3.6 3.6 3 3 0 0 0 3.6 3.6 3 3 0 0 0 2.1 2.1Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="8.5" cy="10.5" r="1.3" fill="currentColor"/><circle cx="14" cy="15" r="1.3" fill="currentColor"/><circle cx="8.8" cy="15.8" r="1" fill="currentColor"/></svg></span>
+    <p id="title-consent" class="consent__title">Fancy a cookie?</p>
+  </div>
+  <p id="text-consent">I use Google Analytics to know how many people read this guide and which sections interest them. Nothing is stored without your consent, and you can change your mind at any time with the “Cookies” button at the bottom of the page.</p>
+  <form class="consent__choices" hidden>
+    <fieldset>
+      <legend class="visually-hidden">Your choices, purpose by purpose</legend>
+      <label class="consent__option"><input type="checkbox" name="analytics"><span class="consent__switch" aria-hidden="true"></span><span><strong>Audience measurement</strong><small>Google Analytics: pages viewed, visit length, device type, country.</small></span></label>
+      <label class="consent__option"><input type="checkbox" name="ads"><span class="consent__switch" aria-hidden="true"></span><span><strong>Advertising</strong><small>Google: visit data shared for personalised advertising (Google Signals, Google Ads).</small></span></label>
+    </fieldset>
+  </form>
+  <div class="consent__actions">
+    <button type="button" class="cbtn" data-consent="deny">Reject all</button>
+    <button type="button" class="cbtn" data-consent="accept">Accept all</button>
+    <button type="button" class="cbtn cbtn--ghost" data-consent="customize" aria-expanded="false">Customise</button>
+    <button type="button" class="cbtn cbtn--ghost" data-consent="save" hidden>Save my choices</button>
+  </div>
+</dialog>
+<script>
+  // Part of the first paint when no choice is stored (class set in the <head>); the consent script below handles it.
+  if (document.documentElement.classList.contains('consent-pending')) document.getElementById('consent').setAttribute('open', '');
+</script>
 <div class="progress" aria-hidden="true"></div>
+<!-- Light/dark toggle: aria-pressed="true" when the dark theme is active -->
+<button type="button" id="theme-button" class="theme-btn" aria-pressed="false">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><mask id="moon-cut"><rect width="24" height="24" fill="#fff"/><circle class="cut" cx="24" cy="4" r="7" fill="#000"/></mask><circle class="orb" cx="12" cy="12" r="5" fill="currentColor" mask="url(#moon-cut)"/><g class="rays" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 1.5v2M12 20.5v2M1.5 12h2M20.5 12h2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M4.6 19.4 6 18M18 6l1.4-1.4"/></g></svg>
+  <span class="visually-hidden">Dark theme</span>
+</button>
 <header class="cover">
   <div class="fx" aria-hidden="true"><div class="grid"></div><div class="glow"></div><div class="glow b"></div><canvas class="net"></canvas><div class="spot"></div></div>
   <div class="wrap">
@@ -505,7 +636,7 @@ nexurity/
 </main>
 
 <footer class="wrap">
-  <span>Nexurity · installation guide</span>
+  <span class="foot-left"><span>Nexurity · installation guide</span><button type="button" class="foot-link" data-consent-open>Cookies</button></span>
   <a class="gh" href="https://github.com/ramzibougdar/nexurity" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.4-4-1.4-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.3-3.1-.2-.4-.6-1.6 0-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.6 18.3 5 18.3 5c.6 1.6.2 2.8.1 3.2.8.8 1.3 1.9 1.3 3.2 0 4.6-2.8 5.6-5.5 5.9.5.4.9 1.1.9 2.2v3.3c0 .3.1.7.8.6A12 12 0 0 0 12 .3"/></svg>View on GitHub</a>
 </footer>
 
@@ -545,6 +676,24 @@ document.querySelectorAll('.tabs').forEach(function(box){
   addEventListener('resize',function(){ place(tabs.filter(function(t){ return t.tabIndex===0; })[0]); });
   if(document.fonts) document.fonts.ready.then(function(){ place(tabs.filter(function(t){ return t.tabIndex===0; })[0]); });
 });
+
+// Light/dark toggle, remembered under "theme". The new theme spreads from the button in a circle where supported.
+(function(){
+  var root=document.documentElement, btn=document.getElementById('theme-button'), mq=matchMedia('(prefers-color-scheme: dark)');
+  var current=function(){ var t=root.getAttribute('data-theme'); return t==='light'||t==='dark'?t:(mq.matches?'dark':'light'); };
+  var sync=function(){ btn.setAttribute('aria-pressed',String(current()==='dark')); };
+  btn.addEventListener('click',function(){
+    var next=current()==='dark'?'light':'dark';
+    var apply=function(){ root.setAttribute('data-theme',next); try{ localStorage.setItem('theme',next); }catch(e){} sync(); };
+    if(!document.startViewTransition || matchMedia('(prefers-reduced-motion: reduce)').matches){ apply(); return; }
+    var r=btn.getBoundingClientRect(), x=r.left+r.width/2, y=r.top+r.height/2, end=Math.hypot(Math.max(x,innerWidth-x),Math.max(y,innerHeight-y));
+    document.startViewTransition(apply).ready.then(function(){
+      root.animate({clipPath:['circle(0 at '+x+'px '+y+'px)','circle('+end+'px at '+x+'px '+y+'px)']},{duration:600,easing:'cubic-bezier(.16,1,.3,1)',pseudoElement:'::view-transition-new(root)'});
+    });
+  });
+  if(mq.addEventListener) mq.addEventListener('change',sync);
+  sync();
+})();
 
 (function(){
   var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -597,6 +746,97 @@ document.querySelectorAll('.tabs').forEach(function(box){
   var onScroll=function(){ if(!ticking){ ticking=true; requestAnimationFrame(update); } };
   addEventListener('scroll',onScroll,{passive:true}); addEventListener('resize',onScroll);
   update();
+})();
+</script>
+<script>
+/* Cookie banner for Google Consent Mode v2 (Google Tag Manager, Google Analytics), as on ramzibougdar.github.io.
+   The default state and a stored choice are applied by the inline script of the <head>: this only asks and saves. */
+(function () {
+  'use strict';
+  var KEY = 'consent', VERSION = 1, MAX_AGE = 182 * 24 * 3600 * 1000; // 6 months, as advised by the CNIL
+  var PURPOSES = { analytics: ['analytics_storage'], ads: ['ad_storage', 'ad_user_data', 'ad_personalization'] };
+  var GA_COOKIE = /^(_ga|_ga_\w+|_gid|_gat\w*)$/;
+
+  var banner = document.getElementById('consent');
+  if (!banner || typeof banner.show !== 'function') return;
+  var choices = banner.querySelector('.consent__choices');
+  var customize = banner.querySelector('[data-consent="customize"]');
+  var save = banner.querySelector('[data-consent="save"]');
+  var opener = null;
+
+  window.dataLayer = window.dataLayer || [];
+  var gtag = window.gtag || function () { window.dataLayer.push(arguments); };
+
+  function read() {
+    try {
+      var stored = JSON.parse(localStorage.getItem(KEY));
+      return stored && stored.version === VERSION && Date.now() - stored.date < MAX_AGE ? stored : null;
+    } catch (e) { return null; }
+  }
+
+  function apply(choice) {
+    var previous = read(), signals = {};
+    Object.keys(PURPOSES).forEach(function (p) {
+      PURPOSES[p].forEach(function (signal) { signals[signal] = choice[p] ? 'granted' : 'denied'; });
+    });
+    gtag('consent', 'update', signals);
+    window.dataLayer.push({ event: 'consent_update', consent_analytics: choice.analytics, consent_ads: choice.ads });
+    if (previous && previous.analytics && !choice.analytics) removeAnalyticsCookies();
+    try {
+      localStorage.setItem(KEY, JSON.stringify({ version: VERSION, date: Date.now(), analytics: choice.analytics, ads: choice.ads }));
+    } catch (e) { /* storage unavailable: the banner comes back on the next page */ }
+    document.documentElement.classList.remove('consent-pending');
+    close();
+  }
+
+  // Withdrawn consent: deletes the Google Analytics cookies already set on this site.
+  function removeAnalyticsCookies() {
+    var host = window.location.hostname;
+    document.cookie.split(';').forEach(function (cookie) {
+      var name = cookie.split('=')[0].trim();
+      if (!GA_COOKIE.test(name)) return;
+      ['', '; domain=' + host, '; domain=.' + host].forEach(function (domain) {
+        document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/' + domain;
+      });
+    });
+  }
+
+  function showChoices(visible) {
+    var stored = read() || {};
+    Object.keys(PURPOSES).forEach(function (p) { var box = choices.elements[p]; if (box) box.checked = !!stored[p]; });
+    choices.hidden = !visible; save.hidden = !visible; customize.hidden = visible;
+    customize.setAttribute('aria-expanded', String(visible));
+  }
+
+  function open(detailed, from) {
+    opener = from || null;
+    showChoices(detailed);
+    if (opener) { banner.show(); banner.querySelector(detailed ? 'input' : 'button').focus(); }
+    else banner.setAttribute('open', ''); // on page load, leaves the focus and the tab order alone
+  }
+
+  function close() {
+    banner.close();
+    if (opener) opener.focus({ preventScroll: true });
+    opener = null;
+  }
+
+  banner.addEventListener('click', function (evt) {
+    var button = evt.target.closest('[data-consent]');
+    if (!button) return;
+    switch (button.getAttribute('data-consent')) {
+      case 'accept': apply({ analytics: true, ads: true }); break;
+      case 'deny': apply({ analytics: false, ads: false }); break;
+      case 'save': apply({ analytics: choices.elements.analytics.checked, ads: choices.elements.ads.checked }); break;
+      case 'customize': showChoices(true); choices.querySelector('input').focus(); break;
+    }
+  });
+  // Escape closes the banner without a choice: it comes back on the next page.
+  banner.addEventListener('keydown', function (evt) { if (evt.key === 'Escape') close(); });
+  document.querySelectorAll('[data-consent-open]').forEach(function (button) {
+    button.addEventListener('click', function () { open(true, button); });
+  });
+  if (!read()) open(false, null);
 })();
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js"></script>
