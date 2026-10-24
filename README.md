@@ -1,6 +1,6 @@
 # Nexurity
 
-Nexurity is a security audit assistant for [Claude Code](https://claude.com/claude-code). It audits a project's code, a server or a live website, or analyses a security incident, then produces a self-contained HTML report ready to send to a client.
+Nexurity is a security audit assistant for [Claude Code](https://claude.com/claude-code). It audits a project's code, a server or a live website, or analyses a security incident, then produces a self-contained Markdown report (`.md`) ready to send to a client.
 
 This repository is the **installation kit**: Claude Code builds the Nexurity plugin step by step from `PROMPT.md`.
 
@@ -17,7 +17,7 @@ This repository is the **installation kit**: Claude Code builds the Nexurity plu
 | Diff review | `/audit-diff` | Review of a diff or pull request |
 | Incident response | `/incident` | Evidence preservation, log triage, timeline, indicators of compromise, GDPR deadline |
 
-Every audit starts with a wizard, checks whether its sources and tools have new versions, and ends with an HTML report rated in **CVSS 4.0**.
+Every audit starts with a wizard, checks whether its sources and tools have new versions, and ends with a Markdown report rated in **CVSS 4.0**.
 
 ## Safety rules
 
@@ -34,11 +34,11 @@ Every audit starts with a wizard, checks whether its sources and tools have new 
 index.html                             # installation guide (web page)
 PROMPT.md                              # installation prompt for Claude Code
 base/
-├── security-audit-template.html       # generic audit report template
-└── incident-report-template.html      # generic incident report template
+├── security-audit-template.md         # generic audit report template
+└── incident-report-template.md        # generic incident report template
 ```
 
-The two templates are generic and carry the Nexurity identity by default. During installation, `/nexurity-setup` asks for the issuing company's name, logo, colours, fonts and contact details, then **creates the branded HTML documents** from these base templates.
+The two templates are generic and carry the Nexurity identity by default. During installation, `/nexurity-setup` asks for the issuing company's name and contact details, then **creates the branded Markdown documents** from these base templates.
 
 ## Installation
 
@@ -50,8 +50,8 @@ The two templates are generic and carry the Nexurity identity by default. During
      ```
    - **Without Git**: download [the ZIP](https://github.com/ramzibougdar/nexurity/archive/refs/heads/main.zip), unzip it and go into the `nexurity-main` folder.
 
-   Then open Claude Code in the folder: `claude`. Python 3 is required; Git, Node.js and Playwright are optional.
-2. If the reports must carry another company's identity, have its name, SVG logo, colours, fonts and contact details ready.
+   Then open Claude Code in the folder: `claude`. Python 3 is required; Git and Pandoc (PDF or Word export of the report) are optional.
+2. If the reports must carry another company's identity, have its name and contact details ready.
 3. In Claude Code, type: `Read PROMPT.md and follow it`.
 
 Claude Code builds the plugin in eight stages and waits for your approval at the end of each one.

@@ -441,7 +441,7 @@ details.more[open] .opt-list .req:nth-child(4){animation-delay:.18s}
     <div>
       <div class="eyebrow">Installation guide</div>
       <h1 style="margin-top:12px" aria-label="Install Nexurity in Claude Code"><span aria-hidden="true"><span class="w" style="--i:0">Install</span> <span class="w" style="--i:1">Nexurity</span> <span class="w" style="--i:2">in</span> <span class="w" style="--i:3">Claude</span> <span class="w" style="--i:4">Code</span></span></h1>
-      <p class="lede">Nexurity is a security audit assistant for Claude Code. It audits code, servers and live websites, handles incident response, and writes a client-ready HTML report. Claude Code builds it for you from a single prompt.</p>
+      <p class="lede">Nexurity is a security audit assistant for Claude Code. It audits code, servers and live websites, handles incident response, and writes a client-ready Markdown report. Claude Code builds it for you from a single prompt.</p>
     </div>
     <div class="facts">
       <div style="--i:0"><span>Repository </span><a class="repo" href="https://github.com/ramzibougdar/nexurity" target="_blank" rel="noopener">nexurity</a></div>
@@ -476,11 +476,11 @@ details.more[open] .opt-list .req:nth-child(4){animation-delay:.18s}
         <div class="req"><span class="tag opt">Recommended</span><b>Audit tools</b><span class="muted"><code>semgrep</code>, <code>gitleaks</code>, <code>lynis</code>, <code>testssl.sh</code>, <code>pip-audit</code>. Stage 1 lists what is missing.</span></div>
       </div>
       <details class="more">
-        <summary><span class="sum"><span>Optional <span class="count-pill">4</span></span><span class="hint">Git, Node.js and Playwright, your company identity, CodeQL</span></span></summary>
+        <summary><span class="sum"><span>Optional <span class="count-pill">4</span></span><span class="hint">Git, Pandoc, your company identity, CodeQL</span></span></summary>
         <div class="reqs opt-list">
           <div class="req"><b>Git</b><span class="muted">Handy to clone the kit and pull updates. Without it, download the kit as a ZIP.</span></div>
-          <div class="req"><b>Node.js and Playwright</b><span class="muted">Let Claude Code check the reports in a browser and export them to PDF. Without them, open the report and print it to PDF yourself.</span></div>
-          <div class="req"><b>Your company identity</b><span class="muted">Name, SVG logo, colours, fonts and contact details, if reports should not carry the Nexurity brand.</span></div>
+          <div class="req"><b>Pandoc</b><span class="muted">Exports the Markdown report to PDF or Word. Without it, the report stays a <code>.md</code> file.</span></div>
+          <div class="req"><b>Your company identity</b><span class="muted">Name and contact details, if reports should not carry the Nexurity name.</span></div>
           <div class="req"><b>CodeQL</b><span class="muted">Free for open-source code only. Closed-source code needs a GitHub licence.</span></div>
         </div>
       </details>
@@ -529,8 +529,8 @@ nexurity/
 ├── PROMPT.md                          <span class="c"># installation prompt</span>
 ├── README.md
 └── base/
-    ├── security-audit-template.html   <span class="c"># generic audit report</span>
-    └── incident-report-template.html  <span class="c"># generic incident report</span></pre></div>
+    ├── security-audit-template.md     <span class="c"># generic audit report</span>
+    └── incident-report-template.md    <span class="c"># generic incident report</span></pre></div>
     </section>
 
     <section id="stages">
@@ -539,12 +539,12 @@ nexurity/
       <ol class="stages">
         <li><span class="n">Stage 1</span><b>Documentation and sources</b><span>Checks the current Claude Code plugin format, fetches the ten sources read-only (with Git, or as archives without it), records their licences and exact versions.</span><span class="gate"><strong>You approve:</strong> <code>NOTICE.md</code>, the sources summary and the list of missing tools.</span></li>
         <li><span class="n">Stage 2</span><b>Plugin skeleton</b><span>Creates the folders, commands, agents and schemas, then installs the plugin locally.</span><span class="gate"><strong>You approve:</strong> the tree and that <code>/audit</code> appears in Claude Code.</span></li>
-        <li><span class="n">Stage 2b</span><b>Branding and report documents</b><span>Asks for your company identity and creates the two HTML report documents from the base templates.</span><span class="gate"><strong>You approve:</strong> previews of both documents.</span></li>
+        <li><span class="n">Stage 2b</span><b>Branding and report documents</b><span>Asks for your company identity and creates the two Markdown report documents from the base templates.</span><span class="gate"><strong>You approve:</strong> previews of both documents.</span></li>
         <li><span class="n">Stage 3</span><b>Start-up wizard</b><span>Builds the clickable question screens for <code>/audit</code> and <code>/incident</code>.</span><span class="gate"><strong>You approve:</strong> a dry run of every screen.</span></li>
         <li><span class="n">Stage 4</span><b>Safeguards</b><span>Adds the hook that only allows read-only commands during an engagement, on your machine and over SSH.</span><span class="gate"><strong>You approve:</strong> the results of 30 allow/deny tests, including bypass attempts.</span></li>
         <li><span class="n">Stage 4b</span><b>Update check</b><span>Before every audit, compares sources and tools with the recorded versions and asks before updating anything.</span><span class="gate"><strong>You approve:</strong> a simulated update and the <code>/nexurity-update</code> flow.</span></li>
         <li><span class="n">Stage 5</span><b>Pipeline and agents</b><span>Recon, scanners, hunters in parallel, independent verifier, incident forensics.</span><span class="gate"><strong>You approve:</strong> the agents, the routing rules and a dry run of <code>/audit-quick</code>.</span></li>
-        <li><span class="n">Stage 6</span><b>Report generation</b><span>Turns findings into the HTML report, with every value from the target escaped.</span><span class="gate"><strong>You approve:</strong> screenshots and the escaping tests.</span></li>
+        <li><span class="n">Stage 6</span><b>Report generation</b><span>Turns findings into the Markdown report, computes the score and counts, and escapes every value from the target.</span><span class="gate"><strong>You approve:</strong> a sample report and the escaping tests.</span></li>
         <li><span class="n">Stage 7</span><b>Trials</b><span>Runs Nexurity against deliberately vulnerable targets: OWASP Juice Shop, DVWA, a misconfigured server and a fake incident.</span><span class="gate"><strong>You review:</strong> the reports, false positives, missed flaws and token cost per mode.</span></li>
         <li class="later"><span class="n">Stage 8 · later</span><b>Continuous integration</b><span>A GitHub Action that reviews pull requests and comments with confirmed findings.</span></li>
       </ol>
@@ -552,19 +552,16 @@ nexurity/
 
     <section id="setup">
       <div class="sec-head"><span class="k">Stage 2b</span><h2>Branding setup</h2></div>
-      <p>The base templates carry the Nexurity identity. The <code>/nexurity-setup</code> command asks the questions below, then Nexurity creates the two report documents itself. You never edit the HTML by hand. Run the command again at any time to change the branding.</p>
+      <p>The base templates carry the Nexurity identity. The <code>/nexurity-setup</code> command asks the questions below, then Nexurity creates the two report documents itself. You never edit the Markdown by hand. Run the command again at any time to change the branding.</p>
       <div class="tbl"><table>
         <thead><tr><th>Question</th><th>Choices</th></tr></thead>
         <tbody>
           <tr><td><strong>Company name</strong></td><td>Keep Nexurity, or type the issuing company's name</td></tr>
-          <tr><td><strong>Logo</strong></td><td>Keep the Nexurity logo, or give the path to an SVG file</td></tr>
-          <tr><td><strong>Colours</strong></td><td>Keep Nexurity's, enter your own (primary, dark, background, accent), or extract them from a CSS, SVG or HTML file</td></tr>
-          <tr><td><strong>Fonts</strong></td><td>Keep Schibsted Grotesk and JetBrains Mono, other Google Fonts, or system fonts only</td></tr>
-          <tr><td><strong>Contact details</strong></td><td>Address, email, phone and website for the report footer</td></tr>
+          <tr><td><strong>Contact details</strong></td><td>Address, email, phone and website for the end of the report</td></tr>
           <tr><td><strong>Default language</strong></td><td>English or French</td></tr>
         </tbody>
       </table></div>
-      <p class="muted">Colours are checked for readability before they are saved. Logos are always embedded in the report, so each report stays a single file.</p>
+      <p class="muted">The report is plain Markdown, with no logo, colours or fonts, so each report stays a single <code>.md</code> file.</p>
     </section>
 
     <section id="first">
@@ -586,7 +583,7 @@ nexurity/
 ├── evidence/
 ├── findings.json
 ├── log.md              <span class="c"># what was actually done</span>
-└── report.html         <span class="c"># the client report</span></pre></div>
+└── report.md           <span class="c"># the client report</span></pre></div>
       <div class="note"><b>The report is confidential</b><span class="muted">It describes exploitable flaws in your client's systems. Send it directly to the client; don't publish it online.</span></div>
     </section>
 
@@ -599,7 +596,7 @@ nexurity/
           <tr><td><code>/audit-quick</code></td><td>One hunter chosen automatically and one verifier, for a fast check</td></tr>
           <tr><td><code>/audit-diff</code></td><td>Reviews a diff or pull request</td></tr>
           <tr><td><code>/incident</code></td><td>Investigates a suspected hack: preserves evidence, reads the logs, rebuilds the timeline</td></tr>
-          <tr><td><code>/report &lt;REF&gt;</code></td><td>Regenerates the HTML report from an engagement's findings</td></tr>
+          <tr><td><code>/report &lt;REF&gt;</code></td><td>Regenerates the Markdown report from an engagement's findings</td></tr>
           <tr><td><code>/audit --resume &lt;REF&gt;</code></td><td>Re-runs an engagement with the same answers</td></tr>
           <tr><td><code>/nexurity-setup</code></td><td>Changes the branding and recreates the report documents</td></tr>
           <tr><td><code>/nexurity-update</code></td><td>Reviews and applies updates to sources and tools</td></tr>
@@ -628,7 +625,7 @@ nexurity/
         <details><summary>A tool is missing during an audit</summary><div class="ans"><p>Nexurity asks whether to install it, continue without it or cancel. The report's "Tools" section only lists what actually ran.</p></div></details>
         <details><summary>The update check is slow or I'm offline</summary><div class="ans"><p>The check stops after 15 seconds and the audit continues. The engagement log notes "updates not checked". You can turn the check off with <code>"check_updates": false</code> in <code>config.json</code>.</p></div></details>
         <details><summary>A command was blocked during an audit</summary><div class="ans"><p>That's the safeguard hook. Only read-only commands are allowed while an engagement is active. If a legitimate read command is missing from the allowlist, add it in <code>scripts/guard.py</code> and re-run its tests.</p></div></details>
-        <details><summary>I changed the logo or colours</summary><div class="ans"><p>Run <code>/nexurity-setup</code> again. It recreates both report documents and shows you a preview before saving.</p></div></details>
+        <details><summary>I changed the company name or contact details</summary><div class="ans"><p>Run <code>/nexurity-setup</code> again. It recreates both report documents and shows you a preview before saving.</p></div></details>
       </div>
     </section>
 
