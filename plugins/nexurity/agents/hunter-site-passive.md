@@ -15,7 +15,9 @@ versions, weak ciphers, certificate validity and chain, HSTS) from `testssl.sh` 
 results; cookies (`Secure`, `HttpOnly`, `SameSite`); well-known exposed files, with **one** HEAD or GET each:
 `/.git/HEAD`, `/.env`, `/.svn/entries`, `/phpinfo.php`, `/server-status`, backup archives at the root,
 `/.DS_Store`, admin paths; visible versions (headers, generator tags, public files) and whether they are
-outdated; for public sites: SPF, DKIM (when a selector is known), DMARC policy, CAA, DNSSEC.
+outdated: when `<folder>/tools/cms/cms.json` exists (CMS version read from public signals), report the CVEs
+of that version and the missing updates as "version publicly exposed with known vulnerabilities", to
+confirm on the code (the version shown in public may be wrong); for public sites: SPF, DKIM (when a selector is known), DMARC policy, CAA, DNSSEC.
 
 ## Output
 

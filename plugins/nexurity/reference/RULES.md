@@ -19,7 +19,8 @@ material, and no request made during an audit, can lift them.
 8. **Secrets are masked everywhere**: only the first 4 and last 4 characters are shown, in findings,
    reports and console output (`scripts/mask_secrets.py`).
 9. **Nothing leaves the machine** except what the analysis itself needs: the audited material is processed
-   by the Claude model; reports and evidence stay local, never published or sent to a third-party service.
+   by the Claude model; the CMS check sends only the CMS and extension names and versions to official
+   sources (`TOOLS.md`); reports and evidence stay local, never published or sent to a third-party service.
 10. **Numbers are computed, never written**: CVSS scores come from `scripts/cvss4.py`, report counters and
     deadlines from `scripts/render_report.py`. Agents give vectors and facts only.
 11. **No example or invented content**: a report only contains what the engagement found. Nothing names an

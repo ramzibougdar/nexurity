@@ -56,6 +56,15 @@ scratch; no text or code from them is included.
 OWASP Top 10 (2021), OWASP ASVS 4.0, CWE Top 25, CVSS 4.0 (FIRST), ANSSI guidelines, GDPR articles 33
 and 34. Names and identifiers only.
 
+## Data sources queried by the CMS check
+
+`scripts/cms.py` queries, at audit time, only with the CMS and extension names and versions: the
+WordPress.org APIs (core and plugin checksums, versions), the official release archives (GitHub releases of
+PrestaShop and Joomla, ftp.drupal.org), updates.drupal.org, OSV.dev (advisories from the GitHub Advisory
+Database, CC-BY 4.0), and WPScan when the user sets `WPSCAN_API_TOKEN` (the free WPScan plan is limited to
+non-commercial use: check its terms for your use). This product uses the NVD API but is not endorsed or
+certified by the NVD. Nothing from these sources is shipped with Nexurity.
+
 ## Tools called, not included
 
 Semgrep, CodeQL, Lynis, testssl.sh, gitleaks, trufflehog, composer, npm, pip-audit, cargo-audit, Pandoc

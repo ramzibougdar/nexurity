@@ -512,6 +512,16 @@ def check_nexurity_script(name, args, ctx):
             raise Refused("preserve_evidence.py needs --dest inside the engagement folder")
         for value in dest:
             ctx.require_in_folder(value, "preserving evidence")
+    elif name == "cms.py":
+        verb = args[0] if args else ""
+        if verb == "scan":
+            out = option_value(args, ["--out"])
+            if not out:
+                raise Refused("cms.py scan needs --out inside the engagement folder")
+            for value in out:
+                ctx.require_in_folder(value, "writing the CMS check")
+        elif verb != "detect":
+            raise Refused("cms.py: only detect and scan")
     elif name in ("cvss4.py", "mask_secrets.py", "triage_logs.py", "check_updates.py", "guard.py"):
         return
     else:

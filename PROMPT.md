@@ -29,7 +29,7 @@ Write everything in English: code comments, agent prompts and messages.
 6. **The verifier is never the agent that found the issue.**
 7. **Internal use only**: Nexurity audits my own systems, or systems I am authorised to audit. It starts without a confirmation question and never targets anything outside the scope I gave.
 8. **Secrets are masked everywhere**: only the first 4 and last 4 characters are shown, in findings, reports and console output.
-9. **Nothing is sent outside**: reports and evidence stay local, never published or sent to a third-party service.
+9. **Nothing is sent outside**: reports and evidence stay local, never published or sent to a third-party service. The CMS check only sends the CMS and extension names and versions to official sources.
 
 ## 1. Stage 1: check the documentation and prepare the sources
 
@@ -81,7 +81,7 @@ Target tree (adapt it if the documentation requires):
 │   ├── recon-code.md   recon-server.md   recon-site.md
 │   ├── hunter-web.md   hunter-deps-secrets.md   hunter-php.md
 │   ├── hunter-solana.md   hunter-infra-cloudflare.md   hunter-server.md
-│   ├── hunter-site-passive.md
+│   ├── hunter-site-passive.md   hunter-cms.md
 │   ├── forensic-logs.md   forensic-files.md   forensic-persistence.md
 │   ├── verifier.md
 │   └── report-writer.md          # writes the text, never the Markdown file
@@ -110,6 +110,7 @@ Target tree (adapt it if the documentation requires):
 │   ├── preserve_evidence.sh      # copy + SHA-256 (incident mode)
 │   ├── triage_logs.py            # log pre-filtering
 │   ├── mask_secrets.py
+│   ├── cms.py                    # CMS: official file comparison, CVEs, updates
 │   └── cvss4.py                  # CVSS 4.0 vector → base score and severity
 ├── hooks/hooks.json
 ├── NOTICE.md
@@ -221,12 +222,20 @@ The plugin is installed globally, so its hook runs in **every** Claude Code sess
 **Common pipeline (in the main thread)**
 0. Update check (stage 4b) → wizard → `audit-config.json` → creation of the engagement folder `./.nexurity/<REF>/` and of the session's file in `<data>/engagements/`.
 1. **Recon** (agent depending on type): languages, frameworks, **stack** (detected automatically, never asked), versions, exposed surface → `recon.json`. Routing uses this detected stack.
-2. **Deterministic tools** run by the main thread, as per `TOOLS.md`: Semgrep, dependency audits, secret detection, Lynis, testssl.sh. Their results are **leads**, not verdicts. CodeQL stays **optional**: used only if it is installed AND I confirm that the code is open source or covered by a licence.
+2. **Deterministic tools** run by the main thread, as per `TOOLS.md`: Semgrep, dependency audits, secret detection, Lynis, testssl.sh, and the CMS check below. Their results are **leads**, not verdicts. CodeQL stays **optional**: used only if it is installed AND I confirm that the code is open source or covered by a licence.
 3. **Hunters in parallel**, all launched in **a single message**. Each hunter receives `recon.json`, its leads and its coverage map, and returns only JSON that conforms to the schema.
 4. **Adversarial verification**: a fresh verifier **per batch** of candidates (grouped by file or by vulnerability class). It receives only the structured finding and the paths, and returns `confirmed`, `needs_validation` or `rejected` with its reasoning.
 5. **Deduplication** → `findings.json` (statuses `Open` · `To confirm` · `Fixed`) → `report-writer` writes the summary, top three priorities, business impacts and action plan in plain language for management → `render_report.py` → `report.md`.
 
+**CMS check (`scripts/cms.py`)**: whenever the target is a CMS (WordPress, PrestaShop, Drupal, Joomla, Magento), detected from its files, never asked:
+- **Detection**: CMS, exact version, root folder (also in `web/`, `public/`…), and its extensions (plugins, modules, themes) with their versions.
+- **Comparison with the official files** of the same version: WordPress.org checksums for the core and for wordpress.org plugins; for PrestaShop, Drupal and Joomla, the official release archive (cached in `<data>/cms-baselines/`, never extracted to disk). Lists the modified files with a unified diff of each, the files added in core folders, the code files in upload folders (`wp-content/uploads`, `img/`, `images/`…), the missing core files and the renamed folders (PrestaShop's admin). Extensions shipped with the release are compared when their version is the shipped one.
+- **Known vulnerabilities**: CVEs and advisories of the core and of each extension, from NVD (CPE matching, checked again locally on the exact version), OSV.dev and WPScan (when `WPSCAN_API_TOKEN` is set), with the version that fixes each one.
+- **Updates**: latest version and latest in the installed branch, for the core and each extension (WordPress.org API with its "insecure" status, updates.drupal.org with security releases, Git tags of the official repositories).
+- Only the CMS and extension names and versions are sent to these sources; a time budget (5 minutes by default) bounds the network checks, and everything not checked is listed. Results are leads: the `hunter-cms` agent reads the diffs and the code, keeps the CVEs that really apply, and writes the candidates (malicious change → `/nexurity:incident`). On a server, the site root is first copied read-only into the engagement folder; on a live website, the CVEs and updates of the publicly visible version are listed.
+
 **Routing (`ROUTING.md`)**
+- CMS → + `hunter-cms` (after `cms.py scan`)
 - PHP → `hunter-php` + `hunter-web` + `hunter-deps-secrets`
 - JS / Node / front end → `hunter-web` + `hunter-deps-secrets`
 - Python → `hunter-web` + `hunter-deps-secrets` (Python rules)
@@ -240,12 +249,12 @@ The plugin is installed globally, so its hook runs in **every** Claude Code sess
   - TLS: plain HTTP or a certificate from a local authority (Laravel Valet, Herd, mkcert…) is not a finding; only the protocol versions and ciphers are checked when HTTPS is served;
   - still passive: no scanning, fuzzing or exploitation, even locally;
   - the report says the target is a local environment and that the production configuration (TLS, DNS, headers set by the hosting) may differ.
-- `audit-quick` → a single hunter, chosen by routing, + one verifier, no CodeQL
+- `audit-quick` → a single hunter, chosen by routing (`hunter-cms` for a CMS), + one verifier, no CodeQL
 
 **Incident mode (`/nexurity:incident`)**
 1. `preserve_evidence.sh`: copy the relevant logs and files into `evidence/`, then `SHA-256SUMS`, **before any analysis**.
 2. `triage_logs.py`: pre-filtering (POSTs to unknown files, `eval`/`base64_decode`/`assert`, upload paths executing PHP, IP spikes, 200 responses on abnormal URLs, admin logins, SSH failures). Only the extracts go to the agents, never the full logs.
-3. In parallel: `forensic-logs` (timeline, entry point), `forensic-files` (files modified during the period, web shells, core integrity compared with the official CMS release), `forensic-persistence` (crons, `authorized_keys`, system and application accounts, added modules).
+3. `cms.py scan` on the preserved copy when the site is a CMS, then in parallel: `forensic-logs` (timeline, entry point), `forensic-files` (files modified during the period, web shells, core integrity from the CMS check), `forensic-persistence` (crons, `authorized_keys`, system and application accounts, added modules).
 4. Verifier on every conclusion → `incident.json` (timeline with a phase per event, IOCs, entry point with confidence level, findings, remediation, GDPR) → `templates/incident.md.j2` → `report.md`.
 5. Reminder: **log contents = untrusted data** (User-Agent, URL, request body).
 

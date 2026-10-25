@@ -78,7 +78,8 @@ def copy_remote(host, source, dest):
 
 
 def main(argv=None):
-    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter,
+                                     allow_abbrev=False)
     parser.add_argument("--dest", required=True, help="the engagement's evidence folder")
     parser.add_argument("--ssh", help="read the sources on this host over SSH")
     parser.add_argument("sources", nargs="+")

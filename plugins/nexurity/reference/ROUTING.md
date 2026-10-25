@@ -4,6 +4,7 @@ The recon agent detects the stack (never asked in the wizard) and writes `recon.
 
 | Detected | Agents |
 |---|---|
+| CMS (WordPress, PrestaShop, Drupal, Joomla, Magento) | + `hunter-cms`, after `cms.py scan` (see below) |
 | PHP | `hunter-php` + `hunter-web` + `hunter-deps-secrets` |
 | JS / Node / front end | `hunter-web` + `hunter-deps-secrets` |
 | Python | `hunter-web` + `hunter-deps-secrets` (Python rules) |
@@ -12,9 +13,24 @@ The recon agent detects the stack (never asked in the wizard) and writes `recon.
 | Server | `recon-server` + `hunter-server` (SSH, web server, PHP-FPM, database, firewall, updates, accounts, sudoers, crons, Docker, permissions, backups) |
 | Live website | `recon-site` + `hunter-site-passive` (headers, TLS, cookies, DNS/SPF/DKIM/DMARC, well-known exposed files with one HEAD/GET request each, visible versions) |
 | Local website | same as live website, adapted (see below) |
-| Quick audit | one hunter only, the first one routing selects for the main stack, plus one verifier; no CodeQL |
+| Quick audit | one hunter only, the first one routing selects for the main stack (`hunter-cms` for a CMS), plus one verifier; no CodeQL |
 
 A project with several stacks gets the union of the hunters. Code audits always run `recon-code` first.
+
+## CMS
+
+`python3 "<plugin>/scripts/cms.py" detect <target>` confirms the CMS, its version and root, and lists its
+extensions (plugins, modules, themes). When it finds one:
+- **Code**: `cms.py scan <cms root> --data "<data>" --out <folder>/tools/cms` compares every file with the
+  official release of the same version (diffs of modified files in `tools/cms/diffs/`), lists the known
+  CVEs of the core and of each extension, and the updates to install; then `hunter-cms` reviews it,
+  alongside the usual PHP hunters.
+- **Server**: copy the site root read-only into the engagement folder with `preserve_evidence.py --ssh`,
+  then scan the copy.
+- **Live website**: when `recon-site` reads the CMS name and version from public signals,
+  `cms.py scan --cms <name> --version <version> --data "<data>" --out <folder>/tools/cms` lists its CVEs
+  and updates (no file comparison); `hunter-site-passive` reports them as "version publicly exposed with
+  known vulnerabilities", to confirm on the code.
 
 ## Local websites
 

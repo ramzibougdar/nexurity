@@ -23,6 +23,19 @@ never installs a tool by itself.
 
 Update with `claude plugin update nexurity@nexurity-marketplace`, then start a new session.
 
+## CMS
+
+When the audited project is a CMS (WordPress, PrestaShop, Drupal, Joomla, Magento), Nexurity detects it,
+its version and its extensions, then `scripts/cms.py`:
+- compares every file with the official release of the same version (WordPress.org checksums, official
+  release archives) and writes a diff of each modified file: injected code and web shells stand out;
+- lists the known CVEs of the core and of each plugin, module or theme (NVD, OSV.dev, and WPScan when
+  `WPSCAN_API_TOKEN` is set), with the version that fixes each one;
+- lists the updates to install (latest version, latest in the installed branch, security releases).
+
+The `hunter-cms` agent checks which CVEs really apply and reads the diffs. Only names and versions are sent
+to these sources. Set `NVD_API_KEY` to speed up the NVD lookups.
+
 ## Commands
 
 | Command | What it does |
@@ -41,7 +54,7 @@ Update with `claude plugin update nexurity@nexurity-marketplace`, then start a n
 | Folder | What it holds |
 |---|---|
 | `./.nexurity/<REF>/` | Each engagement, in the folder where you started Claude Code: `audit-config.json`, `evidence/`, `findings.json` or `incident.json`, `report.md`, `log.md`. The folder ignores itself in Git. |
-| `${CLAUDE_PLUGIN_DATA}` (`~/.claude/plugins/data/…`) | Settings (`config.json`), engagement index, update-check cache. Deleted if you uninstall the plugin. |
+| `${CLAUDE_PLUGIN_DATA}` (`~/.claude/plugins/data/…`) | Settings (`config.json`), engagement index, cached CMS release archives (`cms-baselines/`), update-check cache. Deleted if you uninstall the plugin. |
 
 ## Safety
 
