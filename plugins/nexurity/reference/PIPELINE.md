@@ -22,7 +22,9 @@ Log every step: `python3 "<plugin>/scripts/engagement.py" log --data "<data>" --
    with the Write tool into `<folder>`.
 3. **Recon** (agent depending on type, see `ROUTING.md`) → `<folder>/recon.json`: languages, frameworks,
    **stack** (detected, never asked), versions, exposed surface, `local` for websites.
-4. **Deterministic tools** (`TOOLS.md`) → `<folder>/tools/`. Leads only.
+4. **Deterministic tools** (`TOOLS.md`) → `<folder>/tools/`. Leads only. Always run
+   `python3 "<plugin>/scripts/cms.py" detect <target>` on code; when it finds a CMS, run `cms.py scan` and
+   route `hunter-cms` (`ROUTING.md`, "CMS"). Log what it could not check.
 5. **Hunters in parallel**: launch all routed hunters **in a single message** (one Agent call each). Give each
    hunter: the target path or URL, `<folder>/recon.json`, the paths of its leads in `<folder>/tools/`, and its
    coverage map (which parts it owns). Each returns only JSON candidates (`REPORT.md`, "Hunter output").

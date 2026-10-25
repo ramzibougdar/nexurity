@@ -10,8 +10,10 @@ Look for: files created or modified during the suspected period (timestamps from
 web shells and backdoors (`eval`, `base64_decode`, `gzinflate`, `str_rot13`, `assert`, `system`,
 `passthru`, `$_POST`/`$_REQUEST` passed to execution functions, long encoded strings); PHP files in upload,
 image or cache folders; injected JavaScript (skimmers on checkout pages, external scripts loaded from
-unknown domains); modified core files compared with the official release of the same CMS version (when you
-can identify it); `.htaccess` changes (redirects, `auto_prepend_file`); hidden files and files with odd
+unknown domains); core integrity: when `<folder>/tools/cms/cms.json` exists (`cms.py scan` on the
+preserved copy), read its `modified`, `added` and `code_in_upload_dirs` entries and the diffs in
+`tools/cms/diffs/` (each changed line is evidence; the official file is the baseline), and use its CVE list
+to find the likely entry point; `.htaccess` changes (redirects, `auto_prepend_file`); hidden files and files with odd
 names. Give each suspicious file its SHA-256 (from `SHA-256SUMS`) and never execute anything.
 
 ## Output

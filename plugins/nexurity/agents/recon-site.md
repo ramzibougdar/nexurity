@@ -11,7 +11,9 @@ scanning, no fuzzing, no form submission.
    `127.0.0.1`, `::1`, `*.test`, `*.local`, `*.localhost`, `*.internal`, or a loopback/private address
    from `dig +short`).
 2. Fetch the home page headers (`curl -sI`) and, if useful, the page itself once: server, framework or CMS
-   and its version hints, cookies set, redirects, HTTPS.
+   and its version hints (generator meta tag, `ver=` query strings, public `readme.html` or `CHANGELOG`),
+   cookies set, redirects, HTTPS. Record a CMS as `"cms": {"name": "wordpress|prestashop|drupal|joomla|magento",
+   "version": "", "evidence": ""}` (version only when a public signal shows it).
 3. Note public files to check later: `robots.txt`, `sitemap.xml`, `/.well-known/security.txt`.
 4. For a public site only: DNS records (A, AAAA, MX, TXT, `_dmarc`), the TLS certificate (`openssl
    s_client`).
@@ -19,7 +21,7 @@ scanning, no fuzzing, no form submission.
 ## Output
 
 ```json
-{"url": "", "local": false, "stack": "", "server": "", "versions": [], "https": {}, "cookies": [],
+{"url": "", "local": false, "stack": "", "cms": null, "server": "", "versions": [], "https": {}, "cookies": [],
  "dns": {}, "public_files": [], "notes": [], "suspicious_instructions": []}
 ```
 

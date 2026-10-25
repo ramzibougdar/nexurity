@@ -33,7 +33,8 @@ Follow `${CLAUDE_PLUGIN_ROOT}/reference/PIPELINE.md` from step 0 to step 10, wit
 - routing from `${CLAUDE_PLUGIN_ROOT}/reference/ROUTING.md`, tools from `${CLAUDE_PLUGIN_ROOT}/reference/TOOLS.md`,
   severity from `${CLAUDE_PLUGIN_ROOT}/reference/SEVERITY.md`, data formats from
   `${CLAUDE_PLUGIN_ROOT}/reference/REPORT.md`;
-- the agents of this plugin: `recon-code`, `recon-server`, `recon-site`, the hunters chosen by routing,
+- the agents of this plugin: `recon-code`, `recon-server`, `recon-site`, the hunters chosen by routing
+  (`hunter-cms` with `scripts/cms.py` for WordPress, PrestaShop, Drupal, Joomla and Magento),
   `verifier` and `report-writer`.
 
 The engagement starts with `--kind audit`, `--session "${CLAUDE_SESSION_ID}"` and `--cwd` set to the folder

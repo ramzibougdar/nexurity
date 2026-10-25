@@ -602,7 +602,8 @@ def export(markdown_path, fmt):
 
 
 def main(argv=None):
-    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter,
+                                     allow_abbrev=False)
     parser.add_argument("--data")
     parser.add_argument("--ref")
     parser.add_argument("--folder")

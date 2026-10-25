@@ -13,7 +13,8 @@ Find, from files only (never run the code):
 - entry points: routes, controllers, API handlers, CLI, cron jobs, webhooks, upload handlers;
 - authentication and session code, database access layer, file handling, templating, crypto use;
 - infrastructure files: `Dockerfile`, CI, `wrangler.toml`, web server configs, `.env*` files present;
-- third-party modules or plugins, and which ones look custom.
+- third-party modules or plugins, and which ones look custom (the main thread confirms a CMS, its version
+  and extensions with `cms.py detect`; add `hunter-cms` to `routing` when you see one).
 Ignore `.nexurity/`, `vendor/`, `node_modules/` content except manifests and lock files.
 
 ## Output

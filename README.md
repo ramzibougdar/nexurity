@@ -24,6 +24,7 @@ Then open Claude Code in the project to audit and type `/nexurity:audit`. Python
 | Mode | Command | What it covers |
 |---|---|---|
 | Code audit | `/nexurity:audit` | Vulnerabilities, dependencies and secrets (PHP, JS, Python, Solana…) |
+| CMS | `/nexurity:audit` | WordPress, PrestaShop, Drupal, Joomla, Magento: files compared with the official release, known CVEs of the core and extensions, updates to install |
 | Server audit | `/nexurity:audit` | Read-only configuration review: SSH, web server, PHP, database, firewall, accounts, crons, Docker |
 | Website audit | `/nexurity:audit` | Passive checks only: HTTP headers, TLS, DNS, cookies, exposed files; local sites (`localhost`, `*.test`…) too |
 | Quick audit | `/nexurity:audit-quick` | One auto-routed hunter and one verifier |

@@ -186,6 +186,8 @@ class GuardTest(unittest.TestCase):
             'python3 %s/engagement.py close --data /d --ref X' % sc,
             'python3 %s/triage_logs.py %s/evidence/access.log > %s/triage.json' % (sc, f, f),
             'python3 %s/cvss4.py --json "CVSS:4.0/AV:N"' % sc,
+            'python3 %s/cms.py detect %s' % (sc, self.project),
+            'python3 %s/cms.py scan %s --data /d --out %s/tools/cms' % (sc, self.project, f),
         ):
             self.assertAllowed(command)
         for command in (
@@ -194,6 +196,10 @@ class GuardTest(unittest.TestCase):
             'python3 %s/preserve_evidence.py /etc' % sc,
             'python3 %s/engagement.py start --session other --cwd %s --kind audit --target x' % (sc, self.project),
             'python3 %s/../scripts/../tests/test_guard.py' % sc,
+            'python3 %s/cms.py scan %s --data /d --out /tmp/cms' % (sc, self.project),
+            'python3 %s/cms.py scan %s --data /d' % (sc, self.project),
+            'python3 %s/cms.py scan %s --data /d --ou /tmp/cms' % (sc, self.project),
+            'python3 %s/cms.py purge' % sc,
         ):
             self.assertRefused(command)
 
