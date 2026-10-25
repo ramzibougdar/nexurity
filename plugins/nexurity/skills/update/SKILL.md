@@ -19,8 +19,9 @@ Before anything else, read `${CLAUDE_PLUGIN_ROOT}/reference/RULES.md` and follow
 3. **Nexurity itself**: it is updated through Claude Code, never by editing the plugin files. Tell the user to
    run `claude plugin update nexurity@nexurity-marketplace` (or `/plugin`, Marketplaces tab) and to start a new
    session afterwards.
-4. **Ported source** (FIRST CVSS calculator): show the upstream changes (`git ls-remote` / the repository's
-   history) and explain that porting them is the plugin maintainer's job; nothing is copied automatically.
+4. **Ported source and shipped skills** (FIRST CVSS calculator, the skills in `vendor/`): show which upstream
+   repositories have new commits and explain that bringing them in is the plugin maintainer's job (a new
+   Nexurity release, see `NOTICE.md`); nothing is copied or downloaded into the plugin automatically.
 5. **Tools** (semgrep, gitleaks…): run `python3 "${CLAUDE_PLUGIN_ROOT}/scripts/tools.py" install --data
    "${CLAUDE_PLUGIN_DATA}" --upgrade` (30-minute timeout) to update the tools Nexurity or Homebrew installed
    and to install any missing one. For a tool installed another way, show its own update command and run it

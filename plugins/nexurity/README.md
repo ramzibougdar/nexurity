@@ -40,6 +40,14 @@ its version and its extensions, then `scripts/cms.py`:
 The `hunter-cms` agent checks which CVEs really apply and reads the diffs. Only names and versions are sent
 to these sources. Set `NVD_API_KEY` to speed up the NVD lookups.
 
+## Shipped security skills
+
+`vendor/` holds security skills from other projects, copied unmodified with their licences: Cloudflare's
+security audit skill and WAF reference, Netresearch's security audit skill, the audit skills of secskills,
+Sanbir's Solana auditor, VoltAgent's security auditor and code reviewer, and Anthropic's security review
+prompt and false-positive rules. The agents read them as checklists (`reference/KNOWLEDGE.md`); Nexurity's
+rules always take precedence. Attribution and licences: `NOTICE.md`.
+
 ## Commands
 
 | Command | What it does |

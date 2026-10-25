@@ -14,6 +14,8 @@ Paths for this run:
 - arguments: `$ARGUMENTS`
 
 Before anything else, read `${CLAUDE_PLUGIN_ROOT}/reference/RULES.md` and follow it for the whole run.
+Then read the checklists listed for `/nexurity:audit-diff` in `${CLAUDE_PLUGIN_ROOT}/reference/KNOWLEDGE.md`
+and give the hunters the ones for their area.
 
 0. Tools and update check, as in step 0 of `${CLAUDE_PLUGIN_ROOT}/reference/PIPELINE.md`.
 1. Determine the change to review from the argument: a range `base..head`, a branch (compared with the default

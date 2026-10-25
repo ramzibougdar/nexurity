@@ -38,18 +38,42 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.```
 
-## Ideas only (nothing copied)
+## Third-party skills included (unmodified)
 
-These projects were consulted for methodology. Nexurity's agents, rules and scripts are written from
-scratch; no text or code from them is included.
+These security skills are copied **unmodified**, at the commit shown, into `vendor/`, each with its
+licence file(s). Nexurity's agents read them as checklists (`reference/KNOWLEDGE.md`); Nexurity's own rules
+take precedence over their instructions. The full list of copied files is in `vendor/SOURCES.json`, and
+`.github/scripts/vendor.py --check` verifies them against their sources.
 
-| Project | What inspired Nexurity |
+| Source | Folder | Commit | Licence |
+|---|---|---|---|
+| [cloudflare/security-audit-skill](https://github.com/cloudflare/security-audit-skill) | `vendor/cloudflare-security-audit/` | `c1c8a8c14710` | MIT |
+| [cloudflare/skills (WAF reference only)](https://github.com/cloudflare/skills) | `vendor/cloudflare-skills-waf/` | `86505e44f87d` | Apache-2.0 |
+| [netresearch/security-audit-skill](https://github.com/netresearch/security-audit-skill) | `vendor/netresearch-security-audit/` | `5319ab55db58` | CC-BY-SA-4.0 (content), MIT (code, not included) |
+| [trilwu/secskills (secskills-core, audit skills only)](https://github.com/trilwu/secskills) | `vendor/secskills-core/` | `ca53957bcd8e` | MIT |
+| [sanbir/solana-auditor-skills](https://github.com/sanbir/solana-auditor-skills) | `vendor/solana-auditor/` | `e501915ff495` | MIT |
+| [VoltAgent/awesome-claude-code-subagents (security and code review agents)](https://github.com/VoltAgent/awesome-claude-code-subagents) | `vendor/voltagent-subagents/` | `408d3c9eee2d` | MIT |
+| [anthropics/claude-code-security-review (review prompt and false-positive rules)](https://github.com/anthropics/claude-code-security-review) | `vendor/claude-code-security-review/` | `0c6a49f1fa56` | MIT |
+
+- **netresearch/security-audit-skill**: content by Netresearch DTT GmbH, licensed under CC BY-SA 4.0
+  (https://creativecommons.org/licenses/by-sa/4.0/); included unmodified. Only its content files (skill
+  definition, references, checkpoints) are included, none of its scripts.
+- **cloudflare/skills**: Copyright Cloudflare, Inc., Apache License 2.0; only the WAF reference
+  (`skills/cloudflare/references/waf/`) is included, unmodified.
+- **anthropics/claude-code-security-review**: two files of its Python package (`prompts.py`,
+  `findings_filter.py`) are included as reading material for the verifier and the diff review; they are
+  never executed.
+- Not included: secskills `secskills-offense` and the binary-reversing skills of `secskills-core`,
+  VoltAgent's other agents (including `penetration-tester`), and every script, validator or hook of these
+  projects.
+
+## Cited only (not copied)
+
+| Project | Why |
 |---|---|
-| https://github.com/cloudflare/security-audit-skill | phased audit pipeline, coverage map, adversarial validation |
-| https://github.com/anthropics/claude-code-security-review | review of a diff or pull request |
-| https://github.com/trilwu/secskills (`secskills-core` only) | code-audit checklists |
-| https://github.com/netresearch/security-audit-skill | PHP checklist |
-| https://github.com/sanbir/solana-auditor-skills | Solana checklist |
+| https://gist.github.com/nud3l/15468abc5c4ca7e4e0e38e5b120a7997 | no licence: not copied; its idea (parallel audit agents launched in one message) is used in PIPELINE.md |
+| https://github.com/semgrep/semgrep | a tool, not a skill: installed by /nexurity:setup and run by the main thread (TOOLS.md) |
+| https://github.com/github/codeql | a tool, not a skill: optional, run only when installed and its licence allows it (TOOLS.md) |
 
 ## Standards referenced
 

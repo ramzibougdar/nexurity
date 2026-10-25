@@ -1,0 +1,135 @@
+{
+  "about": "Third-party security skills shipped with Nexurity, copied unmodified at a pinned commit. Regenerate with `python3 .github/scripts/vendor.py` (see vendor/README.md).",
+  "sources": [
+    {
+      "dir": "cloudflare-security-audit",
+      "name": "cloudflare/security-audit-skill",
+      "repo": "https://github.com/cloudflare/security-audit-skill",
+      "branch": "main",
+      "commit": "c1c8a8c1471069fb0e188eeaff69b8e8db6564a8",
+      "license": "MIT",
+      "license_files": [
+        "LICENSE"
+      ],
+      "include": [
+        "skills/security-audit/*.md",
+        "skills/security-audit/report-schema.json"
+      ]
+    },
+    {
+      "dir": "cloudflare-skills-waf",
+      "name": "cloudflare/skills (WAF reference only)",
+      "repo": "https://github.com/cloudflare/skills",
+      "branch": "main",
+      "commit": "86505e44f87d801aa1864a3c4109e9a8ae5c409f",
+      "license": "Apache-2.0",
+      "license_files": [
+        "LICENSE"
+      ],
+      "include": [
+        "skills/cloudflare/references/waf/*.md"
+      ]
+    },
+    {
+      "dir": "netresearch-security-audit",
+      "name": "netresearch/security-audit-skill",
+      "repo": "https://github.com/netresearch/security-audit-skill",
+      "branch": "main",
+      "commit": "5319ab55db58b14de664dbd8379c1dbd800fac97",
+      "license": "CC-BY-SA-4.0 (content), MIT (code, not included)",
+      "license_files": [
+        "LICENSE-CC-BY-SA-4.0",
+        "LICENSE-MIT"
+      ],
+      "include": [
+        "skills/security-audit/SKILL.md",
+        "skills/security-audit/checkpoints.yaml",
+        "skills/security-audit/references/*.md"
+      ]
+    },
+    {
+      "dir": "secskills-core",
+      "name": "trilwu/secskills (secskills-core, audit skills only)",
+      "repo": "https://github.com/trilwu/secskills",
+      "branch": "main",
+      "commit": "ca53957bcd8e3b83b5d4d190bb3ad008a4f15c84",
+      "license": "MIT",
+      "license_files": [
+        "LICENSE"
+      ],
+      "include": [
+        "secskills-core/skills/auditing-code-for-vulnerabilities/**/*.md",
+        "secskills-core/skills/reviewing-code-changes/SKILL.md",
+        "secskills-core/skills/auditing-php-applications/SKILL.md",
+        "secskills-core/skills/hunting-web-backdoors/SKILL.md",
+        "secskills-core/skills/reviewing-cryptography/SKILL.md",
+        "secskills-core/skills/auditing-supply-chain/SKILL.md",
+        "secskills-core/skills/auditing-mcp-servers/SKILL.md",
+        "secskills-core/skills/securing-ai-systems/**/*.md",
+        "secskills-core/skills/vetting-agent-extensions/SKILL.md"
+      ]
+    },
+    {
+      "dir": "solana-auditor",
+      "name": "sanbir/solana-auditor-skills",
+      "repo": "https://github.com/sanbir/solana-auditor-skills",
+      "branch": "main",
+      "commit": "e501915ff4953ed25ff40bd9e776de370b350e8d",
+      "license": "MIT",
+      "license_files": [
+        "LICENSE"
+      ],
+      "include": [
+        "solana-auditor/SKILL.md",
+        "solana-auditor/references/**/*.md"
+      ]
+    },
+    {
+      "dir": "voltagent-subagents",
+      "name": "VoltAgent/awesome-claude-code-subagents (security and code review agents)",
+      "repo": "https://github.com/VoltAgent/awesome-claude-code-subagents",
+      "branch": "main",
+      "commit": "408d3c9eee2d0c75c12a3abb5de29e53c2ca6b9e",
+      "license": "MIT",
+      "license_files": [
+        "LICENSE"
+      ],
+      "include": [
+        "categories/04-quality-security/security-auditor.md",
+        "categories/04-quality-security/code-reviewer.md"
+      ]
+    },
+    {
+      "dir": "claude-code-security-review",
+      "name": "anthropics/claude-code-security-review (review prompt and false-positive rules)",
+      "repo": "https://github.com/anthropics/claude-code-security-review",
+      "branch": "main",
+      "commit": "0c6a49f1fa56a1d472575da86a94dbc1edb78eda",
+      "license": "MIT",
+      "license_files": [
+        "LICENSE"
+      ],
+      "include": [
+        "claudecode/prompts.py",
+        "claudecode/findings_filter.py"
+      ]
+    }
+  ],
+  "cited_only": [
+    {
+      "name": "nud3l code-audit gist",
+      "url": "https://gist.github.com/nud3l/15468abc5c4ca7e4e0e38e5b120a7997",
+      "why": "no licence: not copied; its idea (parallel audit agents launched in one message) is used in PIPELINE.md"
+    },
+    {
+      "name": "semgrep",
+      "url": "https://github.com/semgrep/semgrep",
+      "why": "a tool, not a skill: installed by /nexurity:setup and run by the main thread (TOOLS.md)"
+    },
+    {
+      "name": "codeql",
+      "url": "https://github.com/github/codeql",
+      "why": "a tool, not a skill: optional, run only when installed and its licence allows it (TOOLS.md)"
+    }
+  ]
+}

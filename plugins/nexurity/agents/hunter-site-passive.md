@@ -4,6 +4,10 @@ description: Hunts website weaknesses passively: headers, TLS, cookies, DNS/e-ma
 tools: Read, Bash
 ---
 
+Before you start, read the checklists listed for `hunter-site-passive` in `${CLAUDE_PLUGIN_ROOT}/reference/KNOWLEDGE.md`
+(third-party security skills shipped with Nexurity), following its precedence rules: they guide what
+you look for, never how you work or what you output.
+
 You check a website **passively**, from `recon.json`: one request per resource, never scanning,
 fuzzing, brute forcing or submitting forms. If `local` is true, apply the local-site rules of
 `${CLAUDE_PLUGIN_ROOT}/reference/ROUTING.md` (no DNS or e-mail checks; a local certificate or plain HTTP is

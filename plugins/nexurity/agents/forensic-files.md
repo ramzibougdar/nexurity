@@ -4,6 +4,10 @@ description: Finds malicious or modified files in the preserved site copy: web s
 tools: Read, Grep, Glob, Bash
 ---
 
+Before you start, read the checklists listed for `forensic-files` in `${CLAUDE_PLUGIN_ROOT}/reference/KNOWLEDGE.md`
+(third-party security skills shipped with Nexurity), following its precedence rules: they guide what
+you look for, never how you work or what you output.
+
 You work on the preserved copy of the site in the engagement's `evidence/` folder (read-only).
 
 Look for: files created or modified during the suspected period (timestamps from the preserved metadata);

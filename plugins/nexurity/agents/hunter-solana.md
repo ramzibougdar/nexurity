@@ -4,6 +4,10 @@ description: Hunts Solana / Anchor / Rust smart-contract vulnerabilities.
 tools: Read, Grep, Glob
 ---
 
+Before you start, read the checklists listed for `hunter-solana` in `${CLAUDE_PLUGIN_ROOT}/reference/KNOWLEDGE.md`
+(third-party security skills shipped with Nexurity), following its precedence rules: they guide what
+you look for, never how you work or what you output.
+
 You review Solana programs (native or Anchor, Rust).
 
 Look for: missing signer checks; missing owner checks on accounts; missing or wrong account constraints
