@@ -59,11 +59,12 @@ class Refused(Exception):
 
 
 class Context:
-    def __init__(self, engagement, cwd, remote=False):
+    def __init__(self, engagement, cwd, remote=False, data=None):
         self.folder = engagement["folder"]
         self.engagement = engagement
         self.cwd = cwd or engagement.get("cwd") or os.getcwd()
         self.remote = remote
+        self.data = data
 
     def resolve(self, path):
         path = os.path.expanduser(path)
@@ -522,6 +523,9 @@ def check_nexurity_script(name, args, ctx):
                 ctx.require_in_folder(value, "writing the CMS check")
         elif verb != "detect":
             raise Refused("cms.py: only detect and scan")
+    elif name == "tools.py":
+        if (args[0] if args else "") != "where":
+            raise Refused("tools.py: only `where` during an engagement; install tools before starting it")
     elif name in ("cvss4.py", "mask_secrets.py", "triage_logs.py", "check_updates.py", "guard.py"):
         return
     else:
@@ -571,6 +575,9 @@ def check_segment(words, ctx):
     if "/" in name:
         if base in ("testssl.sh",):
             name = base
+        elif not ctx.remote and ctx.data and base in RULES and os.path.realpath(os.path.dirname(ctx.resolve(name))) in {
+                os.path.realpath(d) for d in common.managed_tool_dirs(ctx.data)}:
+            name = base
         elif os.path.realpath(os.path.dirname(ctx.resolve(name))) == os.path.realpath(common.SCRIPTS_DIR):
             raise Refused("run Nexurity scripts with python3")
         else:
@@ -609,7 +616,7 @@ def decide(payload, data=None):
         return None
     tool = payload.get("tool_name", "")
     tool_input = payload.get("tool_input") or {}
-    ctx = Context(engagement, payload.get("cwd"))
+    ctx = Context(engagement, payload.get("cwd"), data=data)
     try:
         if tool in WRITE_TOOLS:
             path = tool_input.get("file_path") or tool_input.get("notebook_path") or ""

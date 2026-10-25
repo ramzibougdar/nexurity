@@ -203,6 +203,22 @@ class GuardTest(unittest.TestCase):
         ):
             self.assertRefused(command)
 
+    def test_tools_installed_by_nexurity_run_by_path(self):
+        bin_dir = os.path.join(self.data, "bin")
+        lynis_dir = os.path.join(self.data, "tools", "lynis")
+        for folder, name in ((bin_dir, "gitleaks"), (lynis_dir, "lynis")):
+            os.makedirs(folder, exist_ok=True)
+            with open(os.path.join(folder, name), "w") as fh:
+                fh.write("#!/bin/sh\n")
+        f = self.folder
+        self.assertAllowed("%s/gitleaks detect --no-git --source %s --report-path %s/tools/g.json" % (bin_dir, self.project, f))
+        self.assertAllowed("cd %s && ./lynis audit system --logfile %s/tools/lynis.log" % (lynis_dir, f))
+        self.assertRefused("%s/gitleaks detect --report-path /tmp/g.json" % bin_dir)    # rules still apply
+        self.assertRefused("%s/rm -rf %s" % (bin_dir, self.project))                     # not a known tool
+        self.assertRefused("/tmp/gitleaks detect --source %s" % self.project)          # not Nexurity's folder
+        self.assertAllowed("python3 %s/tools.py where --data %s" % (SCRIPTS, self.data))
+        self.assertRefused("python3 %s/tools.py install --data %s" % (SCRIPTS, self.data))
+
     def test_git_clone_with_dash_c_is_resolved(self):
         rel = os.path.relpath(self.folder, self.project)
         self.assertRefused("git -C /tmp clone https://github.com/x/y %s/src" % rel)

@@ -15,6 +15,7 @@ Paths for this run:
 
 Before anything else, read `${CLAUDE_PLUGIN_ROOT}/reference/RULES.md` and follow it for the whole run.
 
+0. Tools and update check, as in step 0 of `${CLAUDE_PLUGIN_ROOT}/reference/PIPELINE.md`.
 1. Determine the change to review from the argument: a range `base..head`, a branch (compared with the default
    branch), or a pull request (fetch it read-only, for example with `git ls-remote` and a clone into the
    engagement folder, or ask the user for the diff). With no argument, review the uncommitted changes and the

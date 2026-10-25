@@ -21,8 +21,10 @@ Before anything else, read `${CLAUDE_PLUGIN_ROOT}/reference/RULES.md` and follow
    session afterwards.
 4. **Ported source** (FIRST CVSS calculator): show the upstream changes (`git ls-remote` / the repository's
    history) and explain that porting them is the plugin maintainer's job; nothing is copied automatically.
-5. **Tools** (semgrep, gitleaks…): show the update command of each tool's own installer and run it only after
-   the user approves that exact command. Never use `sudo` without asking.
+5. **Tools** (semgrep, gitleaks…): run `python3 "${CLAUDE_PLUGIN_ROOT}/scripts/tools.py" install --data
+   "${CLAUDE_PLUGIN_DATA}" --upgrade` (30-minute timeout) to update the tools Nexurity or Homebrew installed
+   and to install any missing one. For a tool installed another way, show its own update command and run it
+   only after the user approves that exact command. Never use `sudo` without asking.
 6. Items "not checked" (offline, GitHub quota): say so, with the reset time when given. If the quota is the
    problem, explain that exporting a `GITHUB_TOKEN` with no permission before starting Claude Code raises the
    limit to 5,000 requests per hour.
