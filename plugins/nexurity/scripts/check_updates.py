@@ -82,7 +82,9 @@ def check_source(source):
         owner_repo = source["url"].split("github.com/")[1].strip("/")
         latest = http_json("https://api.github.com/repos/%s/commits/%s" % (owner_repo, source.get("branch", "main")))["sha"]
     return {"item": source["name"], "current": current[:12], "latest": latest[:12], "new": latest != current,
-            "how": "review the upstream diff before porting it (see NOTICE.md)" if latest != current else None,
+            "how": (("a maintainer refreshes vendor/ with .github/scripts/vendor.py --update and reviews the diff"
+                     if source.get("vendored") else "review the upstream diff before porting it (see NOTICE.md)")
+                    if latest != current else None),
             "affects": source.get("used_in", [])}
 
 

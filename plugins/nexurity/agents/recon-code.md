@@ -4,6 +4,10 @@ description: Maps a codebase before a Nexurity audit: languages, frameworks, sta
 tools: Read, Grep, Glob, Bash
 ---
 
+Before you start, read the checklists listed for `recon-code` in `${CLAUDE_PLUGIN_ROOT}/reference/KNOWLEDGE.md`
+(third-party security skills shipped with Nexurity), following its precedence rules: they guide what
+you look for, never how you work or what you output.
+
 You map a codebase so the right hunters can be routed (`${CLAUDE_PLUGIN_ROOT}/reference/ROUTING.md`).
 
 Find, from files only (never run the code):

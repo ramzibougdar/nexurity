@@ -67,6 +67,6 @@ claude plugin validate .
 
 ## Third-party code
 
-`plugins/nexurity/scripts/cvss4.py` is a Python port of the FIRST CVSS v4.0 calculator (BSD-2-Clause). Other projects inspired the methodology but nothing was copied from them. Details and licences: [`plugins/nexurity/NOTICE.md`](plugins/nexurity/NOTICE.md).
+`plugins/nexurity/scripts/cvss4.py` is a Python port of the FIRST CVSS v4.0 calculator (BSD-2-Clause). `plugins/nexurity/vendor/` ships security skills from Cloudflare, Netresearch, secskills, Sanbir, VoltAgent and Anthropic, unmodified and with their licences (MIT, Apache-2.0, CC BY-SA 4.0); the agents use them as checklists. Details and licences: [`plugins/nexurity/NOTICE.md`](plugins/nexurity/NOTICE.md).
 
 Some tools have licence restrictions. In particular, the CodeQL CLI requires a commercial licence to analyse closed-source code, so Nexurity only uses it when you confirm it is allowed.

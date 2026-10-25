@@ -8,25 +8,195 @@
       "commit": "c5b0d409ae9f57c44264c6ce5f27d89298e1d32a",
       "license": "BSD-2-Clause",
       "license_sha256": "5d672639189da9bda914dd8c847069cc6959135000b17c45262bb742e5d3b392",
-      "used_in": ["scripts/cvss4.py"],
+      "used_in": [
+        "scripts/cvss4.py"
+      ],
       "reuse": "code ported to Python (scoring algorithm and lookup tables)"
+    },
+    {
+      "name": "cloudflare/security-audit-skill",
+      "url": "https://github.com/cloudflare/security-audit-skill",
+      "branch": "main",
+      "commit": "c1c8a8c1471069fb0e188eeaff69b8e8db6564a8",
+      "license": "MIT",
+      "license_sha256": "e598e694aa506650c7192d5ea3be0e50aca0d356ea00551c53429f0b01eb6391",
+      "vendored": "vendor/cloudflare-security-audit/",
+      "used_in": [
+        "agents (recon, hunters, verifier) via reference/KNOWLEDGE.md"
+      ],
+      "reuse": "copied unmodified (see vendor/SOURCES.json)"
+    },
+    {
+      "name": "cloudflare/skills (WAF reference only)",
+      "url": "https://github.com/cloudflare/skills",
+      "branch": "main",
+      "commit": "86505e44f87d801aa1864a3c4109e9a8ae5c409f",
+      "license": "Apache-2.0",
+      "license_sha256": "58d1e17ffe5109a7ae296caafcadfdbe6a7d176f0bc4ab01e12a689b0499d8bd",
+      "vendored": "vendor/cloudflare-skills-waf/",
+      "used_in": [
+        "agents/hunter-infra-cloudflare.md"
+      ],
+      "reuse": "copied unmodified (see vendor/SOURCES.json)"
+    },
+    {
+      "name": "netresearch/security-audit-skill",
+      "url": "https://github.com/netresearch/security-audit-skill",
+      "branch": "main",
+      "commit": "5319ab55db58b14de664dbd8379c1dbd800fac97",
+      "license": "CC-BY-SA-4.0 (content), MIT (code, not included)",
+      "license_sha256": "4b34c2a0857a7b24ddd66ba7449c756c5de4cc2ad528744624099ecc3731b52e",
+      "vendored": "vendor/netresearch-security-audit/",
+      "used_in": [
+        "agents/hunter-php.md",
+        "agents/hunter-web.md",
+        "other hunters via KNOWLEDGE.md"
+      ],
+      "reuse": "copied unmodified (see vendor/SOURCES.json)"
+    },
+    {
+      "name": "trilwu/secskills (secskills-core, audit skills only)",
+      "url": "https://github.com/trilwu/secskills",
+      "branch": "main",
+      "commit": "ca53957bcd8e3b83b5d4d190bb3ad008a4f15c84",
+      "license": "MIT",
+      "license_sha256": "bb58968b63e7f32acfdf05be3afc320c2e8efc15eba42fa493d1ea0d0b5acadf",
+      "vendored": "vendor/secskills-core/",
+      "used_in": [
+        "agents/hunter-web.md",
+        "agents/hunter-cms.md",
+        "agents/forensic-files.md",
+        "skills/audit-diff"
+      ],
+      "reuse": "copied unmodified (see vendor/SOURCES.json)"
+    },
+    {
+      "name": "sanbir/solana-auditor-skills",
+      "url": "https://github.com/sanbir/solana-auditor-skills",
+      "branch": "main",
+      "commit": "e501915ff4953ed25ff40bd9e776de370b350e8d",
+      "license": "MIT",
+      "license_sha256": "ec93590d18a065c385712fd6b1c86d4f3732b9d89e990604ebd3afeb7bb17d12",
+      "vendored": "vendor/solana-auditor/",
+      "used_in": [
+        "agents/hunter-solana.md"
+      ],
+      "reuse": "copied unmodified (see vendor/SOURCES.json)"
+    },
+    {
+      "name": "VoltAgent/awesome-claude-code-subagents (security and code review agents)",
+      "url": "https://github.com/VoltAgent/awesome-claude-code-subagents",
+      "branch": "main",
+      "commit": "408d3c9eee2d0c75c12a3abb5de29e53c2ca6b9e",
+      "license": "MIT",
+      "license_sha256": "8ed27772f4430d6e3815599b849c1b6e59088671133ef67e9b1be4acef2b75da",
+      "vendored": "vendor/voltagent-subagents/",
+      "used_in": [
+        "agents/hunter-web.md",
+        "skills/audit-diff"
+      ],
+      "reuse": "copied unmodified (see vendor/SOURCES.json)"
+    },
+    {
+      "name": "anthropics/claude-code-security-review (review prompt and false-positive rules)",
+      "url": "https://github.com/anthropics/claude-code-security-review",
+      "branch": "main",
+      "commit": "0c6a49f1fa56a1d472575da86a94dbc1edb78eda",
+      "license": "MIT",
+      "license_sha256": "a9ac868c004c4cce26430b3117767b46397ba4fa25026b1e5ea6694b463baf4b",
+      "vendored": "vendor/claude-code-security-review/",
+      "used_in": [
+        "agents/verifier.md",
+        "skills/audit-diff"
+      ],
+      "reuse": "copied unmodified (see vendor/SOURCES.json)"
     }
   ],
   "references": [
-    {"name": "cloudflare/security-audit-skill", "url": "https://github.com/cloudflare/security-audit-skill", "reuse": "ideas only (phased pipeline, coverage map, adversarial validation)"},
-    {"name": "anthropics/claude-code-security-review", "url": "https://github.com/anthropics/claude-code-security-review", "reuse": "ideas only (diff review)"},
-    {"name": "trilwu/secskills (secskills-core only)", "url": "https://github.com/trilwu/secskills", "reuse": "ideas only (code audit checklists)"},
-    {"name": "netresearch/security-audit-skill", "url": "https://github.com/netresearch/security-audit-skill", "reuse": "ideas only (PHP checklist)"},
-    {"name": "sanbir/solana-auditor-skills", "url": "https://github.com/sanbir/solana-auditor-skills", "reuse": "ideas only (Solana checklist)"},
-    {"name": "OWASP Top 10, ASVS 4.0, CWE Top 25", "url": "https://owasp.org", "reuse": "public reference standards"}
+    {
+      "name": "OWASP Top 10, ASVS 4.0, CWE Top 25",
+      "url": "https://owasp.org",
+      "reuse": "public reference standards"
+    },
+    {
+      "name": "nud3l code-audit gist",
+      "url": "https://gist.github.com/nud3l/15468abc5c4ca7e4e0e38e5b120a7997",
+      "reuse": "no licence: not copied; its idea (parallel audit agents launched in one message) is used in PIPELINE.md"
+    },
+    {
+      "name": "semgrep",
+      "url": "https://github.com/semgrep/semgrep",
+      "reuse": "a tool, not a skill: installed by /nexurity:setup and run by the main thread (TOOLS.md)"
+    },
+    {
+      "name": "codeql",
+      "url": "https://github.com/github/codeql",
+      "reuse": "a tool, not a skill: optional, run only when installed and its licence allows it (TOOLS.md)"
+    }
   ],
   "tools": [
-    {"name": "semgrep", "check": "pypi", "package": "semgrep", "version_command": ["semgrep", "--version"]},
-    {"name": "pip-audit", "check": "pypi", "package": "pip-audit", "version_command": ["pip-audit", "--version"]},
-    {"name": "gitleaks", "check": "github", "repo": "gitleaks/gitleaks", "version_command": ["gitleaks", "version"]},
-    {"name": "trufflehog", "check": "github", "repo": "trufflesecurity/trufflehog", "version_command": ["trufflehog", "--version"]},
-    {"name": "lynis", "check": "none", "version_command": ["lynis", "show", "version"]},
-    {"name": "testssl.sh", "check": "none", "version_command": ["testssl.sh", "--version"]},
-    {"name": "codeql", "check": "github", "repo": "github/codeql-cli-binaries", "version_command": ["codeql", "version", "--format=terse"]}
+    {
+      "name": "semgrep",
+      "check": "pypi",
+      "package": "semgrep",
+      "version_command": [
+        "semgrep",
+        "--version"
+      ]
+    },
+    {
+      "name": "pip-audit",
+      "check": "pypi",
+      "package": "pip-audit",
+      "version_command": [
+        "pip-audit",
+        "--version"
+      ]
+    },
+    {
+      "name": "gitleaks",
+      "check": "github",
+      "repo": "gitleaks/gitleaks",
+      "version_command": [
+        "gitleaks",
+        "version"
+      ]
+    },
+    {
+      "name": "trufflehog",
+      "check": "github",
+      "repo": "trufflesecurity/trufflehog",
+      "version_command": [
+        "trufflehog",
+        "--version"
+      ]
+    },
+    {
+      "name": "lynis",
+      "check": "none",
+      "version_command": [
+        "lynis",
+        "show",
+        "version"
+      ]
+    },
+    {
+      "name": "testssl.sh",
+      "check": "none",
+      "version_command": [
+        "testssl.sh",
+        "--version"
+      ]
+    },
+    {
+      "name": "codeql",
+      "check": "github",
+      "repo": "github/codeql-cli-binaries",
+      "version_command": [
+        "codeql",
+        "version",
+        "--format=terse"
+      ]
+    }
   ]
 }
