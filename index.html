@@ -301,20 +301,6 @@ details:hover{border-color:var(--primary)}
 }
 
 
-/* Optional requirements, collapsed */
-details.more summary{align-items:center}
-details.more .sum{display:flex;flex-direction:column;gap:2px;min-width:0}
-details.more .hint{font-weight:400;font-size:14px;color:var(--muted)}
-details.more[open] .hint{opacity:0;height:0;overflow:hidden}
-.count-pill{display:inline-grid;place-items:center;min-width:22px;height:22px;margin-left:6px;padding:0 6px;border-radius:11px;background:var(--chip);box-shadow:inset 0 0 0 1px var(--rule);font-size:12px;font-weight:700;color:var(--muted);vertical-align:1px}
-.opt-list{padding:0 14px 14px;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))}
-.opt-list .req{background:var(--bg)}
-details.more[open] .opt-list .req{animation:fade-up .45s var(--ease-out) both}
-details.more[open] .opt-list .req:nth-child(2){animation-delay:.06s}
-details.more[open] .opt-list .req:nth-child(3){animation-delay:.12s}
-details.more[open] .opt-list .req:nth-child(4){animation-delay:.18s}
-
-
 /* Cookie banner */
 .visually-hidden{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 .consent{position:fixed;z-index:70;inset:auto auto max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));margin:0;width:min(420px,calc(100vw - 32px));max-height:calc(100dvh - 32px);overflow:auto;padding:20px;border:1px solid rgba(233,237,247,.14);border-radius:14px;background:var(--cover);color:var(--cover-ink);box-shadow:0 24px 60px -20px rgba(6,12,34,.6);font-size:14.5px;line-height:1.55}
@@ -435,34 +421,18 @@ details.more[open] .opt-list .req:nth-child(4){animation-delay:.18s}
   <nav class="rail" aria-label="On this page">
     <div class="label">On this page</div>
     <ol>
-      <li><a href="#new">What's new</a></li>
       <li><a href="#before">Before you start</a></li>
       <li><a href="#install">Install</a></li>
       <li><a href="#first">Your first audit</a></li>
       <li><a href="#commands">Commands</a></li>
       <li><a href="#rules">Safety rules</a></li>
       <li><a href="#build">Build it from the prompt</a></li>
+      <li><a href="#new">Changelog</a></li>
       <li><a href="#faq">Troubleshooting</a></li>
     </ol>
   </nav>
 
   <div class="col">
-
-    <section id="new">
-      <div class="sec-head"><span class="k">Version 1.1.0</span><h2>What's new</h2></div>
-      <div class="tbl"><table>
-        <thead><tr><th>Change</th><th>What it does</th></tr></thead>
-        <tbody>
-          <tr><td><strong>Two screens, no confirmation</strong></td><td>The audit only asks for the engagement and the target. Every area is covered in depth, the stack is detected, the report uses Claude Code's language and the audit starts straight away.</td></tr>
-          <tr><td><strong>CMS check</strong></td><td>WordPress, PrestaShop, Drupal, Joomla and Magento: files compared with the official release (with a diff of each modified file), known CVEs of the core and extensions, and the updates to install.</td></tr>
-          <tr><td><strong>Audit tools installed for you</strong></td><td>The first audit installs the missing tools without asking; <code>/nexurity:setup</code> retries them and <code>--upgrade</code> updates them.</td></tr>
-          <tr><td><strong>CodeQL on every code audit</strong></td><td>Runs on every language it analyses without a build, and on PHP through codeql-php.</td></tr>
-          <tr><td><strong>Eleven security sources</strong></td><td>Third-party audit skills shipped in the plugin, unmodified with their licences, plus Semgrep and CodeQL. The report lists how each one was used.</td></tr>
-          <tr><td><strong>Security hygiene</strong></td><td>A new agent checks logging, error handling, divergent checks, disabled linters, insecure defaults and stale dependencies.</td></tr>
-        </tbody>
-      </table></div>
-      <p class="muted">Already installed? Update with the two commands under <a href="#install">Install</a>, then start a new session. Your next audit installs CodeQL and codeql-php once.</p>
-    </section>
 
     <section id="before">
       <div class="sec-head"><span class="k">Before you start</span><h2>What you need</h2></div>
@@ -471,13 +441,6 @@ details.more[open] .opt-list .req:nth-child(4){animation-delay:.18s}
         <div class="req"><span class="tag need">Required</span><b>Python 3</b><span class="muted">Runs the report generator and the safety scripts.</span></div>
         <div class="req"><span class="tag opt">Recommended</span><b>Audit tools</b><span class="muted"><code>semgrep</code>, <code>gitleaks</code>, <code>trufflehog</code>, <code>lynis</code>, <code>testssl.sh</code>, <code>pip-audit</code>, <code>cargo-audit</code>, <code>codeql</code>, codeql-php. Installed automatically by your first audit, or with <code>/nexurity:setup</code>.</span></div>
       </div>
-      <details class="more">
-        <summary><span class="sum"><span>Optional <span class="count-pill">2</span></span><span class="hint">Git, Pandoc</span></span></summary>
-        <div class="reqs opt-list">
-          <div class="req"><b>Git</b><span class="muted">Clones a repository to audit and checks for updates without using the GitHub quota.</span></div>
-          <div class="req"><b>Pandoc</b><span class="muted">Exports the Markdown report to PDF or Word. Without it, the report stays a <code>.md</code> file.</span></div>
-        </div>
-      </details>
       <p class="muted">Your first audit installs the missing audit tools without asking: with Homebrew if you have it, otherwise in Nexurity's data folder, never with <code>sudo</code>. CodeQL runs on every full code audit, PHP included through codeql-php (built with Rust, installed with Homebrew if needed): it is free for open-source code, and closed-source code needs a GitHub Advanced Security licence.</p>
     </section>
 
@@ -491,6 +454,12 @@ details.more[open] .opt-list .req:nth-child(4){animation-delay:.18s}
           <p class="muted">With a Claude Code version older than 2.1.292, use two commands instead:</p>
           <div class="code long"><pre id="c4">claude plugin marketplace add ramzibougdar/nexurity
 claude plugin install nexurity@nexurity-marketplace</pre><button class="copy" type="button" data-copy="c4">Copy</button></div>
+        </div></li>
+        <li><div class="body">
+          <h3>Install the audit tools</h3>
+          <p>Open Claude Code and type:</p>
+          <div class="code"><pre id="c7">/nexurity:setup</pre><button class="copy" type="button" data-copy="c7">Copy</button></div>
+          <p class="muted">Installs Semgrep, CodeQL, codeql-php and the other audit tools, with Homebrew if you have it, otherwise in Nexurity's data folder, never with <code>sudo</code>. You can skip this step: your first audit runs it automatically. Run it again with <code>--upgrade</code> to update the tools.</p>
         </div></li>
         <li><div class="body">
           <h3>Start an audit</h3>
@@ -1341,6 +1310,22 @@ Start with stage 1.<!-- PROMPT:END --></pre><button class="copy" type="button" d
       </ol>
     </section>
 
+    <section id="new">
+      <div class="sec-head"><span class="k">Changelog</span><h2>What's new in v1.1.0</h2></div>
+      <div class="tbl"><table>
+        <thead><tr><th>Change</th><th>What it does</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Two screens, no confirmation</strong></td><td>The audit only asks for the engagement and the target. Every area is covered in depth, the stack is detected, the report uses Claude Code's language and the audit starts straight away.</td></tr>
+          <tr><td><strong>CMS check</strong></td><td>WordPress, PrestaShop, Drupal, Joomla and Magento: files compared with the official release (with a diff of each modified file), known CVEs of the core and extensions, and the updates to install.</td></tr>
+          <tr><td><strong>Audit tools installed for you</strong></td><td>The first audit installs the missing tools without asking; <code>/nexurity:setup</code> retries them and <code>--upgrade</code> updates them.</td></tr>
+          <tr><td><strong>CodeQL on every code audit</strong></td><td>Runs on every language it analyses without a build, and on PHP through codeql-php.</td></tr>
+          <tr><td><strong>Eleven security sources</strong></td><td>Third-party audit skills shipped in the plugin, unmodified with their licences, plus Semgrep and CodeQL. The report lists how each one was used.</td></tr>
+          <tr><td><strong>Security hygiene</strong></td><td>A new agent checks logging, error handling, divergent checks, disabled linters, insecure defaults and stale dependencies.</td></tr>
+        </tbody>
+      </table></div>
+      <p class="muted">Already installed? Update with the two commands under <a href="#install">Install</a>, then start a new session. Your next audit installs CodeQL and codeql-php once.</p>
+    </section>
+
     <section id="faq">
       <div class="sec-head"><span class="k">Help</span><h2>Troubleshooting</h2></div>
       <div class="faq">
@@ -1406,7 +1391,7 @@ document.querySelectorAll('[data-copy]').forEach(function(b){
   };
   mark('.sec-head');
   mark('section > p, section > .code, section > .note, section > .tbl, .faq');
-  mark('.reqs:not(.opt-list) > .req, .rule, .steps > li, .stages li, details',true);
+  mark('.reqs > .req, .rule, .steps > li, .stages li, details',true);
   document.querySelectorAll('.tbl tbody tr').forEach(function(tr,i){ tr.style.setProperty('--i',Array.prototype.indexOf.call(tr.parentNode.children,tr)); });
 
   var targets=document.querySelectorAll('[data-reveal], .code.type, .tbl');
