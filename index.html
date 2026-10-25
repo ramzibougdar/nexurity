@@ -619,7 +619,7 @@ The wizard uses **`AskUserQuestion`** in the main thread (clickable choices, alw
 **Screen 2 · Target** (depending on type)
 - Code: local folder · Git repository (URL; downloaded as an archive if Git is not installed) · branch or PR
 - Server: local · SSH (host in "Other"); root access · sudo · regular user · shared hosting (logs provided manually)
-- Website: URL in "Other"
+- Website: URL in "Other". If the URL is a **local site** (see stage 5), the screen also asks for the site's project folder (detected if possible, for example `~/Sites/&lt;name&gt;` or `~/Herd/&lt;name&gt;`) and offers to audit the code too ("Several").
 
 **Screen 3 · Scope**
 - Areas (multiple choice): code vulnerabilities · dependencies · secrets · server/web configuration
@@ -713,6 +713,12 @@ The plugin is installed globally, so its hook runs in **every** Claude Code sess
 - `wrangler.toml` present → + `hunter-infra-cloudflare`
 - Server → `recon-server` + `hunter-server` (SSH, web server, PHP-FPM, database, firewall, updates, accounts, sudoers, crons, Docker, permissions, backups)
 - Live website → `recon-site` + `hunter-site-passive` (headers, TLS, cookies, DNS/SPF/DKIM/DMARC, well-known exposed files such as `.git/` or `.env` checked with a single HEAD/GET request, visible versions)
+- **Local website** → same agents, adapted. A URL is local when its host is `localhost`, `127.0.0.1` or `::1`, ends with `.test`, `.local`, `.localhost` or `.internal`, or resolves to a loopback or private address (`127.0.0.0/8`, `::1`, `10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`); `recon-site` records it in `recon.json`. For a local site:
+  - checked as usual: HTTP security headers, cookies, exposed files, visible versions;
+  - skipped: DNS, SPF, DKIM and DMARC (no public records);
+  - TLS: plain HTTP or a certificate from a local authority (Laravel Valet, Herd, mkcert…) is not a finding; only the protocol versions and ciphers are checked when HTTPS is served;
+  - still passive: no scanning, fuzzing or exploitation, even locally;
+  - the report says the target is a local environment and that the production configuration (TLS, DNS, headers set by the hosting) may differ.
 - `audit-quick` → a single hunter, chosen by routing, + one verifier, no CodeQL
 
 **Incident mode (`/nexurity-incident`)**
@@ -1310,6 +1316,7 @@ Start with stage 1.<!-- PROMPT:END --></pre><button class="copy" type="button" d
         <details><summary>Claude Code keeps asking for permission</summary><div class="ans"><p>That's Claude Code's permission mode, not Nexurity. Switch to a mode that doesn't ask at every command with <kbd>Shift</kbd>+<kbd>Tab</kbd>, then type "Continue".</p></div></details>
         <details><summary>A tool is missing during an audit</summary><div class="ans"><p>Nexurity asks whether to install it, continue without it or cancel. The report's "Tools" section only lists what actually ran.</p></div></details>
         <details><summary>The install report mentions the GitHub quota</summary><div class="ans"><p>Without an account, GitHub allows 60 API requests per hour. Nexurity saves them (Git, raw files, a 6-hour cache) and never waits: what could not be checked is marked "to redo". To raise the limit to 5,000 per hour, create a GitHub token with no permission (public repositories only), then run <code>export GITHUB_TOKEN=…</code> before <code>claude</code>.</p></div></details>
+        <details><summary>Can Nexurity audit a local site (<code>*.test</code>, <code>localhost</code>)?</summary><div class="ans"><p>Yes, passively. Nexurity recognises local URLs (<code>localhost</code>, <code>127.0.0.1</code>, <code>*.test</code>, <code>*.local</code>, private addresses) and checks headers, cookies, exposed files and visible versions. It skips DNS and email checks, and doesn't flag a local certificate (Valet, Herd, mkcert). If the site's code is on your machine, audit it too: the code audit finds far more than the URL.</p></div></details>
         <details><summary>The update check is slow or I'm offline</summary><div class="ans"><p>The check stops after 15 seconds and the audit continues. The engagement log notes "updates not checked". You can turn the check off with <code>"check_updates": false</code> in <code>~/.nexurity/config.json</code>.</p></div></details>
         <details><summary>A command was blocked during an audit</summary><div class="ans"><p>That's the safeguard hook. Only read-only commands are allowed while an engagement is active, and only in the session that started it: your other sessions are never blocked. If an interrupted audit left the engagement open, run <code>/nexurity-audit --close &lt;REF&gt;</code>. If a legitimate read command is missing from the allowlist, add it in <code>~/nexurity/scripts/guard.py</code>, re-run its tests and update the plugin.</p></div></details>
       </div>

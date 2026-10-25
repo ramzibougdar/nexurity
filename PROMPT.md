@@ -141,7 +141,7 @@ The wizard uses **`AskUserQuestion`** in the main thread (clickable choices, alw
 **Screen 2 · Target** (depending on type)
 - Code: local folder · Git repository (URL; downloaded as an archive if Git is not installed) · branch or PR
 - Server: local · SSH (host in "Other"); root access · sudo · regular user · shared hosting (logs provided manually)
-- Website: URL in "Other"
+- Website: URL in "Other". If the URL is a **local site** (see stage 5), the screen also asks for the site's project folder (detected if possible, for example `~/Sites/<name>` or `~/Herd/<name>`) and offers to audit the code too ("Several").
 
 **Screen 3 · Scope**
 - Areas (multiple choice): code vulnerabilities · dependencies · secrets · server/web configuration
@@ -235,6 +235,12 @@ The plugin is installed globally, so its hook runs in **every** Claude Code sess
 - `wrangler.toml` present → + `hunter-infra-cloudflare`
 - Server → `recon-server` + `hunter-server` (SSH, web server, PHP-FPM, database, firewall, updates, accounts, sudoers, crons, Docker, permissions, backups)
 - Live website → `recon-site` + `hunter-site-passive` (headers, TLS, cookies, DNS/SPF/DKIM/DMARC, well-known exposed files such as `.git/` or `.env` checked with a single HEAD/GET request, visible versions)
+- **Local website** → same agents, adapted. A URL is local when its host is `localhost`, `127.0.0.1` or `::1`, ends with `.test`, `.local`, `.localhost` or `.internal`, or resolves to a loopback or private address (`127.0.0.0/8`, `::1`, `10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`); `recon-site` records it in `recon.json`. For a local site:
+  - checked as usual: HTTP security headers, cookies, exposed files, visible versions;
+  - skipped: DNS, SPF, DKIM and DMARC (no public records);
+  - TLS: plain HTTP or a certificate from a local authority (Laravel Valet, Herd, mkcert…) is not a finding; only the protocol versions and ciphers are checked when HTTPS is served;
+  - still passive: no scanning, fuzzing or exploitation, even locally;
+  - the report says the target is a local environment and that the production configuration (TLS, DNS, headers set by the hosting) may differ.
 - `audit-quick` → a single hunter, chosen by routing, + one verifier, no CodeQL
 
 **Incident mode (`/nexurity-incident`)**
