@@ -426,6 +426,7 @@ details.more[open] .opt-list .req:nth-child(4){animation-delay:.18s}
       <div style="--i:0"><span>Repository </span><a class="repo" href="https://github.com/ramzibougdar/nexurity" target="_blank" rel="noopener">nexurity</a></div>
       <div style="--i:1"><span>Install </span><b><span class="count">1</span> command</b></div>
       <div style="--i:2"><span>Rating </span><b>CVSS 4.0</b></div>
+      <div style="--i:3"><span>Version </span><b>v1.1.0</b></div>
     </div>
   </div>
 </header>
@@ -434,6 +435,7 @@ details.more[open] .opt-list .req:nth-child(4){animation-delay:.18s}
   <nav class="rail" aria-label="On this page">
     <div class="label">On this page</div>
     <ol>
+      <li><a href="#new">What's new</a></li>
       <li><a href="#before">Before you start</a></li>
       <li><a href="#install">Install</a></li>
       <li><a href="#first">Your first audit</a></li>
@@ -446,12 +448,28 @@ details.more[open] .opt-list .req:nth-child(4){animation-delay:.18s}
 
   <div class="col">
 
+    <section id="new">
+      <div class="sec-head"><span class="k">Version 1.1.0</span><h2>What's new</h2></div>
+      <div class="tbl"><table>
+        <thead><tr><th>Change</th><th>What it does</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Two screens, no confirmation</strong></td><td>The audit only asks for the engagement and the target. Every area is covered in depth, the stack is detected, the report uses Claude Code's language and the audit starts straight away.</td></tr>
+          <tr><td><strong>CMS check</strong></td><td>WordPress, PrestaShop, Drupal, Joomla and Magento: files compared with the official release (with a diff of each modified file), known CVEs of the core and extensions, and the updates to install.</td></tr>
+          <tr><td><strong>Audit tools installed for you</strong></td><td>The first audit installs the missing tools without asking; <code>/nexurity:setup</code> retries them and <code>--upgrade</code> updates them.</td></tr>
+          <tr><td><strong>CodeQL on every code audit</strong></td><td>Runs on every language it analyses without a build, and on PHP through codeql-php.</td></tr>
+          <tr><td><strong>Eleven security sources</strong></td><td>Third-party audit skills shipped in the plugin, unmodified with their licences, plus Semgrep and CodeQL. The report lists how each one was used.</td></tr>
+          <tr><td><strong>Security hygiene</strong></td><td>A new agent checks logging, error handling, divergent checks, disabled linters, insecure defaults and stale dependencies.</td></tr>
+        </tbody>
+      </table></div>
+      <p class="muted">Already installed? Update with the two commands under <a href="#install">Install</a>, then start a new session. Your next audit installs CodeQL and codeql-php once.</p>
+    </section>
+
     <section id="before">
       <div class="sec-head"><span class="k">Before you start</span><h2>What you need</h2></div>
       <div class="reqs">
         <div class="req"><span class="tag need">Required</span><b>Claude Code</b><span class="muted">Installed and signed in, in a terminal or the desktop app.</span></div>
         <div class="req"><span class="tag need">Required</span><b>Python 3</b><span class="muted">Runs the report generator and the safety scripts.</span></div>
-        <div class="req"><span class="tag opt">Recommended</span><b>Audit tools</b><span class="muted"><code>semgrep</code>, <code>gitleaks</code>, <code>trufflehog</code>, <code>lynis</code>, <code>testssl.sh</code>, <code>pip-audit</code>, <code>codeql</code>. Installed automatically by your first audit, or with <code>/nexurity:setup</code>.</span></div>
+        <div class="req"><span class="tag opt">Recommended</span><b>Audit tools</b><span class="muted"><code>semgrep</code>, <code>gitleaks</code>, <code>trufflehog</code>, <code>lynis</code>, <code>testssl.sh</code>, <code>pip-audit</code>, <code>cargo-audit</code>, <code>codeql</code>, codeql-php. Installed automatically by your first audit, or with <code>/nexurity:setup</code>.</span></div>
       </div>
       <details class="more">
         <summary><span class="sum"><span>Optional <span class="count-pill">2</span></span><span class="hint">Git, Pandoc</span></span></summary>
@@ -478,7 +496,9 @@ claude plugin install nexurity@nexurity-marketplace</pre><button class="copy" ty
           <h3>Start an audit</h3>
           <p>Open Claude Code in the project to audit and type:</p>
           <div class="code type"><pre id="c5"><span class="cmd" style="--n:15;--dur:.7s">/nexurity:audit</span><span class="caret"></span></pre><button class="copy" type="button" data-copy="c5">Copy</button></div>
-          <p class="muted">To update later: <code>claude plugin update nexurity@nexurity-marketplace</code>, then start a new session.</p>
+          <p class="muted">To update later, then start a new session:</p>
+          <div class="code long"><pre id="c6">claude plugin marketplace update nexurity-marketplace
+claude plugin update nexurity@nexurity-marketplace</pre><button class="copy" type="button" data-copy="c6">Copy</button></div>
         </div></li>
       </ol>
       <div class="tbl"><table>
@@ -507,8 +527,10 @@ claude plugin install nexurity@nexurity-marketplace</pre><button class="copy" ty
 ├── audit-config.json   <span class="c"># your wizard answers</span>
 ├── evidence/
 ├── findings.json
+├── knowledge.json      <span class="c"># how each security source was used</span>
 ├── log.md              <span class="c"># what was actually done</span>
-└── report.md           <span class="c"># the report</span></pre></div>
+├── report.md           <span class="c"># the report</span>
+└── tools/              <span class="c"># Semgrep, CodeQL and CMS check results</span></pre></div>
       <div class="note"><b>The report is confidential</b><span class="muted">It describes exploitable flaws in your systems. Keep it internal; don't publish it online.</span></div>
     </section>
 
@@ -1338,7 +1360,7 @@ Start with stage 1.<!-- PROMPT:END --></pre><button class="copy" type="button" d
 </main>
 
 <footer class="wrap">
-  <span class="foot-left"><span>Nexurity · installation guide</span><button type="button" class="foot-link" data-consent-open>Cookies</button></span>
+  <span class="foot-left"><span>Nexurity v1.1.0 · installation guide</span><button type="button" class="foot-link" data-consent-open>Cookies</button></span>
   <a class="gh" href="https://github.com/ramzibougdar/nexurity" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.4-4-1.4-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.3-3.1-.2-.4-.6-1.6 0-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.6 18.3 5 18.3 5c.6 1.6.2 2.8.1 3.2.8.8 1.3 1.9 1.3 3.2 0 4.6-2.8 5.6-5.5 5.9.5.4.9 1.1.9 2.2v3.3c0 .3.1.7.8.6A12 12 0 0 0 12 .3"/></svg>View on GitHub</a>
 </footer>
 
