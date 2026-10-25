@@ -65,6 +65,23 @@ class InstallTest(unittest.TestCase):
                 tools.install(data, first_run=True)
         self.assertEqual(calls, ["codeql"])
 
+    def test_codeql_php_needs_codeql_and_rust(self):
+        with tempfile.TemporaryDirectory() as data:
+            with mock.patch.object(tools, "find", return_value=None):
+                with self.assertRaisesRegex(tools.InstallError, "CodeQL"):
+                    tools.install_codeql_php(data, None)
+            with mock.patch.object(tools, "find", return_value="/x/codeql"), \
+                    mock.patch.object(tools, "cargo_path", return_value=None):
+                with self.assertRaisesRegex(tools.InstallError, "Rust"):
+                    tools.install_codeql_php(data, None)
+        self.assertRegex(tools.CODEQL_PHP["commit"], r"^[0-9a-f]{40}$")
+
+    def test_codeql_php_is_found_once_built(self):
+        with tempfile.TemporaryDirectory() as data:
+            self.assertIsNone(tools.find("codeql-php", data))
+            tools.write_executable(os.path.join(data, "tools", "codeql-php", "php", "tools", "osx64", "extractor"), b"x")
+            self.assertEqual(tools.find("codeql-php", data), os.path.join(data, "tools", "codeql-php"))
+
     def test_codeql_bundle_checksum_is_enforced(self):
         with tempfile.TemporaryDirectory() as data, \
                 mock.patch.object(tools, "platform_names", return_value=("linux", "x86_64")), \

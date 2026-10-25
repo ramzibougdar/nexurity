@@ -1,4 +1,4 @@
-"""Tests for knowledge.py (the ledger of the ten shipped sources) and its section in the report.
+"""Tests for knowledge.py (the ledger of the eleven shipped sources) and its section in the report.
 
 Run: python3 -m unittest discover -s plugins/nexurity/tests
 """
@@ -44,9 +44,11 @@ class LedgerTest(unittest.TestCase):
         put(os.path.join(self.folder, "candidates-hunter-hygiene.json"), {"coverage": {"checklists_used": ["nud3l-gist"]}})
         put(os.path.join(self.folder, "verdicts-1.json"), {"verdicts": [], "coverage": {"checklists_used": ["CCSR findings_filter.py"]}})
         put(os.path.join(self.folder, "tools", "semgrep.json"), "{}")
-        result = knowledge.ledger(self.tmp.name, self.folder)
+        put(os.path.join(self.folder, "tools", "codeql-php.sarif"), "{}")
+        with mock.patch.object(knowledge.tools, "find", return_value=None):
+            result = knowledge.ledger(self.tmp.name, self.folder)
         self.assertEqual([row["id"] for row in result["sources"]], [s["id"] for s in knowledge.SOURCES])
-        self.assertEqual(len(result["sources"]), 10)
+        self.assertEqual(len(result["sources"]), 11)
         self.assertEqual(self.status(result), {
             "cloudflare-security-audit": ("used", ["hunter-web", "recon"]),
             "cloudflare-skills": ("not_applicable", "no_cloudflare"),
@@ -57,6 +59,7 @@ class LedgerTest(unittest.TestCase):
             "voltagent-subagents": ("used", ["hunter-web"]),
             "netresearch-security-audit": ("used", ["hunter-web"]),
             "codeql": ("not_applicable", "no_codeql_language"),
+            "codeql-php": ("used", ["codeql-php"]),
             "claude-code-security-review": ("used", ["verifier"]),
         })
 
@@ -68,13 +71,14 @@ class LedgerTest(unittest.TestCase):
             result = knowledge.ledger(self.tmp.name, self.folder)
         rows = self.status(result)
         self.assertEqual(rows["codeql"], ("not_run", "not_installed"))
+        self.assertEqual(rows["codeql-php"], ("not_run", "not_installed"))   # index.php from setUp
         self.assertEqual(rows["cloudflare-skills"], ("not_run", "not_reported"))
         self.assertEqual(result["codeql_languages"], ["javascript-typescript"])
 
     def test_website_audit(self):
         put(os.path.join(self.folder, "audit-config.json"), {"type": "website", "target": "https://example.org"})
         rows = self.status(knowledge.ledger(self.tmp.name, self.folder))
-        for source in ("semgrep", "codeql", "solana-auditor", "secskills-core", "nud3l-gist"):
+        for source in ("semgrep", "codeql", "codeql-php", "solana-auditor", "secskills-core", "nud3l-gist"):
             self.assertEqual(rows[source], ("not_applicable", "no_code"), source)
 
     def test_report_lists_the_ledger(self):

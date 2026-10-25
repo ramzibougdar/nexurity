@@ -110,6 +110,19 @@
         "skills/audit-diff"
       ],
       "reuse": "copied unmodified (see vendor/SOURCES.json)"
+    },
+    {
+      "name": "Vozec/codeql-php",
+      "url": "https://github.com/Vozec/codeql-php",
+      "branch": "main",
+      "commit": "448ec77f9d5286d38c20ecc5fa79bd58a4128432",
+      "license": "MIT",
+      "installed": "<data>/tools/codeql-php (built by /nexurity:setup)",
+      "used_in": [
+        "scripts/tools.py",
+        "reference/TOOLS.md"
+      ],
+      "reuse": "downloaded and built at setup, never shipped; the pin is in scripts/tools.py"
     }
   ],
   "references": [

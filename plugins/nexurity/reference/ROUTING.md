@@ -17,7 +17,7 @@ The recon agent detects the stack (never asked in the wizard) and writes `recon.
 | Quick audit | one hunter only, the first one routing selects for the main stack (`hunter-cms` for a CMS), plus one verifier; no CodeQL |
 
 A project with several stacks gets the union of the hunters. Code audits always run `recon-code` first.
-Every audit ends with the knowledge ledger (`KNOWLEDGE.md`): the ten shipped sources, each used, not
+Every audit ends with the knowledge ledger (`KNOWLEDGE.md`): the eleven shipped sources, each used, not
 applicable or not run, listed in the report.
 
 ## CMS

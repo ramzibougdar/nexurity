@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Knowledge ledger: how an engagement used the ten security sources shipped with Nexurity.
+"""Knowledge ledger: how an engagement used the eleven security sources shipped with Nexurity.
 
-    knowledge.py sources                                     the ten sources (id, name, url, applies to)
+    knowledge.py sources                                     the eleven sources (id, name, url, applies to)
     knowledge.py ledger --data D --folder F [--target T]     write F/knowledge.json and print it
 
 For each source the ledger says `used` (by which agents or tools), `not_applicable` (why) or `not_run`
@@ -38,7 +38,9 @@ SOURCES = [
     {"id": "netresearch-security-audit", "name": "netresearch/security-audit-skill",
      "url": "https://github.com/netresearch/security-audit-skill", "aliases": ["NR"], "applies": "always"},
     {"id": "codeql", "name": "github/codeql", "url": "https://github.com/github/codeql",
-     "tool": "codeql", "outputs": ["tools/codeql*.sarif"], "applies": "codeql"},
+     "tool": "codeql", "outputs": ["tools/codeql*.sarif"], "exclude": ["codeql-php"], "applies": "codeql"},
+    {"id": "codeql-php", "name": "Vozec/codeql-php", "url": "https://github.com/Vozec/codeql-php",
+     "tool": "codeql-php", "outputs": ["tools/codeql-php*.sarif"], "applies": "php"},
     {"id": "claude-code-security-review", "name": "anthropics/claude-code-security-review",
      "url": "https://github.com/anthropics/claude-code-security-review", "aliases": ["CCSR"], "applies": "always"},
 ]
@@ -51,7 +53,7 @@ MAX_FILES = 50000
 
 def scan_target(target):
     """What the target contains, from file names only."""
-    found = {"wrangler": False, "solana": False, "codeql": set(), "files": 0}
+    found = {"wrangler": False, "solana": False, "codeql": set(), "php": False, "files": 0}
     if not target or not os.path.isdir(target):
         return found
     for dirpath, dirnames, names in os.walk(target):
@@ -63,6 +65,8 @@ def scan_target(target):
             if name == "Anchor.toml" or name == "Xargo.toml":
                 found["solana"] = True
             ext = os.path.splitext(name)[1].lower()
+            if ext in (".php", ".phtml", ".inc"):
+                found["php"] = True
             if ext in CODEQL_EXT:
                 found["codeql"].add(CODEQL_EXT[ext])
             if ext in (".yml", ".yaml") and dirpath.replace(os.sep, "/").endswith(".github/workflows"):
@@ -107,12 +111,14 @@ def ledger(data, folder, target=None):
         for agent in source.get("agents", []):
             if agent in agents and agent not in row["used_by"]:
                 row["used_by"].append(agent)
-        if source.get("tool") and any(glob.glob(os.path.join(folder, p)) for p in source["outputs"]):
+        outputs = [f for p in source.get("outputs", []) for f in glob.glob(os.path.join(folder, p))
+                   if not any(x in os.path.basename(f) for x in source.get("exclude", []))]
+        if source.get("tool") and outputs:
             row["used_by"].append(source["tool"])
         applies = source["applies"]
         if row["used_by"]:
             row["status"] = "used"
-        elif applies in ("code", "solana", "codeql", "cloudflare") and not has_code:
+        elif applies in ("code", "solana", "codeql", "cloudflare", "php") and not has_code:
             row.update(status="not_applicable", reason="no_code")
         elif applies == "solana" and not solana:
             row.update(status="not_applicable", reason="no_solana")
@@ -120,6 +126,8 @@ def ledger(data, folder, target=None):
             row.update(status="not_applicable", reason="no_cloudflare")
         elif applies == "codeql" and not scan["codeql"]:
             row.update(status="not_applicable", reason="no_codeql_language")
+        elif applies == "php" and not (scan["php"] or re.search(r"\bphp\b", recon_text)):
+            row.update(status="not_applicable", reason="no_php")
         elif source.get("tool") and not tools.find(source["tool"], data):
             row.update(status="not_run", reason="not_installed")
         elif source.get("tool"):

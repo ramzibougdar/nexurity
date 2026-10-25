@@ -15,7 +15,10 @@ Installation never uses sudo and never changes the target:
 - cargo-audit with `cargo install` only when Rust is installed (it is only needed for Rust projects);
 - CodeQL from the official CodeQL bundle (CLI and standard queries, github/codeql-action releases),
   checked against its published SHA-256, in `<data>/tools/codeql`. Its licence is free for open-source
-  code; closed-source code needs a GitHub Advanced Security licence.
+  code; closed-source code needs a GitHub Advanced Security licence;
+- codeql-php (PHP support for CodeQL, Vozec/codeql-php, MIT) at a pinned commit, built with Rust's
+  `cargo` in `<data>/tools/codeql-php`; Rust is installed with Homebrew when it is missing and Homebrew is
+  there, otherwise codeql-php is skipped.
 
 A tool that cannot be installed is reported and the audit goes on without it. Python standard library only.
 """
@@ -37,7 +40,8 @@ import urllib.request
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import common  # noqa: E402
 
-TOOLS = ["semgrep", "pip-audit", "gitleaks", "trufflehog", "lynis", "testssl.sh", "cargo-audit", "codeql"]
+TOOLS = ["semgrep", "pip-audit", "gitleaks", "trufflehog", "lynis", "testssl.sh", "cargo-audit", "codeql",
+         "codeql-php"]
 ALL_TOOLS = TOOLS
 ALIASES = {"testssl.sh": ["testssl.sh", "testssl"]}
 BREW_FORMULA = {"semgrep": "semgrep", "pip-audit": "pip-audit", "gitleaks": "gitleaks", "trufflehog": "trufflehog",
@@ -60,6 +64,9 @@ NEEDS = {"testssl.sh": ["openssl", "hexdump"], "lynis": ["sh"]}
 USER_AGENT = "nexurity-tools (+https://github.com/ramzibougdar/nexurity)"
 TIMEOUT = 60
 MAX_DOWNLOAD = 300 << 20
+CODEQL_PHP = {"repo": "https://github.com/Vozec/codeql-php.git",
+              "commit": "448ec77f9d5286d38c20ecc5fa79bd58a4128432"}
+CODEQL_PLATFORM = {"linux": "linux64", "darwin": "osx64"}
 CODEQL_BUNDLE = {"repo": "github/codeql-action", "tag": r"^codeql-bundle-v\d+\.\d+\.\d+$",
                  "asset": {"linux": "codeql-bundle-linux64.tar.gz", "darwin": "codeql-bundle-osx64.tar.gz"}}
 MAX_BUNDLE = 3 << 30
@@ -72,7 +79,15 @@ class InstallError(Exception):
 
 # --- finding the tools ------------------------------------------------------------------
 
+def codeql_php_dir(data):
+    return os.path.join(data, "tools", "codeql-php")
+
+
 def find(tool, data):
+    if tool == "codeql-php":
+        root = codeql_php_dir(data)
+        built = [os.path.join(root, "php", "tools", p, "extractor") for p in CODEQL_PLATFORM.values()]
+        return root if any(os.path.isfile(b) for b in built) else None
     names = ALIASES.get(tool, [tool])
     for name in names:
         found = shutil.which(name)
@@ -343,6 +358,57 @@ def install_codeql(data):
     return tag.rsplit("-v", 1)[-1]
 
 
+def cargo_path():
+    for candidate in [shutil.which("cargo"), os.path.join(os.path.expanduser("~"), ".cargo", "bin", "cargo"),
+                      "/opt/homebrew/bin/cargo", "/usr/local/bin/cargo"]:
+        if candidate and os.path.isfile(candidate) and os.access(candidate, os.X_OK):
+            return candidate
+    return None
+
+
+def install_codeql_php(data, brew):
+    """Fetch codeql-php at its pinned commit and build its extractor with cargo."""
+    if not find("codeql", data):
+        raise InstallError("needs CodeQL, which is not installed")
+    cargo = cargo_path()
+    if not cargo and brew:
+        run([brew, "install", "rust"], 1800, {"HOMEBREW_NO_AUTO_UPDATE": "1", "NONINTERACTIVE": "1"})
+        cargo = cargo_path()
+    if not cargo:
+        raise InstallError("needs Rust (cargo) to build: install Rust from https://rustup.rs, then run /nexurity:setup")
+    if not shutil.which("git"):
+        raise InstallError("needs git")
+    system, _arch = platform_names()
+    tools_dir = os.path.join(data, "tools")
+    os.makedirs(tools_dir, exist_ok=True)
+    staging = tempfile.mkdtemp(dir=tools_dir, prefix=".tmp-")
+    try:
+        source = os.path.join(staging, "codeql-php")
+        env = {"GIT_TERMINAL_PROMPT": "0"}
+        run(["git", "init", "-q", source], 60, env)
+        run(["git", "-C", source, "fetch", "-q", "--depth", "1", CODEQL_PHP["repo"], CODEQL_PHP["commit"]], 600, env)
+        run(["git", "-C", source, "checkout", "-q", "FETCH_HEAD"], 120, env)
+        head = run(["git", "-C", source, "rev-parse", "HEAD"], 60, env).strip()
+        if head != CODEQL_PHP["commit"]:
+            raise InstallError("codeql-php: unexpected commit %s" % head[:12])
+        build_env = {"CODEQL_PLATFORM": CODEQL_PLATFORM[system],
+                     "PATH": os.path.dirname(cargo) + os.pathsep + os.environ.get("PATH", "")}
+        run(["bash", os.path.join(source, "php", "build.sh")], 3600, build_env)
+        shutil.rmtree(os.path.join(source, "target"), ignore_errors=True)
+        shutil.rmtree(os.path.join(source, ".git"), ignore_errors=True)
+        if not os.path.isfile(os.path.join(source, "php", "tools", CODEQL_PLATFORM[system], "extractor")):
+            raise InstallError("codeql-php: the build produced no extractor")
+        with open(os.path.join(source, ".nexurity-commit"), "w") as fh:
+            fh.write(CODEQL_PHP["commit"] + "\n")
+        target = codeql_php_dir(data)
+        if os.path.exists(target):
+            shutil.rmtree(target)
+        os.replace(source, target)
+    finally:
+        shutil.rmtree(staging, ignore_errors=True)
+    return CODEQL_PHP["commit"][:12]
+
+
 def install_cargo(tool):
     cargo = shutil.which("cargo") or os.path.join(os.path.expanduser("~"), ".cargo", "bin", "cargo")
     run([cargo, "install", "--locked", "--quiet", tool], 1800)
@@ -374,6 +440,8 @@ def install_one(tool, data, brew):
             method = "cargo install"
         elif tool == "codeql":
             method = "official CodeQL bundle %s (SHA-256 checked)" % install_codeql(data)
+        elif tool == "codeql-php":
+            method = "Vozec/codeql-php at commit %s, built with cargo" % install_codeql_php(data, brew)
         else:
             return "skipped", "no installer"
     except InstallError as exc:
@@ -387,6 +455,16 @@ def install_one(tool, data, brew):
 
 def upgrade_one(tool, path, data, brew):
     """Update a tool that is already there, when Nexurity or Homebrew installed it."""
+    if tool == "codeql-php":
+        try:
+            with open(os.path.join(path, ".nexurity-commit")) as fh:
+                installed = fh.read().strip()
+        except OSError:
+            installed = ""
+        if installed == CODEQL_PHP["commit"]:
+            return "up to date (pinned commit %s)" % installed[:12]
+        install_codeql_php(data, brew)
+        return "updated to the pinned commit %s" % CODEQL_PHP["commit"][:12]
     real = os.path.realpath(path)
     if any(real.startswith(os.path.realpath(d) + os.sep) for d in common.managed_tool_dirs(data)):
         if tool in PYPI:

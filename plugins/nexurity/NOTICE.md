@@ -94,6 +94,8 @@ certified by the NVD. Nothing from these sources is shipped with Nexurity.
 
 Semgrep, CodeQL, Lynis, testssl.sh, gitleaks, trufflehog, composer, npm, pip-audit, cargo-audit, Pandoc
 are run on the user's machine; none is shipped with Nexurity (`/nexurity:setup` downloads the missing
-ones from their official sources). CodeQL's terms make it free for open-source code and research;
+ones from their official sources). codeql-php (https://github.com/Vozec/codeql-php, MIT, a research fork of github/codeql that adds PHP) is
+fetched at a pinned commit and built with `cargo` on the user's machine by `/nexurity:setup`; it is not
+shipped either. CodeQL's terms make it free for open-source code and research;
 analysing closed-source code requires a GitHub Advanced Security licence, which is the user's
 responsibility.

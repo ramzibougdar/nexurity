@@ -323,7 +323,7 @@ def rule_testssl(args, ctx):
 CODEQL_WITH_VALUE = ("--language", "-l", "--source-root", "-s", "--build-mode", "--output", "-o", "--format",
                      "--codescanning-config", "--threads", "-j", "--ram", "-M", "--sarif-category",
                      "--search-path", "--additional-packs", "--working-dir")
-CODEQL_NO_BUILD = {"javascript", "javascript-typescript", "typescript", "python", "ruby", "actions"}
+CODEQL_NO_BUILD = {"javascript", "javascript-typescript", "typescript", "python", "ruby", "actions", "php"}
 
 
 def rule_codeql(args, ctx):
@@ -333,6 +333,10 @@ def rule_codeql(args, ctx):
         return
     if any(a in ("--command", "-c", "--download") or a.startswith(("--command=", "--download=")) for a in args):
         raise Refused("codeql: no build command and no pack download (the target is never built or run)")
+    for value in option_value(args, ["--search-path", "--additional-packs"]):
+        for part in value.split(os.pathsep):
+            if not (ctx.data and common.is_within(ctx.resolve(part), os.path.join(ctx.data, "tools"))):
+                raise Refused("codeql: extractors and packs only from Nexurity's tools folder")
     if pos[:2] == ["database", "create"]:
         if len(pos) < 3:
             raise Refused("codeql database create needs a database path")

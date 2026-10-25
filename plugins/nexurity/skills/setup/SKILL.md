@@ -1,6 +1,6 @@
 ---
 name: setup
-description: Installs the audit tools Nexurity uses (semgrep, CodeQL, pip-audit, gitleaks, trufflehog, lynis, testssl.sh, and cargo-audit when Rust is installed), without sudo and without asking.
+description: Installs the audit tools Nexurity uses (semgrep, CodeQL, codeql-php, pip-audit, gitleaks, trufflehog, lynis, testssl.sh, and cargo-audit when Rust is installed), without sudo and without asking.
 argument-hint: "[--upgrade]"
 disable-model-invocation: true
 ---
@@ -23,7 +23,10 @@ Before anything else, read `${CLAUDE_PLUGIN_ROOT}/reference/RULES.md` and follow
 3. Show the result as a table: tool, status (present, installed, updated, skipped, failed), how, and the
    reason for anything skipped or failed. For a failure, give the tool's own install command as the
    alternative (for example `brew install <formula>` or the tool's documentation link) without running it.
-4. CodeQL is installed from the official CodeQL bundle (about 700 MB to 1.3 GB to download, 3 GB on disk).
+4. CodeQL is installed from the official CodeQL bundle (about 700 MB to 1.3 GB to download, 3 GB on disk),
+   then codeql-php (PHP support for CodeQL, Vozec/codeql-php, a research project) at a pinned commit, built
+   with Rust's `cargo` (about 2 minutes; Rust is installed with Homebrew when it is missing and Homebrew is
+   there, otherwise codeql-php is reported as skipped with the Rust install link).
    Remind the user once that CodeQL is free for open-source code and needs a GitHub Advanced Security
    licence for closed-source code.
 5. Never use `sudo`, never install anything else, and never run this while an engagement is open (the

@@ -38,8 +38,8 @@ with a cached archive.
 **CodeQL** runs on every full code audit (`/nexurity:audit`, not the quick audit), without asking, for each
 language of the target that CodeQL can analyse **without building it**: `javascript-typescript`,
 `python`, `ruby`, `actions` (GitHub Actions workflows), and `java-kotlin` or `csharp` with
-`--build-mode=none`. Languages that need a build (C, C++, Go, Swift, Rust) and PHP (not supported by
-CodeQL; Semgrep covers it) are skipped and written in `log.md`. For each language `<lang>` (query pack
+`--build-mode=none`. Languages that need a build (C, C++, Go, Swift, Rust) are skipped and written in
+`log.md`; PHP is analysed with codeql-php (below). For each language `<lang>` (query pack
 `<pack>`: `javascript`, `python`, `ruby`, `actions`, `java` or `csharp`):
 1. Write `<folder>/tools/codeql-config.yml` once, with the Write tool:
    `paths-ignore:` `.nexurity`, `node_modules`, `vendor` and any generated or third-party folder the recon found.
@@ -49,6 +49,16 @@ CodeQL; Semgrep covers it) are skipped and written in `log.md`. For each languag
 3. `<codeql> database analyze <folder>/tools/codeql-db-<lang>
    codeql/<pack>-queries:codeql-suites/<pack>-security-extended.qls --format=sarif-latest
    --output <folder>/tools/codeql-<lang>.sarif`.
+**PHP with codeql-php**: CodeQL has no PHP support of its own; `/nexurity:setup` installs codeql-php
+(Vozec/codeql-php, MIT, pinned commit, built with `cargo`) and `tools.py where` gives its folder
+`<codeql-php>`. When the target has PHP and `<codeql-php>` is not null:
+`<codeql> database create <folder>/tools/codeql-db-php --language=php --source-root <target>
+--search-path <codeql-php>/php --overwrite`, then `<codeql> database analyze <folder>/tools/codeql-db-php
+<codeql-php>/php/ql/src/codeql-suites/php-security.qls --format=sarif-latest
+--output <folder>/tools/codeql-php.sarif --search-path <codeql-php>/php --additional-packs <codeql-php>`.
+The first analysis compiles its queries (about 5 to 10 minutes). codeql-php is a research project that
+over-approximates on purpose: its results are leads, and the verifier drops what the code does not
+confirm.
 Give each command up to 30 minutes. The safeguard only allows these subcommands, never a build command
 (`--command`), another build mode or a pack download. Licence: CodeQL is free for open-source code; for
 closed-source code it needs a GitHub Advanced Security licence, which is the user's responsibility.

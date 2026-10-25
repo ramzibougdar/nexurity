@@ -21,6 +21,9 @@ secrets in config files committed to the repository; outdated modules with known
 leads); framework-specific misuse (raw queries, disabled CSRF middleware, mass assignment without
 `$fillable`/`$guarded`).
 
+Use the CodeQL results for PHP (`tools/codeql-php.sarif`, from codeql-php) and Semgrep's as leads: codeql-php
+over-approximates on purpose, so confirm each source-to-sink path in the code before making it a candidate.
+
 ## Output
 
 The hunter JSON of `${CLAUDE_PLUGIN_ROOT}/reference/REPORT.md` ("Hunter output"): `candidates`, `coverage`,

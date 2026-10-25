@@ -241,6 +241,12 @@ class GuardTest(unittest.TestCase):
         self.assertRefused("%s database analyze %s/tools/db-js x.qls --output /tmp/out.sarif" % (c, f))
         self.assertRefused("%s database analyze %s/tools/db-js x.qls --download --output %s/tools/o.sarif" % (c, f, f))
         self.assertRefused("%s pack install" % c)
+        php = os.path.join(self.data, "tools", "codeql-php")
+        self.assertAllowed("%s database create %s/tools/db-php --language=php --source-root %s --search-path %s/php" % (c, f, p, php))
+        self.assertAllowed("%s database analyze %s/tools/db-php %s/php/ql/src/codeql-suites/php-security.qls --format=sarif-latest "
+                           "--output %s/tools/codeql-php.sarif --search-path %s/php --additional-packs %s" % (c, f, php, f, php, php))
+        self.assertRefused("%s database create %s/tools/db-php --language=php --source-root %s --search-path /tmp/evil" % (c, f, p))
+        self.assertRefused("%s database analyze %s/tools/db-php x.qls --output %s/tools/o.sarif --additional-packs %s" % (c, f, f, p))
 
     def test_git_clone_with_dash_c_is_resolved(self):
         rel = os.path.relpath(self.folder, self.project)

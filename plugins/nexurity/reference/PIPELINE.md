@@ -42,7 +42,7 @@ Log every step: `python3 "<plugin>/scripts/engagement.py" log --data "<data>" --
    Check every vector: `python3 "<plugin>/scripts/cvss4.py" --json "<vector>"`; an invalid one goes back to
    the verifier. Save each verifier answer as `<folder>/verdicts-<n>.json` with the Write tool.
 7. **Knowledge ledger**: `python3 "<plugin>/scripts/knowledge.py" ledger --data "<data>" --folder <folder>`
-   writes `<folder>/knowledge.json`: for each of the ten sources of `KNOWLEDGE.md`, used (by whom), not
+   writes `<folder>/knowledge.json`: for each of the eleven sources of `KNOWLEDGE.md`, used (by whom), not
    applicable or not run. A source that applies but shows `not_run` is a gap: run the missing tool or
    hunter, or write the reason in `log.md`. The report shows the ledger.
 8. **Deduplication** → `<folder>/findings.json` (format in `REPORT.md`): confirmed → "Open",

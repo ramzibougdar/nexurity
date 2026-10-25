@@ -4,7 +4,7 @@ Nexurity ships third-party security skills, copied unmodified at a pinned commit
 `${CLAUDE_PLUGIN_ROOT}/vendor/` (list, commits and licences: `vendor/SOURCES.json` and `NOTICE.md`). Each
 agent reads the files listed for it below as **checklists and methodology**.
 
-## The ten sources: every audit goes through all of them
+## The eleven sources: every audit goes through all of them
 
 | Id | Source | How an audit uses it | Applies to |
 |---|---|---|---|
@@ -17,10 +17,11 @@ agent reads the files listed for it below as **checklists and methodology**.
 | `voltagent-subagents` | VoltAgent security-auditor and code-reviewer (VA) | `hunter-web`, `hunter-hygiene`, diff review | every code audit |
 | `netresearch-security-audit` | netresearch/security-audit-skill (NR) | OWASP and CWE references, PHP, frameworks, headers, logging | every audit |
 | `codeql` | github/codeql (tool) | run by the main thread, leads for the hunters | code in a language CodeQL analyses without a build |
+| `codeql-php` | Vozec/codeql-php (tool: PHP support for CodeQL) | run by the main thread, leads for `hunter-php` and `hunter-cms` | PHP code |
 | `claude-code-security-review` | anthropics/claude-code-security-review (CCSR) | false-positive rules for the verifier, diff review prompt | every audit |
 
 "Applies to" is decided from `recon.json` and the target, never asked. At the end of every audit,
-`scripts/knowledge.py ledger` records, for each of the ten, whether it was **used** (by which agents or
+`scripts/knowledge.py ledger` records, for each of the eleven, whether it was **used** (by which agents or
 tools), **not applicable** (why) or **not run** (why: tool missing, timeout); the report lists it. An
 applicable source that was not run is a gap to close or to explain in `log.md`.
 

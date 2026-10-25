@@ -48,6 +48,9 @@ latest, security update: yes/no). Its severity follows the worst known vulnerabi
 known vulnerability it is low. WordPress core `status: insecure`, Drupal `security_update_available` or
 `unsupported` raise it. A plugin closed on wordpress.org (`closed: true`) is a candidate on its own.
 
+For custom or third-party plugins, modules and themes (outside the official files), also use the CodeQL
+PHP results (`tools/codeql-php.sarif`) as leads, confirmed in the code.
+
 **4. Not checked**
 Copy every `not_checked` reason (source unavailable, premium extension, time budget) into
 `coverage.not_checked`. Never present an unchecked component as safe.
