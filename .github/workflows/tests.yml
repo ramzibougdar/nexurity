@@ -1,0 +1,35 @@
+name: Plugin tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install test-only helpers
+        run: |
+          sudo apt-get update -q && sudo apt-get install -y -q pandoc
+          python -m pip install --quiet jsonschema
+
+      - name: Run the plugin tests
+        run: python -W error::ResourceWarning -m unittest discover -s plugins/nexurity/tests -v
+
+      - name: Check the guide embeds the current prompt
+        run: |
+          cp index.html /tmp/index.before.html
+          python3 .github/scripts/embed_prompt.py
+          diff -q /tmp/index.before.html index.html
