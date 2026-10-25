@@ -321,8 +321,7 @@ def header(report, labels, title_key, period_key):
     parts = ["# %s · %s" % (labels[title_key], esc(report.get("target_name"))), labels["confidential"]]
     if report.get("context"):
         parts.append(esc(report["context"]))
-    parts.append(kv_table([(labels["client"], esc(report.get("client"))),
-                           (labels["reference"], esc(report.get("ref"))),
+    parts.append(kv_table([(labels["reference"], esc(report.get("ref"))),
                            (labels[period_key], period_txt),
                            (labels["report_version"], version)]))
     return "\n\n".join(parts)
@@ -539,7 +538,8 @@ def render_incident(report, labels):
         doc.add(table(labels["data_headers"],
                       [[esc(c.get("category")), esc(c.get("exposure")), esc(c.get("rationale"))] for c in pdata["categories"]]))
     doc.add("**%s**" % labels["gdpr_requires"], "\n".join("- " + p for p in labels["gdpr_points"]),
-            labels["gdpr_decision"].format(controller=esc(pdata.get("controller") or report.get("client"))))
+            labels["gdpr_decision"].format(controller=esc(pdata["controller"])) if pdata.get("controller")
+            else labels["gdpr_decision_unnamed"])
 
     # 09
     doc.add("---", "## " + sections[8], "### " + labels["glossary"],

@@ -16,8 +16,8 @@ Paths for this run:
 Before anything else, read `${CLAUDE_PLUGIN_ROOT}/reference/RULES.md` and follow it for the whole run.
 
 Run the full audit pipeline of `${CLAUDE_PLUGIN_ROOT}/reference/PIPELINE.md` with these differences:
-- the wizard is reduced to: target (the argument, or the current folder for code), client, language, and the
-  authorisation confirmation;
+- no question and no confirmation: the target is the argument, or the current folder when there is none
+  (language as in `${CLAUDE_PLUGIN_ROOT}/reference/WIZARD.md`);
 - depth is "quick": after the recon, run the **single** hunter that `${CLAUDE_PLUGIN_ROOT}/reference/ROUTING.md`
   selects first for the main stack, then **one** verifier for all its candidates;
 - no CodeQL; deterministic tools only if they take less than a minute (Semgrep with `--config auto` on the

@@ -4,7 +4,6 @@
   "confidential": "Confidential · restricted distribution",
   "audit_title": "Security audit report",
   "incident_title": "Security incident report",
-  "client": "Client",
   "reference": "Reference",
   "audit_period": "Audit period",
   "period_analysed": "Period analysed",
@@ -83,7 +82,7 @@
   "document_history": "Document history",
   "history_headers": ["Version", "Date", "Purpose"],
   "initial_report": "Initial report",
-  "audit_disclaimer": "This report reflects the state of the scope on the audit dates. It is strictly confidential and intended solely for the client named at the top. Testing was carried out with the client's written authorisation, without altering production data.",
+  "audit_disclaimer": "This report reflects the state of the scope on the audit dates. It is confidential and for internal use. Testing was carried out without altering production data.",
   "footer": "Ref. {ref} · Confidential",
 
   "incident_sections": ["Executive summary", "Scope and evidence", "Timeline", "Entry point", "Indicators of compromise", "Detailed findings", "Remediation", "Personal data", "Appendices"],
@@ -149,11 +148,12 @@
     "Every breach, even when not notified, must be recorded in the breach register."
   ],
   "gdpr_decision": "The decision to notify lies with the data controller, {controller}. This report provides the technical facts needed for that decision and is not legal advice. CNIL online notification: notifications.cnil.fr.",
+  "gdpr_decision_unnamed": "The decision to notify lies with the data controller. This report provides the technical facts needed for that decision and is not legal advice. CNIL online notification: notifications.cnil.fr.",
   "incident_glossary": [
     ["Backdoor", "hidden file or access left by an attacker to get back into the system."],
     ["Indicator of compromise", "technical trace (IP address, file, account) that signals an intrusion."],
     ["SHA-256 fingerprint", "unique signature of a file: the slightest change alters it completely."],
     ["CVSS", "0–10 score that measures the severity of a vulnerability. This report uses version 4.0, published by FIRST."]
   ],
-  "incident_disclaimer": "This report reflects what was known when it was written, based on the evidence listed in section 02. It is strictly confidential and intended solely for the client named at the top. The analysis was carried out with the client's authorisation, read-only, without altering production data."
+  "incident_disclaimer": "This report reflects what was known when it was written, based on the evidence listed in section 02. It is confidential and for internal use. The analysis was carried out read-only, without altering production data."
 }

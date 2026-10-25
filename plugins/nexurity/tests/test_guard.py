@@ -32,7 +32,7 @@ class GuardTest(unittest.TestCase):
 
     def _start(self, session, cwd, expect=0):
         out = self._run_script(["start", "--data", self.data, "--session", session, "--cwd", cwd,
-                                "--kind", "audit", "--target", cwd, "--client", "Test"])
+                                "--kind", "audit", "--target", cwd])
         self.assertEqual(out.returncode, expect, out.stdout + out.stderr)
         if expect == 0:
             self.engagement = json.loads(out.stdout)
@@ -192,7 +192,7 @@ class GuardTest(unittest.TestCase):
             'python3 %s/render_report.py --folder %s' % (sc, self.project),
             'python3 %s/preserve_evidence.py --dest /tmp/x /etc' % sc,
             'python3 %s/preserve_evidence.py /etc' % sc,
-            'python3 %s/engagement.py start --session other --cwd %s --kind audit --target x --client y' % (sc, self.project),
+            'python3 %s/engagement.py start --session other --cwd %s --kind audit --target x' % (sc, self.project),
             'python3 %s/../scripts/../tests/test_guard.py' % sc,
         ):
             self.assertRefused(command)

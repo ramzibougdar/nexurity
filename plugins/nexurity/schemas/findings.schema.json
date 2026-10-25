@@ -6,7 +6,6 @@
   "type": "object",
   "required": [
     "ref",
-    "client",
     "target_name",
     "findings"
   ],
@@ -20,9 +19,6 @@
         "en",
         "fr"
       ]
-    },
-    "client": {
-      "type": "string"
     },
     "target_name": {
       "type": "string"

@@ -19,8 +19,8 @@ Before anything else, read `${CLAUDE_PLUGIN_ROOT}/reference/RULES.md` and follow
 
 1. Update check, as in step 0 of `${CLAUDE_PLUGIN_ROOT}/reference/PIPELINE.md`.
 2. Short wizard of `${CLAUDE_PLUGIN_ROOT}/reference/WIZARD.md` ("/nexurity:incident"), including the time of
-   awareness (for the 72-hour GDPR notification deadline) and the authorisation confirmation.
-3. Start the engagement with `--kind incident`.
+   awareness (for the 72-hour GDPR notification deadline). No confirmation.
+3. Show the recap and start the engagement with `--kind incident`.
 4. Follow `${CLAUDE_PLUGIN_ROOT}/reference/FORENSICS.md`: preserve evidence **before any analysis**, triage the
    logs, run `forensic-logs`, `forensic-files` and `forensic-persistence` in parallel (a single message), then
    the `verifier` on every conclusion.

@@ -1,7 +1,6 @@
 {
   "ref": "INC-2026-901",
   "language": "fr",
-  "client": "Fixture",
   "target_name": "Fixture shop",
   "period": {"start": "2026-09-01", "end": "2026-10-18"},
   "report_version": "1.0",

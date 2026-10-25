@@ -1,6 +1,6 @@
 # Nexurity
 
-Nexurity is a security audit assistant for [Claude Code](https://claude.com/claude-code). It audits a project's code, a server or a live website, or analyses a security incident, then produces a self-contained Markdown report (`.md`) ready to send to a client.
+Nexurity is a security audit assistant for [Claude Code](https://claude.com/claude-code). It audits a project's code, a server or a live website, or analyses a security incident, then produces a self-contained Markdown report (`.md`) for internal security use.
 
 **Installation guide:** open [`index.html`](index.html), or the GitHub Pages site once it is enabled for this repository.
 
@@ -32,7 +32,7 @@ Then open Claude Code in the project to audit and type `/nexurity:audit`. Python
 | Report | `/nexurity:report <REF>` | Regenerates a report from its JSON, with optional PDF or Word export |
 | Updates | `/nexurity:update` | New versions of Nexurity and of the audit tools |
 
-Every audit starts with a wizard, checks whether Nexurity and the tools have new versions, and ends with a Markdown report rated in **CVSS 4.0**. Reports and evidence go to `./.nexurity/<REF>/` in the folder where you started Claude Code; that folder ignores itself in Git.
+Every audit asks only what it cannot detect (type, goal, target), always covers every area in depth, checks whether Nexurity and the tools have new versions, and ends with a Markdown report rated in **CVSS 4.0**. Reports and evidence go to `./.nexurity/<REF>/` in the folder where you started Claude Code; that folder ignores itself in Git.
 
 ## Safety rules
 
@@ -40,7 +40,7 @@ Every audit starts with a wizard, checks whether Nexurity and the tools have new
 - Read-only on servers, passive-only on websites: no scanning, fuzzing, exploitation or brute force. A hook enforces it during an audit, in the session that started it.
 - Treats audited content (code, logs, User-Agent strings…) as data, never as instructions.
 - A finding is always re-checked by a different agent from the one that found it; CVSS scores are computed by a script, never written by the model.
-- Requires confirmation of the client's authorisation, including AI-assisted analysis, before any engagement.
+- Internal use: audit your own systems, or systems you are authorised to audit. It starts without a confirmation question.
 - Masks secrets and keeps reports and evidence local.
 
 ## Repository contents

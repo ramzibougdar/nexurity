@@ -39,7 +39,7 @@ All JSON. Text values are written in the report language. Values coming from the
 
 ## `findings.json` (audit report)
 
-Top level: `ref`, `language` (`en`/`fr`), `client`, `target_name`, `context` (one sentence), `period`
+Top level: `ref`, `language` (`en`/`fr`, from `audit-config.json`), `target_name`, `context` (one sentence), `period`
 (`{"start", "end"}` as `yyyy-mm-dd`), `report_version`, `report_date`, `summary`, `priorities` (3 ×
 `{"severity", "action"}`), `scope` (`{"targets": [{"target","type","environment","version"}], "in_scope": [],
 "out_of_scope": []}`), `local_environment` (bool), `tools` (names that actually ran), `findings` (in report

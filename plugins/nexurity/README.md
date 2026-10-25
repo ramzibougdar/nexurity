@@ -1,7 +1,7 @@
 # Nexurity
 
 Security audit assistant for Claude Code. It audits a project's code, a server or a live website
-(passively), or analyses a security incident, then writes a Markdown client report rated in CVSS 4.0.
+(passively), or analyses a security incident, then writes a Markdown report rated in CVSS 4.0.
 
 ## Install
 
@@ -27,7 +27,7 @@ Update with `claude plugin update nexurity@nexurity-marketplace`, then start a n
 
 | Command | What it does |
 |---|---|
-| `/nexurity:audit` | Full audit of code, a server or a live website, with a wizard |
+| `/nexurity:audit` | Full audit of code, a server or a live website, with two short screens (type and goal, then target) |
 | `/nexurity:audit-quick` | One hunter chosen automatically and one verifier |
 | `/nexurity:audit-diff` | Review of a diff, a branch or a pull request |
 | `/nexurity:incident` | Incident response: evidence, log triage, timeline, IOCs, GDPR deadline |
@@ -41,7 +41,7 @@ Update with `claude plugin update nexurity@nexurity-marketplace`, then start a n
 | Folder | What it holds |
 |---|---|
 | `./.nexurity/<REF>/` | Each engagement, in the folder where you started Claude Code: `audit-config.json`, `evidence/`, `findings.json` or `incident.json`, `report.md`, `log.md`. The folder ignores itself in Git. |
-| `${CLAUDE_PLUGIN_DATA}` (`~/.claude/plugins/data/…`) | Settings (`config.json`), client profiles, engagement index, update-check cache. Deleted if you uninstall the plugin. |
+| `${CLAUDE_PLUGIN_DATA}` (`~/.claude/plugins/data/…`) | Settings (`config.json`), engagement index, update-check cache. Deleted if you uninstall the plugin. |
 
 ## Safety
 
@@ -54,7 +54,7 @@ Update with `claude plugin update nexurity@nexurity-marketplace`, then start a n
 - Every finding is re-checked by a different agent; CVSS 4.0 scores are computed by
   `scripts/cvss4.py` (port of the FIRST calculator), never written by the model.
 - Secrets are masked (first and last 4 characters). Reports and evidence stay on your machine; the
-  audited material is processed by the Claude model, which the authorisation question mentions.
+  audited material is processed by the Claude model.
 
 ## Development
 

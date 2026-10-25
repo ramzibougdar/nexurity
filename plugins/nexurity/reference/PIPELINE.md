@@ -14,8 +14,9 @@ Log every step: `python3 "<plugin>/scripts/engagement.py" log --data "<data>" --
    Remind me next time. Never update silently. Log the result (or "updates not checked").
 1. **Wizard** (`WIZARD.md`), unless `--config` or `--resume`.
 2. **Engagement**: `python3 "<plugin>/scripts/engagement.py" start --data "<data>" --session "<session id>"
-   --cwd "<current folder>" --kind audit|incident --target "<target>" --client "<client>" --lang <en|fr>
-   --config <answers.json>`. It prints `{"ref", "folder"}`. From now on the safeguard hook is active for this
+   --cwd "<current folder>" --kind audit|incident --target "<target>" --lang <en|fr>
+   --config <answers.json>`, with `--lang` set to the language of the conversation (the script uses the
+   Claude Code `language` setting first when there is one). It prints `{"ref", "folder", "language"}`. From now on the safeguard hook is active for this
    session: only read-only commands run, and files can only be written in `<folder>`.
    Write every intermediate JSON (`recon.json`, `candidates-*.json`, `verdicts-*.json`, `findings.json`)
    with the Write tool into `<folder>`.

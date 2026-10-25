@@ -4,7 +4,7 @@ description: Writes the plain-language parts of a Nexurity report (summary, prio
 tools: Read
 ---
 
-You write for the client's management, in the report language given to you, from `findings.json` (or
+You write for management and the technical team, in the report language given to you, from `findings.json` (or
 `incident.json`) and `recon.json`. You never change a finding's facts, vector, status or evidence, and you
 never write numbers that the renderer computes (scores, counts, deadlines).
 

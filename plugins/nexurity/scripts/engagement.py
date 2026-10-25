@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 """Create, find, log and close Nexurity engagements.
 
-    engagement.py start   --data D --session S --cwd C --kind audit|incident --target T --client NAME [--lang en|fr] [--config FILE]
+    engagement.py start   --data D --session S --cwd C --kind audit|incident --target T [--lang en|fr] [--config FILE]
     engagement.py log     --data D --ref REF --message TEXT
     engagement.py resolve --data D --ref REF
     engagement.py close   --data D (--ref REF | --session S)
     engagement.py list    --data D
+
+The report language is the Claude Code `language` setting when it is English or French, else
+`--lang` (the language of the conversation), else English.
 
 Engagement folders live in `<cwd>/.nexurity/<REF>/`; the index and the one-file-per-session
 records live in `<data>/engagements/`.
@@ -56,7 +59,7 @@ def cmd_start(args):
                           "hint": "close it first with /nexurity:audit --close %s" % existing["ref"]}))
         return 2
     cwd = os.path.abspath(os.path.expanduser(args.cwd))
-    ref, config = _next_ref(data, args.kind)
+    ref, _ = _next_ref(data, args.kind)
     root = os.path.join(cwd, ".nexurity")
     folder = os.path.join(root, ref)
     os.makedirs(os.path.join(folder, "evidence"), exist_ok=True)
@@ -69,12 +72,13 @@ def cmd_start(args):
         audit_config = common.read_json(args.config, {}) or {}
     else:
         audit_config = {}
+    language = (common.claude_code_language(cwd) or common.report_language(audit_config.get("language"))
+                or args.lang or "en")
     audit_config.update({
         "ref": ref,
         "kind": args.kind,
         "target": args.target,
-        "client": args.client,
-        "language": args.lang or config.get("language", "en"),
+        "language": language,
         "created": common.now_iso(),
     })
     common.write_json(os.path.join(folder, "audit-config.json"), audit_config)
@@ -98,9 +102,9 @@ def cmd_start(args):
         common.write_json(os.path.join(common.sessions_dir(data), "pending-%s.json" % ref), record)
 
     index = _load_index(data)
-    index[ref] = {"folder": folder, "kind": args.kind, "client": args.client, "created": record["started"]}
+    index[ref] = {"folder": folder, "kind": args.kind, "target": args.target, "created": record["started"]}
     common.write_json(_index_path(data), index)
-    print(json.dumps({"ref": ref, "folder": folder}))
+    print(json.dumps({"ref": ref, "folder": folder, "language": language}))
     return 0
 
 
@@ -181,8 +185,7 @@ def main(argv=None):
     p.add_argument("--cwd", default=os.getcwd())
     p.add_argument("--kind", choices=["audit", "incident"], required=True)
     p.add_argument("--target", required=True)
-    p.add_argument("--client", required=True)
-    p.add_argument("--lang", choices=["en", "fr"])
+    p.add_argument("--lang", choices=["en", "fr"], help="language of the conversation")
     p.add_argument("--config", help="audit-config.json written by the wizard")
     p.set_defaults(func=cmd_start)
 

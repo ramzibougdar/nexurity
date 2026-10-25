@@ -5,9 +5,7 @@
   "type": "object",
   "required": [
     "kind",
-    "target",
-    "client",
-    "authorised"
+    "target"
   ],
   "properties": {
     "ref": {
@@ -33,12 +31,6 @@
         "diff",
         "quick",
         "targeted"
-      ]
-    },
-    "audience": {
-      "enum": [
-        "client",
-        "internal"
       ]
     },
     "target": {
@@ -87,26 +79,23 @@
           "secrets",
           "configuration"
         ]
-      }
+      },
+      "description": "Never asked: every area that applies to the target."
     },
     "depth": {
       "enum": [
         "quick",
         "standard",
         "thorough"
-      ]
-    },
-    "client": {
-      "type": "string"
-    },
-    "project": {
-      "type": "string"
+      ],
+      "description": "Never asked: thorough, or quick for the \"Quick audit\" goal."
     },
     "language": {
       "enum": [
         "en",
         "fr"
-      ]
+      ],
+      "description": "Never asked: the Claude Code language setting, else the language of the conversation."
     },
     "question": {
       "type": "string",
@@ -129,10 +118,6 @@
           "description": "ISO 8601, yyyy-mm-ddThh:mm (with offset when known)"
         }
       }
-    },
-    "authorised": {
-      "const": true,
-      "description": "The user confirmed the client's written authorisation, including AI-assisted analysis."
     },
     "created": {
       "type": "string"

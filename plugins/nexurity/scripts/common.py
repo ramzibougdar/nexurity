@@ -17,11 +17,44 @@ SCRIPTS_DIR = os.path.join(PLUGIN_ROOT, "scripts")
 DEFAULT_CONFIG = {
     "prefixes": {"audit": "AUD", "incident": "INC"},
     "counters": {},
-    "language": "en",
     "check_updates": True,
     "update_check_cache_hours": 6,
     "semgrep_hook": False,
 }
+
+MANAGED_SETTINGS = ["/Library/Application Support/ClaudeCode/managed-settings.json",
+                    "/etc/claude-code/managed-settings.json"]
+
+REPORT_LANGUAGES = {"en": ("en", "english", "anglais"),
+                    "fr": ("fr", "french", "francais", "français")}
+
+
+def report_language(value):
+    """'en' or 'fr' for a language name or code ("French", "fr-FR"…), else None."""
+    value = str(value or "").strip().lower().replace("_", "-").split("-")[0]
+    for code, names in REPORT_LANGUAGES.items():
+        if value in names:
+            return code
+    return None
+
+
+def claude_code_language(cwd):
+    """Report language from the Claude Code `language` setting, or None when unset or unsupported.
+
+    Same precedence as Claude Code: managed, then project local, project, then user settings.
+    """
+    config_dir = os.environ.get("CLAUDE_CONFIG_DIR") or os.path.join(os.path.expanduser("~"), ".claude")
+    candidates = MANAGED_SETTINGS + [
+        os.path.join(cwd, ".claude", "settings.local.json"),
+        os.path.join(cwd, ".claude", "settings.json"),
+        os.path.join(config_dir, "settings.json"),
+    ]
+    for path in candidates:
+        settings = read_json(path)
+        if isinstance(settings, dict) and settings.get("language"):
+            return report_language(settings["language"])
+    return None
+
 
 REF_RE = re.compile(r"^(?P<prefix>[A-Z]{2,5})-(?P<year>\d{4})-(?P<num>\d{3,})$")
 

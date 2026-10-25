@@ -1,7 +1,6 @@
 {
   "ref": "AUD-2026-901",
   "language": "en",
-  "client": "Test fixture",
   "target_name": "Fixture application",
   "context": "Test fixture used by the automated tests; never a template.",
   "period": {"start": "2026-10-20", "end": "2026-10-24"},
