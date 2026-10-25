@@ -41,14 +41,13 @@ PROMPT.md     # installation prompt for Claude Code, including the report struct
 1. Open Claude Code in any folder: `claude`. Python 3 is required; Git and Pandoc (PDF or Word export of the report) are optional.
 2. Open the installation guide, copy the prompt shown there (the content of `PROMPT.md`) and paste it into Claude Code as your first message.
 
-Claude Code builds the plugin in six stages, in one go, without asking you anything and without running any trial audit: apart from the safeguard tests, each stage only checks that the expected files are in place, and the results end up in an install report, `~/.nexurity/INSTALL-REPORT.md`. Pick a Claude Code permission mode that doesn't ask at every command (Shift+Tab) before pasting the prompt. Nexurity is installed globally, for your user account, so it works in every project:
+Claude Code builds the plugin in six stages, in one go, without asking you anything and without running any trial audit: apart from the safeguard tests, each stage only checks that the expected files are in place, and the results end up in an install report, `INSTALL-REPORT.md` in the data folder. Pick a Claude Code permission mode that doesn't ask at every command (Shift+Tab) before pasting the prompt. Nexurity is installed globally, for your user account, so it works in every project:
 
 | Folder | What it holds |
 |---|---|
-| `~/nexurity/` | Plugin code, installed at user scope |
-| `~/.nexurity/` | Settings, client profiles and source versions, kept across updates |
-| `~/nexurity-vendor/` | Third-party sources, never part of the plugin |
-| `~/audits/` | Engagements and reports |
+| `~/.claude/skills/nexurity/` | Plugin code, loaded by Claude Code in every session |
+| `~/.claude/plugins/data/…/` | Data folder: settings, client profiles, source versions and third-party sources (deleted if the plugin is uninstalled) |
+| `./.nexurity/` | Engagements and reports, in the folder where you start Claude Code (git-ignored automatically) |
 
 The safeguard hook runs in every session but only blocks commands during an audit, in the session that started it.
 
