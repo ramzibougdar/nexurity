@@ -4,7 +4,6 @@
   "confidential": "Confidentiel · diffusion restreinte",
   "audit_title": "Rapport d'audit de sécurité",
   "incident_title": "Rapport d'incident de sécurité",
-  "client": "Client",
   "reference": "Référence",
   "audit_period": "Période d'audit",
   "period_analysed": "Période analysée",
@@ -83,7 +82,7 @@
   "document_history": "Historique du document",
   "history_headers": ["Version", "Date", "Objet"],
   "initial_report": "Rapport initial",
-  "audit_disclaimer": "Ce rapport reflète l'état du périmètre aux dates de l'audit. Il est strictement confidentiel et destiné au seul client nommé en tête. Les tests ont été menés avec l'autorisation écrite du client, sans altérer les données de production.",
+  "audit_disclaimer": "Ce rapport reflète l'état du périmètre aux dates de l'audit. Il est confidentiel et réservé à un usage interne. Les tests ont été menés sans altérer les données de production.",
   "footer": "Réf. {ref} · Confidentiel",
 
   "incident_sections": ["Synthèse", "Périmètre et preuves", "Chronologie", "Point d'entrée", "Indicateurs de compromission", "Vulnérabilités détaillées", "Remédiation", "Données personnelles", "Annexes"],
@@ -149,11 +148,12 @@
     "Toute violation, même non notifiée, doit être consignée dans le registre des violations."
   ],
   "gdpr_decision": "La décision de notifier revient au responsable de traitement, {controller}. Ce rapport fournit les éléments techniques nécessaires à cette décision et ne constitue pas un avis juridique. Notification en ligne à la CNIL : notifications.cnil.fr.",
+  "gdpr_decision_unnamed": "La décision de notifier revient au responsable de traitement. Ce rapport fournit les éléments techniques nécessaires à cette décision et ne constitue pas un avis juridique. Notification en ligne à la CNIL : notifications.cnil.fr.",
   "incident_glossary": [
     ["Porte dérobée", "fichier ou accès caché laissé par un attaquant pour revenir dans le système."],
     ["Indicateur de compromission", "trace technique (adresse IP, fichier, compte) qui signale une intrusion."],
     ["Empreinte SHA-256", "signature unique d'un fichier : la moindre modification la change entièrement."],
     ["CVSS", "score de 0 à 10 qui mesure la gravité d'une vulnérabilité. Ce rapport utilise la version 4.0, publiée par le FIRST."]
   ],
-  "incident_disclaimer": "Ce rapport reflète ce qui était connu au moment de sa rédaction, à partir des preuves listées en section 02. Il est strictement confidentiel et destiné au seul client nommé en tête. L'analyse a été menée avec l'autorisation du client, en lecture seule, sans altérer les données de production."
+  "incident_disclaimer": "Ce rapport reflète ce qui était connu au moment de sa rédaction, à partir des preuves listées en section 02. Il est confidentiel et réservé à un usage interne. L'analyse a été menée en lecture seule, sans altérer les données de production."
 }

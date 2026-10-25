@@ -9,7 +9,7 @@
     {
       "name": "nexurity",
       "source": "./plugins/nexurity",
-      "description": "Audits code, servers and live websites (passive), handles incident response, and writes a Markdown client report rated in CVSS 4.0.",
+      "description": "Audits code, servers and live websites (passive), handles incident response, and writes a Markdown report rated in CVSS 4.0.",
       "category": "security",
       "tags": ["security", "audit", "incident-response", "cvss"]
     }

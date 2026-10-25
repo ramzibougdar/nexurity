@@ -19,8 +19,8 @@ Before anything else, read `${CLAUDE_PLUGIN_ROOT}/reference/RULES.md` and follow
    branch), or a pull request (fetch it read-only, for example with `git ls-remote` and a clone into the
    engagement folder, or ask the user for the diff). With no argument, review the uncommitted changes and the
    current branch against its upstream.
-2. Ask only: client (or internal use), language, authorisation confirmation. Start the engagement
-   (`--kind audit`, target = the repository).
+2. Ask nothing and start the engagement straight away (`--kind audit`, target = the repository; language
+   as in `${CLAUDE_PLUGIN_ROOT}/reference/WIZARD.md`).
 3. Collect the diff read-only (`git diff`, `git log`) into `<folder>/diff.patch` with a redirection.
 4. Recon on the changed files only (stack, frameworks). Route hunters to the changed files and the code that
    calls them; ignore unchanged code except to understand data flow.

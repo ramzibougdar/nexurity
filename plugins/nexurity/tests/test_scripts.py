@@ -96,6 +96,38 @@ class CheckUpdatesTest(unittest.TestCase):
             self.assertIn("up to date", out.stdout)
 
 
+class LanguageTest(unittest.TestCase):
+    def start(self, tmp, settings=None, lang=None):
+        project = os.path.join(tmp, "project")
+        os.makedirs(os.path.join(project, ".claude"), exist_ok=True)
+        if settings is not None:
+            write(os.path.join(project, ".claude", "settings.json"), json.dumps(settings))
+        env = dict(os.environ, CLAUDE_CONFIG_DIR=os.path.join(tmp, "no-user-settings"))
+        args = [sys.executable, os.path.join(SCRIPTS, "engagement.py"), "start", "--data", os.path.join(tmp, "data"),
+                "--cwd", project, "--kind", "audit", "--target", project] + (["--lang", lang] if lang else [])
+        out = subprocess.run(args, capture_output=True, text=True, env=env)
+        self.assertEqual(out.returncode, 0, out.stderr)
+        return json.loads(out.stdout)["language"]
+
+    def test_claude_code_setting_wins(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            self.assertEqual(self.start(tmp, {"language": "French"}, lang="en"), "fr")
+
+    def test_conversation_language_when_unset_or_unsupported(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            self.assertEqual(self.start(tmp, None, lang="fr"), "fr")
+        with tempfile.TemporaryDirectory() as tmp:
+            self.assertEqual(self.start(tmp, {"language": "japanese"}, lang="fr"), "fr")
+        with tempfile.TemporaryDirectory() as tmp:
+            self.assertEqual(self.start(tmp), "en")
+
+    def test_report_language_names(self):
+        import common
+        self.assertEqual(common.report_language("français"), "fr")
+        self.assertEqual(common.report_language("en-GB"), "en")
+        self.assertIsNone(common.report_language("spanish"))
+
+
 class SchemaTest(unittest.TestCase):
     def test_fixtures_match_schemas(self):
         try:

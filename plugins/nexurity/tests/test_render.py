@@ -66,6 +66,8 @@ class RenderTest(unittest.TestCase):
         self.assertIn("Severity adjusted for business impact from Low to High", md)
         self.assertIn("| V-04 |", md)
         self.assertIn("The target is a local development environment", md)
+        self.assertNotIn("Client", md)
+        self.assertIn("for internal use", md)
 
     def test_audit_toc_anchors_match_headings(self):
         md = self.render("findings.json")
@@ -87,6 +89,15 @@ class RenderTest(unittest.TestCase):
         timeline = [l for l in md.splitlines() if l.startswith("| 02/10/2026")]
         self.assertTrue(timeline[0].startswith("| 02/10/2026 03:14"))   # sorted
         self.assertIn("3f9a…c21e", md)
+        self.assertIn("responsable de traitement, Fixture SAS.", md)
+        self.assertIn("usage interne", md)
+
+    def test_incident_without_controller(self):
+        with open(os.path.join(FIXTURES, "incident.json")) as fh:
+            report = json.load(fh)
+        del report["personal_data"]["controller"]
+        md = render_report.render_incident(report, render_report.load_labels("fr"))
+        self.assertIn("revient au responsable de traitement. Ce rapport", md)
 
     def test_pandoc_render_has_no_target_html(self):
         if not shutil.which("pandoc"):
