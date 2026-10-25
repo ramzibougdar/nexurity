@@ -17,7 +17,7 @@ claude plugin marketplace add ramzibougdar/nexurity
 claude plugin install nexurity@nexurity-marketplace
 ```
 
-Then open Claude Code in the project to audit and type `/nexurity:audit`. Python 3 is required. The first audit installs the audit tools (`semgrep`, `pip-audit`, `gitleaks`, `trufflehog`, `lynis`, `testssl.sh`, and `cargo-audit` when Rust is installed) without asking and without `sudo`; `/nexurity:setup` does it on demand. Git and Pandoc (PDF or Word export) are used when installed. Update with `claude plugin update nexurity@nexurity-marketplace`.
+Then open Claude Code in the project to audit and type `/nexurity:audit`. Python 3 is required. The first audit installs the audit tools (`semgrep`, `codeql`, `pip-audit`, `gitleaks`, `trufflehog`, `lynis`, `testssl.sh`, and `cargo-audit` when Rust is installed) without asking and without `sudo`; `/nexurity:setup` does it on demand. Git and Pandoc (PDF or Word export) are used when installed. Update with `claude plugin update nexurity@nexurity-marketplace`.
 
 ## What Nexurity does
 
@@ -69,4 +69,4 @@ claude plugin validate .
 
 `plugins/nexurity/scripts/cvss4.py` is a Python port of the FIRST CVSS v4.0 calculator (BSD-2-Clause). `plugins/nexurity/vendor/` ships security skills from Cloudflare, Netresearch, secskills, Sanbir, VoltAgent and Anthropic, unmodified and with their licences (MIT, Apache-2.0, CC BY-SA 4.0); the agents use them as checklists. Details and licences: [`plugins/nexurity/NOTICE.md`](plugins/nexurity/NOTICE.md).
 
-Some tools have licence restrictions. In particular, the CodeQL CLI requires a commercial licence to analyse closed-source code, so Nexurity only uses it when you confirm it is allowed.
+Some tools have licence restrictions. CodeQL runs on every full code audit: it is free for open-source code, but analysing closed-source code requires a GitHub Advanced Security licence, which is your responsibility.

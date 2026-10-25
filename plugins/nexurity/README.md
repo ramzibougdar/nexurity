@@ -18,11 +18,13 @@ claude plugin install nexurity@nexurity-marketplace
 
 The plugin is installed for your user account and works in every project. Only Python 3 is required.
 
-The audit tools (`semgrep`, `pip-audit`, `gitleaks`, `trufflehog`, `lynis`, `testssl.sh`, and
+The audit tools (`semgrep`, `codeql`, `pip-audit`, `gitleaks`, `trufflehog`, `lynis`, `testssl.sh`, and
 `cargo-audit` when Rust is installed) are installed by `/nexurity:setup`, which the first audit runs
 automatically: with Homebrew when it is there, otherwise in Nexurity's data folder (private Python
-environment, official GitHub releases checked by SHA-256, official repositories), never with `sudo`.
-CodeQL is never installed (commercial licence for closed-source code). `composer` and `npm` are used when
+environment, official GitHub releases and the official CodeQL bundle checked by SHA-256, official
+repositories), never with `sudo`. CodeQL runs on every full code audit for the languages it can analyse
+without building the project; it is free for open-source code and needs a GitHub Advanced Security licence
+for closed-source code. `composer` and `npm` are used when
 present; `pandoc` exports reports to PDF or Word.
 
 Update with `claude plugin update nexurity@nexurity-marketplace`, then start a new session.

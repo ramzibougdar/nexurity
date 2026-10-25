@@ -18,7 +18,7 @@ authorisation checks, IDOR), authentication and session flaws, CSRF on state-cha
 redirects, mass assignment, weak cryptography and hard-coded keys, sensitive data exposure, security
 misconfiguration visible in code, business-logic flaws you can prove from the code.
 
-Use the tool leads you are given (Semgrep) as starting points: confirm or discard each one by reading the code.
+Use the tool leads you are given (Semgrep, and CodeQL SARIF results in `tools/codeql-*.sarif`) as starting points: confirm or discard each one by reading the code.
 
 ## Output
 

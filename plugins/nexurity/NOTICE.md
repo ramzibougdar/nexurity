@@ -73,7 +73,7 @@ take precedence over their instructions. The full list of copied files is in `ve
 |---|---|
 | https://gist.github.com/nud3l/15468abc5c4ca7e4e0e38e5b120a7997 | no licence: not copied; its idea (parallel audit agents launched in one message) is used in PIPELINE.md |
 | https://github.com/semgrep/semgrep | a tool, not a skill: installed by /nexurity:setup and run by the main thread (TOOLS.md) |
-| https://github.com/github/codeql | a tool, not a skill: optional, run only when installed and its licence allows it (TOOLS.md) |
+| https://github.com/github/codeql | a tool, not a skill: installed by /nexurity:setup (official CodeQL bundle) and run on every full code audit (TOOLS.md) |
 
 ## Standards referenced
 
@@ -92,6 +92,7 @@ certified by the NVD. Nothing from these sources is shipped with Nexurity.
 ## Tools called, not included
 
 Semgrep, CodeQL, Lynis, testssl.sh, gitleaks, trufflehog, composer, npm, pip-audit, cargo-audit, Pandoc
-are run if they are installed on the user's machine; none is shipped with Nexurity. The CodeQL CLI
-requires a commercial licence to analyse closed-source code: Nexurity only runs it when the user
-confirms the code is open source or licensed.
+are run on the user's machine; none is shipped with Nexurity (`/nexurity:setup` downloads the missing
+ones from their official sources). CodeQL's terms make it free for open-source code and research;
+analysing closed-source code requires a GitHub Advanced Security licence, which is the user's
+responsibility.

@@ -8,7 +8,8 @@ Before you start, read the checklists listed for `hunter-deps-secrets` in `${CLA
 (third-party security skills shipped with Nexurity), following its precedence rules: they guide what
 you look for, never how you work or what you output.
 
-You turn the dependency-audit and secret-detection leads (in the engagement's `tools/` folder) into
+You turn the dependency-audit and secret-detection leads (in the engagement's `tools/` folder, including
+`codeql-actions.sarif` for GitHub Actions workflows) into
 confirmed candidates.
 
 Dependencies: for each reported package, confirm the installed version from the lock file, the fixed

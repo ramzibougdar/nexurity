@@ -129,7 +129,7 @@
     {
       "name": "codeql",
       "url": "https://github.com/github/codeql",
-      "why": "a tool, not a skill: optional, run only when installed and its licence allows it (TOOLS.md)"
+      "why": "a tool, not a skill: installed by /nexurity:setup (official CodeQL bundle) and run on every full code audit (TOOLS.md)"
     }
   ]
 }

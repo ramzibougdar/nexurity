@@ -41,7 +41,7 @@ class FindTest(unittest.TestCase):
 
 
 class InstallTest(unittest.TestCase):
-    def test_first_run_installs_once_and_never_installs_codeql(self):
+    def test_first_run_installs_each_tool_once(self):
         calls = []
         with tempfile.TemporaryDirectory() as data, \
                 mock.patch.object(tools, "find", return_value=None), \
@@ -50,9 +50,31 @@ class InstallTest(unittest.TestCase):
             first = tools.install(data, first_run=True)
             second = tools.install(data, first_run=True)
         self.assertEqual(calls, tools.TOOLS)
+        self.assertIn("codeql", calls)
         self.assertIn("skipped", second)
-        self.assertEqual(first["results"][-1]["tool"], "codeql")
-        self.assertNotIn("codeql", calls)
+        self.assertEqual(first["attempted"], sorted(tools.TOOLS))
+
+    def test_first_run_after_an_update_installs_only_new_tools(self):
+        calls = []
+        with tempfile.TemporaryDirectory() as data:
+            tools.common.write_json(os.path.join(data, "tools-setup.json"),
+                                    {"date": "earlier", "results": [{"tool": t} for t in tools.TOOLS if t != "codeql"]})
+            with mock.patch.object(tools, "find", return_value=None), \
+                    mock.patch.object(tools, "brew_path", return_value=None), \
+                    mock.patch.object(tools, "install_one", side_effect=lambda t, d, b: calls.append(t) or ("failed", "x")):
+                tools.install(data, first_run=True)
+        self.assertEqual(calls, ["codeql"])
+
+    def test_codeql_bundle_checksum_is_enforced(self):
+        with tempfile.TemporaryDirectory() as data, \
+                mock.patch.object(tools, "platform_names", return_value=("linux", "x86_64")), \
+                mock.patch.object(tools, "run", return_value="x\trefs/tags/codeql-bundle-v2.27.3\n"), \
+                mock.patch.object(tools, "http_get", return_value=b"%s  codeql-bundle-linux64.tar.gz" % (b"a" * 64)), \
+                mock.patch.object(tools, "download_file", return_value="b" * 64), \
+                mock.patch("shutil.disk_usage", return_value=mock.Mock(free=100 << 30)):
+            with self.assertRaises(tools.InstallError):
+                tools.install_codeql(data)
+            self.assertFalse(os.path.exists(os.path.join(data, "tools", "codeql")))
 
     def test_cargo_audit_needs_rust(self):
         with tempfile.TemporaryDirectory() as home, mock.patch("shutil.which", return_value=None), \

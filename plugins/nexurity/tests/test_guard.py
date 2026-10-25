@@ -219,6 +219,25 @@ class GuardTest(unittest.TestCase):
         self.assertAllowed("python3 %s/tools.py where --data %s" % (SCRIPTS, self.data))
         self.assertRefused("python3 %s/tools.py install --data %s" % (SCRIPTS, self.data))
 
+    def test_codeql_extracts_and_analyzes_without_building(self):
+        codeql_dir = os.path.join(self.data, "tools", "codeql")
+        os.makedirs(codeql_dir, exist_ok=True)
+        with open(os.path.join(codeql_dir, "codeql"), "w") as fh:
+            fh.write("#!/bin/sh\n")
+        c, f, p = os.path.join(codeql_dir, "codeql"), self.folder, self.project
+        self.assertAllowed("%s database create %s/tools/db-js --language=javascript-typescript --source-root %s "
+                           "--codescanning-config %s/tools/codeql-config.yml --overwrite" % (c, f, p, f))
+        self.assertAllowed("%s database create %s/tools/db-java --language=java-kotlin --build-mode=none --source-root %s" % (c, f, p))
+        self.assertAllowed("%s database analyze %s/tools/db-js codeql/javascript-queries:codeql-suites/"
+                           "javascript-security-extended.qls --format=sarif-latest --output %s/tools/js.sarif" % (c, f, f))
+        self.assertRefused("%s database create %s/tools/db --language=go --source-root %s" % (c, f, p))
+        self.assertRefused("%s database create %s/tools/db --language=java-kotlin --build-mode=autobuild --source-root %s" % (c, f, p))
+        self.assertRefused("%s database create %s/tools/db --language=python --command 'make' --source-root %s" % (c, f, p))
+        self.assertRefused("%s database create /tmp/db --language=python --source-root %s" % (c, p))
+        self.assertRefused("%s database analyze %s/tools/db-js x.qls --output /tmp/out.sarif" % (c, f))
+        self.assertRefused("%s database analyze %s/tools/db-js x.qls --download --output %s/tools/o.sarif" % (c, f, f))
+        self.assertRefused("%s pack install" % c)
+
     def test_git_clone_with_dash_c_is_resolved(self):
         rel = os.path.relpath(self.folder, self.project)
         self.assertRefused("git -C /tmp clone https://github.com/x/y %s/src" % rel)

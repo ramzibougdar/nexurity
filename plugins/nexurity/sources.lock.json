@@ -131,7 +131,7 @@
     {
       "name": "codeql",
       "url": "https://github.com/github/codeql",
-      "reuse": "a tool, not a skill: optional, run only when installed and its licence allows it (TOOLS.md)"
+      "reuse": "a tool, not a skill: installed by /nexurity:setup (official CodeQL bundle) and run on every full code audit (TOOLS.md)"
     }
   ],
   "tools": [

@@ -3,7 +3,7 @@
 
     tools.py where   --data D                 where each tool is (PATH first, then Nexurity's folder)
     tools.py install --data D [--only a,b]    install the missing tools, without asking
-    tools.py install --data D --first-run     same, but only once: does nothing after a first attempt
+    tools.py install --data D --first-run     same, but only for tools never attempted before
     tools.py install --data D --upgrade       also update the tools Nexurity installed (and Homebrew ones)
 
 Installation never uses sudo and never changes the target:
@@ -13,7 +13,9 @@ Installation never uses sudo and never changes the target:
   official GitHub release, checked against the release's SHA-256 checksums; lynis and testssl.sh from their
   official repositories;
 - cargo-audit with `cargo install` only when Rust is installed (it is only needed for Rust projects);
-- CodeQL is never installed: its licence requires a commercial licence for closed-source code.
+- CodeQL from the official CodeQL bundle (CLI and standard queries, github/codeql-action releases),
+  checked against its published SHA-256, in `<data>/tools/codeql`. Its licence is free for open-source
+  code; closed-source code needs a GitHub Advanced Security licence.
 
 A tool that cannot be installed is reported and the audit goes on without it. Python standard library only.
 """
@@ -35,8 +37,8 @@ import urllib.request
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import common  # noqa: E402
 
-TOOLS = ["semgrep", "pip-audit", "gitleaks", "trufflehog", "lynis", "testssl.sh", "cargo-audit"]
-ALL_TOOLS = TOOLS + ["codeql"]
+TOOLS = ["semgrep", "pip-audit", "gitleaks", "trufflehog", "lynis", "testssl.sh", "cargo-audit", "codeql"]
+ALL_TOOLS = TOOLS
 ALIASES = {"testssl.sh": ["testssl.sh", "testssl"]}
 BREW_FORMULA = {"semgrep": "semgrep", "pip-audit": "pip-audit", "gitleaks": "gitleaks", "trufflehog": "trufflehog",
                 "lynis": "lynis", "testssl.sh": "testssl", "cargo-audit": "cargo-audit"}
@@ -58,6 +60,10 @@ NEEDS = {"testssl.sh": ["openssl", "hexdump"], "lynis": ["sh"]}
 USER_AGENT = "nexurity-tools (+https://github.com/ramzibougdar/nexurity)"
 TIMEOUT = 60
 MAX_DOWNLOAD = 300 << 20
+CODEQL_BUNDLE = {"repo": "github/codeql-action", "tag": r"^codeql-bundle-v\d+\.\d+\.\d+$",
+                 "asset": {"linux": "codeql-bundle-linux64.tar.gz", "darwin": "codeql-bundle-osx64.tar.gz"}}
+MAX_BUNDLE = 3 << 30
+FREE_SPACE_NEEDED = 6 << 30
 
 
 class InstallError(Exception):
@@ -257,6 +263,86 @@ def install_source(tool, data):
         shutil.rmtree(staging, ignore_errors=True)
 
 
+def download_file(url, path, limit, digest):
+    """Stream a large download to `path`, returning its SHA-256."""
+    request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+    size = 0
+    try:
+        with urllib.request.urlopen(request, timeout=TIMEOUT) as response, open(path, "wb") as out:
+            for chunk in iter(lambda: response.read(1 << 20), b""):
+                size += len(chunk)
+                if size > limit:
+                    raise InstallError("download too large: %s" % url)
+                digest.update(chunk)
+                out.write(chunk)
+    except urllib.error.HTTPError as exc:
+        raise InstallError("download refused (HTTP %s): %s" % (exc.code, url))
+    except (urllib.error.URLError, OSError) as exc:
+        raise InstallError("download failed (%s): %s" % (exc, url))
+    return digest.hexdigest()
+
+
+def extract_tree(archive, target):
+    """Extract a tar archive under `target`, top folder stripped; links only when they stay inside."""
+    root = os.path.realpath(target)
+    for member in archive:
+        parts = member.name.replace("\\", "/").split("/")[1:]
+        rel = "/".join(p for p in parts if p)
+        if not rel or member.name.startswith("/") or ".." in parts:
+            continue
+        path = os.path.join(target, rel)
+        if member.isdir():
+            os.makedirs(path, exist_ok=True)
+        elif member.isfile():
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            with archive.extractfile(member) as src, open(path, "wb") as dst:
+                shutil.copyfileobj(src, dst, 1 << 20)
+            os.chmod(path, 0o755 if member.mode & 0o111 else 0o644)
+        elif member.issym():
+            link = os.path.realpath(os.path.join(os.path.dirname(path), member.linkname))
+            if link == root or link.startswith(root + os.sep):
+                os.makedirs(os.path.dirname(path), exist_ok=True)
+                if os.path.lexists(path):
+                    os.unlink(path)
+                os.symlink(member.linkname, path)
+
+
+def install_codeql(data):
+    system, _arch = platform_names()
+    asset = CODEQL_BUNDLE["asset"][system]
+    tools_dir = os.path.join(data, "tools")
+    os.makedirs(tools_dir, exist_ok=True)
+    if shutil.disk_usage(tools_dir).free < FREE_SPACE_NEEDED:
+        raise InstallError("CodeQL needs about %d GB of free disk space" % (FREE_SPACE_NEEDED >> 30))
+    out = run(["git", "ls-remote", "--tags", "--refs", "https://github.com/%s.git" % CODEQL_BUNDLE["repo"]], 60,
+              {"GIT_TERMINAL_PROMPT": "0"}) if shutil.which("git") else ""
+    tags = [l.split("refs/tags/", 1)[1] for l in out.splitlines() if "refs/tags/" in l]
+    tags = [t for t in tags if re.match(CODEQL_BUNDLE["tag"], t)]
+    tag = max(tags, key=version_key) if tags else latest_tag(CODEQL_BUNDLE["repo"])
+    base = "https://github.com/%s/releases/download/%s/" % (CODEQL_BUNDLE["repo"], tag)
+    listed = http_get(base + asset + ".checksum.txt").decode("utf-8", "replace").split()
+    if len(listed) < 2 or listed[1].lstrip("*") != asset or not re.match(r"^[0-9a-f]{64}$", listed[0]):
+        raise InstallError("unexpected checksum file for %s" % asset)
+    staging = tempfile.mkdtemp(dir=tools_dir, prefix=".tmp-")
+    try:
+        archive_path = os.path.join(staging, asset)
+        if download_file(base + asset, archive_path, MAX_BUNDLE, hashlib.sha256()) != listed[0]:
+            raise InstallError("checksum mismatch for %s: not installed" % asset)
+        source = os.path.join(staging, "codeql")
+        with tarfile.open(archive_path, mode="r:gz") as archive:
+            extract_tree(archive, source)
+        os.unlink(archive_path)
+        if not os.path.isfile(os.path.join(source, "codeql")):
+            raise InstallError("codeql not found in %s" % asset)
+        target = os.path.join(tools_dir, "codeql")
+        if os.path.exists(target):
+            shutil.rmtree(target)
+        os.replace(source, target)
+    finally:
+        shutil.rmtree(staging, ignore_errors=True)
+    return tag.rsplit("-v", 1)[-1]
+
+
 def install_cargo(tool):
     cargo = shutil.which("cargo") or os.path.join(os.path.expanduser("~"), ".cargo", "bin", "cargo")
     run([cargo, "install", "--locked", "--quiet", tool], 1800)
@@ -267,7 +353,7 @@ def install_one(tool, data, brew):
     errors = []
     if tool == "cargo-audit" and not (shutil.which("cargo") or os.path.exists(os.path.join(os.path.expanduser("~"), ".cargo", "bin", "cargo"))):
         return "skipped", "Rust (cargo) is not installed: only needed to audit Rust projects"
-    if brew:
+    if brew and tool in BREW_FORMULA:
         try:
             install_brew(tool, brew)
             if find(tool, data):
@@ -286,6 +372,8 @@ def install_one(tool, data, brew):
         elif tool == "cargo-audit":
             install_cargo(tool)
             method = "cargo install"
+        elif tool == "codeql":
+            method = "official CodeQL bundle %s (SHA-256 checked)" % install_codeql(data)
         else:
             return "skipped", "no installer"
     except InstallError as exc:
@@ -307,8 +395,10 @@ def upgrade_one(tool, path, data, brew):
             install_release(tool, data)
         elif tool in SOURCES:
             install_source(tool, data)
+        elif tool == "codeql":
+            install_codeql(data)
         return "updated (Nexurity's folder)"
-    if brew and "/Cellar/" in real:
+    if brew and "/Cellar/" in real and tool in BREW_FORMULA:
         run([brew, "upgrade", BREW_FORMULA[tool]], 900, {"HOMEBREW_NO_AUTO_UPDATE": "1", "NONINTERACTIVE": "1"})
         return "updated (Homebrew)"
     return None
@@ -316,11 +406,12 @@ def upgrade_one(tool, path, data, brew):
 
 def install(data, only=None, first_run=False, upgrade=False):
     marker = os.path.join(data, "tools-setup.json")
-    if first_run and os.path.exists(marker):
-        return {"skipped": "already attempted on %s: run /nexurity:setup to try again" %
-                           (common.read_json(marker, {}) or {}).get("date", "a previous run"),
+    previous = common.read_json(marker, {}) or {}
+    attempted = set(previous.get("attempted") or [r.get("tool") for r in previous.get("results", [])])
+    wanted = [t for t in TOOLS if (not only or t in only) and not (first_run and t in attempted)]
+    if first_run and not wanted:
+        return {"skipped": "already attempted on %s: run /nexurity:setup to try again" % previous.get("date", "a previous run"),
                 "tools": where(data)}
-    wanted = [t for t in TOOLS if not only or t in only]
     brew = brew_path()
     results = []
     for tool in wanted:
@@ -345,10 +436,8 @@ def install(data, only=None, first_run=False, upgrade=False):
         lacking = [c for c in NEEDS.get(entry["tool"], []) if not shutil.which(c)]
         if entry.get("path") and lacking:
             entry["warning"] = "needs %s, which is not installed (system package)" % ", ".join(lacking)
-    results.append({"tool": "codeql", "status": "not installed by Nexurity",
-                    "reason": "commercial licence needed for closed-source code; install it yourself if allowed",
-                    "path": find("codeql", data)})
-    report = {"date": common.now_iso(), "brew": bool(brew), "results": results}
+    report = {"date": common.now_iso(), "brew": bool(brew), "results": results,
+              "attempted": sorted(attempted | {r["tool"] for r in results})}
     common.write_json(marker, report)
     return report
 

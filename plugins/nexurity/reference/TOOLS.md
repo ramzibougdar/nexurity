@@ -15,6 +15,7 @@ installed").
 | Area | Command (examples, adapt paths) |
 |---|---|
 | CMS | `python3 "<plugin>/scripts/cms.py" scan <cms root> --data "<data>" --out <folder>/tools/cms` (see below) |
+| Code analysis | CodeQL on every full audit, for the languages it analyses without a build (see below) |
 | Code patterns | `semgrep scan --config auto --json -o <folder>/tools/semgrep.json <target>` |
 | PHP dependencies | `composer audit --format=json --working-dir=<target> > <folder>/tools/composer-audit.json` |
 | Node dependencies | `npm audit --json --prefix <target> > <folder>/tools/npm-audit.json` |
@@ -34,8 +35,23 @@ by default) and lists what it could not check; `NVD_API_KEY` speeds up the NVD l
 are cached in `<data>/cms-baselines/` (five at most). Without network, `--offline` still compares files
 with a cached archive.
 
-**CodeQL** is optional: use it only if it is installed **and** the user confirms that the code is open
-source or covered by a CodeQL licence (the CLI requires a commercial licence for closed-source code).
+**CodeQL** runs on every full code audit (`/nexurity:audit`, not the quick audit), without asking, for each
+language of the target that CodeQL can analyse **without building it**: `javascript-typescript`,
+`python`, `ruby`, `actions` (GitHub Actions workflows), and `java-kotlin` or `csharp` with
+`--build-mode=none`. Languages that need a build (C, C++, Go, Swift, Rust) and PHP (not supported by
+CodeQL; Semgrep covers it) are skipped and written in `log.md`. For each language `<lang>` (query pack
+`<pack>`: `javascript`, `python`, `ruby`, `actions`, `java` or `csharp`):
+1. Write `<folder>/tools/codeql-config.yml` once, with the Write tool:
+   `paths-ignore:` `.nexurity`, `node_modules`, `vendor` and any generated or third-party folder the recon found.
+2. `<codeql> database create <folder>/tools/codeql-db-<lang> --language=<lang> --source-root <target>
+   --codescanning-config <folder>/tools/codeql-config.yml --overwrite` (add `--build-mode=none` for
+   `java-kotlin` and `csharp`).
+3. `<codeql> database analyze <folder>/tools/codeql-db-<lang>
+   codeql/<pack>-queries:codeql-suites/<pack>-security-extended.qls --format=sarif-latest
+   --output <folder>/tools/codeql-<lang>.sarif`.
+Give each command up to 30 minutes. The safeguard only allows these subcommands, never a build command
+(`--command`), another build mode or a pack download. Licence: CodeQL is free for open-source code; for
+closed-source code it needs a GitHub Advanced Security licence, which is the user's responsibility.
 
 Gitleaks and trufflehog output contains secrets: mask them before showing anything
 (`python3 "<plugin>/scripts/mask_secrets.py" <file>`).
