@@ -1,0 +1,17 @@
+{
+  "name": "nexurity-marketplace",
+  "owner": {
+    "name": "Ramzi Bougdar",
+    "url": "https://github.com/ramzibougdar"
+  },
+  "description": "Nexurity, a security audit assistant for Claude Code.",
+  "plugins": [
+    {
+      "name": "nexurity",
+      "source": "./plugins/nexurity",
+      "description": "Audits code, servers and live websites (passive), handles incident response, and writes a Markdown client report rated in CVSS 4.0.",
+      "category": "security",
+      "tags": ["security", "audit", "incident-response", "cvss"]
+    }
+  ]
+}

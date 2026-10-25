@@ -1,0 +1,140 @@
+"""Shared helpers for the Nexurity scripts: paths, configuration, engagements.
+
+Python standard library only. Every path that matters is passed explicitly by the
+skills (`--data "${CLAUDE_PLUGIN_DATA}"`), because the plugin variables are not
+set in the environment of commands run through the Bash tool. Hooks receive
+CLAUDE_PLUGIN_DATA in their environment.
+"""
+import datetime
+import json
+import os
+import re
+import tempfile
+
+PLUGIN_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SCRIPTS_DIR = os.path.join(PLUGIN_ROOT, "scripts")
+
+DEFAULT_CONFIG = {
+    "prefixes": {"audit": "AUD", "incident": "INC"},
+    "counters": {},
+    "language": "en",
+    "check_updates": True,
+    "update_check_cache_hours": 6,
+    "semgrep_hook": False,
+}
+
+REF_RE = re.compile(r"^(?P<prefix>[A-Z]{2,5})-(?P<year>\d{4})-(?P<num>\d{3,})$")
+
+
+def data_dir(explicit=None):
+    """Nexurity's persistent data folder (${CLAUDE_PLUGIN_DATA})."""
+    for candidate in (explicit, os.environ.get("CLAUDE_PLUGIN_DATA")):
+        if candidate and "${" not in candidate:
+            return os.path.abspath(os.path.expanduser(candidate))
+    return os.path.join(os.path.expanduser("~"), ".claude", "plugins", "data", "nexurity")
+
+
+def engagements_dir(data):
+    return os.path.join(data, "engagements")
+
+
+def sessions_dir(data):
+    return os.path.join(engagements_dir(data), "sessions")
+
+
+def read_json(path, default=None):
+    try:
+        with open(path, encoding="utf-8") as fh:
+            return json.load(fh)
+    except FileNotFoundError:
+        return default
+    except (OSError, ValueError):
+        return default
+
+
+def write_json(path, value):
+    """Atomic JSON write."""
+    folder = os.path.dirname(path)
+    os.makedirs(folder, exist_ok=True)
+    fd, tmp = tempfile.mkstemp(dir=folder, prefix=".tmp-", suffix=".json")
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as fh:
+            json.dump(value, fh, indent=2, ensure_ascii=False)
+            fh.write("\n")
+        os.replace(tmp, path)
+    except BaseException:
+        if os.path.exists(tmp):
+            os.unlink(tmp)
+        raise
+
+
+def load_config(data):
+    path = os.path.join(data, "config.json")
+    config = read_json(path)
+    if config is None:
+        config = json.loads(json.dumps(DEFAULT_CONFIG))
+        write_json(path, config)
+        return config
+    merged = json.loads(json.dumps(DEFAULT_CONFIG))
+    merged.update(config)
+    return merged
+
+
+def save_config(data, config):
+    write_json(os.path.join(data, "config.json"), config)
+
+
+def now_iso():
+    return datetime.datetime.now().astimezone().isoformat(timespec="seconds")
+
+
+def is_within(path, folder):
+    """True if `path` (after resolving symlinks) is `folder` or inside it."""
+    try:
+        real_path = os.path.realpath(os.path.expanduser(path))
+        real_folder = os.path.realpath(os.path.expanduser(folder))
+    except (OSError, ValueError):
+        return False
+    return real_path == real_folder or real_path.startswith(real_folder.rstrip(os.sep) + os.sep)
+
+
+def session_file(data, session_id):
+    safe = re.sub(r"[^A-Za-z0-9_.-]", "_", session_id or "")
+    return os.path.join(sessions_dir(data), safe + ".json")
+
+
+def load_session_engagement(data, session_id, cwd=None):
+    """Engagement of a session, claiming a pending one started from the same folder.
+
+    A skill passes ${CLAUDE_SESSION_ID}; if it was not substituted, engagement.py
+    stores the engagement as pending, and the first hook call of the session that
+    runs in the same folder claims it.
+    """
+    if not session_id:
+        return None
+    path = session_file(data, session_id)
+    engagement = read_json(path)
+    if engagement:
+        return engagement
+    if not cwd:
+        return None
+    folder = sessions_dir(data)
+    try:
+        names = sorted(os.listdir(folder))
+    except OSError:
+        return None
+    for name in names:
+        if not name.startswith("pending-"):
+            continue
+        pending_path = os.path.join(folder, name)
+        pending = read_json(pending_path)
+        if not pending or os.path.realpath(pending.get("cwd", "")) != os.path.realpath(cwd):
+            continue
+        pending["session_id"] = session_id
+        write_json(path, pending)
+        try:
+            os.unlink(pending_path)
+        except OSError:
+            pass
+        return pending
+    return None

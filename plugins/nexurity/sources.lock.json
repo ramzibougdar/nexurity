@@ -1,0 +1,32 @@
+{
+  "generated": "2026-10-25",
+  "sources": [
+    {
+      "name": "FIRST CVSS v4.0 calculator",
+      "url": "https://github.com/FIRSTdotorg/cvss-v4-calculator",
+      "branch": "main",
+      "commit": "c5b0d409ae9f57c44264c6ce5f27d89298e1d32a",
+      "license": "BSD-2-Clause",
+      "license_sha256": "5d672639189da9bda914dd8c847069cc6959135000b17c45262bb742e5d3b392",
+      "used_in": ["scripts/cvss4.py"],
+      "reuse": "code ported to Python (scoring algorithm and lookup tables)"
+    }
+  ],
+  "references": [
+    {"name": "cloudflare/security-audit-skill", "url": "https://github.com/cloudflare/security-audit-skill", "reuse": "ideas only (phased pipeline, coverage map, adversarial validation)"},
+    {"name": "anthropics/claude-code-security-review", "url": "https://github.com/anthropics/claude-code-security-review", "reuse": "ideas only (diff review)"},
+    {"name": "trilwu/secskills (secskills-core only)", "url": "https://github.com/trilwu/secskills", "reuse": "ideas only (code audit checklists)"},
+    {"name": "netresearch/security-audit-skill", "url": "https://github.com/netresearch/security-audit-skill", "reuse": "ideas only (PHP checklist)"},
+    {"name": "sanbir/solana-auditor-skills", "url": "https://github.com/sanbir/solana-auditor-skills", "reuse": "ideas only (Solana checklist)"},
+    {"name": "OWASP Top 10, ASVS 4.0, CWE Top 25", "url": "https://owasp.org", "reuse": "public reference standards"}
+  ],
+  "tools": [
+    {"name": "semgrep", "check": "pypi", "package": "semgrep", "version_command": ["semgrep", "--version"]},
+    {"name": "pip-audit", "check": "pypi", "package": "pip-audit", "version_command": ["pip-audit", "--version"]},
+    {"name": "gitleaks", "check": "github", "repo": "gitleaks/gitleaks", "version_command": ["gitleaks", "version"]},
+    {"name": "trufflehog", "check": "github", "repo": "trufflesecurity/trufflehog", "version_command": ["trufflehog", "--version"]},
+    {"name": "lynis", "check": "none", "version_command": ["lynis", "show", "version"]},
+    {"name": "testssl.sh", "check": "none", "version_command": ["testssl.sh", "--version"]},
+    {"name": "codeql", "check": "github", "repo": "github/codeql-cli-binaries", "version_command": ["codeql", "version", "--format=terse"]}
+  ]
+}

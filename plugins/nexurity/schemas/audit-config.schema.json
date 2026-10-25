@@ -1,0 +1,141 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "nexurity/audit-config.schema.json",
+  "title": "Nexurity wizard answers (audit-config.json)",
+  "type": "object",
+  "required": [
+    "kind",
+    "target",
+    "client",
+    "authorised"
+  ],
+  "properties": {
+    "ref": {
+      "type": "string"
+    },
+    "kind": {
+      "enum": [
+        "audit",
+        "incident"
+      ]
+    },
+    "type": {
+      "enum": [
+        "code",
+        "server",
+        "website",
+        "several"
+      ]
+    },
+    "goal": {
+      "enum": [
+        "full",
+        "diff",
+        "quick",
+        "targeted"
+      ]
+    },
+    "audience": {
+      "enum": [
+        "client",
+        "internal"
+      ]
+    },
+    "target": {
+      "type": "string"
+    },
+    "targets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "enum": [
+              "code",
+              "server",
+              "website"
+            ]
+          },
+          "value": {
+            "type": "string"
+          },
+          "local": {
+            "type": "boolean"
+          },
+          "project_folder": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "access": {
+      "enum": [
+        "local",
+        "root",
+        "sudo",
+        "user",
+        "shared-hosting",
+        "manual-logs"
+      ]
+    },
+    "areas": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "code",
+          "dependencies",
+          "secrets",
+          "configuration"
+        ]
+      }
+    },
+    "depth": {
+      "enum": [
+        "quick",
+        "standard",
+        "thorough"
+      ]
+    },
+    "client": {
+      "type": "string"
+    },
+    "project": {
+      "type": "string"
+    },
+    "language": {
+      "enum": [
+        "en",
+        "fr"
+      ]
+    },
+    "question": {
+      "type": "string",
+      "description": "For a targeted question"
+    },
+    "incident": {
+      "type": "object",
+      "properties": {
+        "symptom": {
+          "type": "string"
+        },
+        "period": {
+          "type": "string"
+        },
+        "online": {
+          "type": "boolean"
+        },
+        "awareness": {
+          "type": "string",
+          "description": "ISO 8601, yyyy-mm-ddThh:mm (with offset when known)"
+        }
+      }
+    },
+    "authorised": {
+      "const": true,
+      "description": "The user confirmed the client's written authorisation, including AI-assisted analysis."
+    },
+    "created": {
+      "type": "string"
+    }
+  }
+}

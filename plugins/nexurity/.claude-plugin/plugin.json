@@ -1,0 +1,12 @@
+{
+  "name": "nexurity",
+  "version": "1.0.0",
+  "description": "Security audit assistant: audits code, servers and live websites (passive), handles incident response, and writes a Markdown client report rated in CVSS 4.0.",
+  "author": {
+    "name": "Ramzi Bougdar",
+    "url": "https://github.com/ramzibougdar"
+  },
+  "homepage": "https://github.com/ramzibougdar/nexurity",
+  "repository": "https://github.com/ramzibougdar/nexurity",
+  "keywords": ["security", "audit", "pentest-report", "incident-response", "cvss", "owasp", "gdpr"]
+}

@@ -1,0 +1,66 @@
+{
+  "ref": "AUD-2026-901",
+  "language": "en",
+  "client": "Test fixture",
+  "target_name": "Fixture application",
+  "context": "Test fixture used by the automated tests; never a template.",
+  "period": {"start": "2026-10-20", "end": "2026-10-24"},
+  "report_version": "1.0",
+  "report_date": "2026-10-25",
+  "summary": "Fixture summary with <b>tags</b>, [a link](https://evil.example) and | pipes.",
+  "priorities": [
+    {"severity": "critical", "action": "Fix the first fixture finding."},
+    {"severity": "high", "action": "Fix the second fixture finding."},
+    {"severity": "medium", "action": "Fix the third fixture finding."}
+  ],
+  "scope": {
+    "targets": [{"target": "https://fixture.test", "type": "Website", "environment": "Local", "version": ""}],
+    "in_scope": ["Code review"],
+    "out_of_scope": ["Denial of service"]
+  },
+  "local_environment": true,
+  "tools": ["semgrep", "gitleaks"],
+  "findings": [
+    {
+      "title": "</h3><script>alert(1)</script>",
+      "area": "Modules",
+      "category": "A | B | C",
+      "component": "src/a`b|c.php",
+      "cvss_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
+      "status": "Open",
+      "description": "Line one\nLine two # not a heading",
+      "evidence": [
+        {"label": "file.php:12", "language": "php", "code": "```\n# Fake heading\n<img src=x onerror=alert(1)>\n$password = \"hunter2hunter2\";"}
+      ],
+      "impact": "Impact text.",
+      "recommendations": ["Use prepared statements.", "1. not a list"],
+      "references": ["CWE-89"]
+    },
+    {
+      "title": "[click](https://evil.example) ![x](https://evil.example/t.png)",
+      "area": "Modules",
+      "category": "A06",
+      "cvss_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:H/VI:L/VA:N/SC:N/SI:N/SA:N",
+      "status": "To confirm"
+    },
+    {
+      "title": "Missing headers",
+      "area": "Server",
+      "category": "A05",
+      "cvss_vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:P/VC:L/VI:L/VA:N/SC:N/SI:N/SA:N",
+      "status": "Open",
+      "business_adjustment": {"severity": "high", "justification": "Payment pages are affected."}
+    },
+    {
+      "title": "No backup policy",
+      "area": "Server",
+      "category": "Resilience",
+      "status": "Fixed"
+    }
+  ],
+  "action_plan": {
+    "immediate": [{"ref": "V-01", "action": "Fix the injection"}],
+    "short_term": [{"action": "Rotate keys"}],
+    "medium_term": []
+  }
+}
