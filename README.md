@@ -48,7 +48,7 @@ Claude Code builds the plugin in six stages, in one go, without asking you anyth
 | `~/nexurity/` | Plugin code, installed at user scope |
 | `~/.nexurity/` | Settings, client profiles and source versions, kept across updates |
 | `~/nexurity-vendor/` | Third-party sources, never part of the plugin |
-| `~/audits/` | Engagements and reports |
+| `./.nexurity/` | Engagements and reports, in the folder where you start Claude Code (git-ignored automatically) |
 
 The safeguard hook runs in every session but only blocks commands during an audit, in the session that started it.
 
