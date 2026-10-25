@@ -4,6 +4,30 @@ Nexurity ships third-party security skills, copied unmodified at a pinned commit
 `${CLAUDE_PLUGIN_ROOT}/vendor/` (list, commits and licences: `vendor/SOURCES.json` and `NOTICE.md`). Each
 agent reads the files listed for it below as **checklists and methodology**.
 
+## The eleven sources: every audit goes through all of them
+
+| Id | Source | How an audit uses it | Applies to |
+|---|---|---|---|
+| `cloudflare-security-audit` | cloudflare/security-audit-skill (CF) | reconnaissance, generic hunting, attack classes, validation | every audit |
+| `cloudflare-skills` | cloudflare/skills: WAF reference and Workers best practices (WAF, WBP) | `hunter-infra-cloudflare` | Cloudflare Workers or WAF configuration in the target |
+| `semgrep` | semgrep/semgrep (tool) | run by the main thread, leads for the hunters | every code audit |
+| `nud3l-gist` | nud3l's parallel code audit (method only, no licence: not copied) | hunters launched in one message, and `hunter-hygiene` | every code audit |
+| `solana-auditor` | sanbir/solana-auditor-skills (SOL) | `hunter-solana`, verifier judging | Solana or Anchor code |
+| `secskills-core` | trilwu/secskills, secskills-core audit skills (SK) | generic hunting, PHP, backdoors, crypto, supply chain, AI, MCP, diff review | every code audit |
+| `voltagent-subagents` | VoltAgent security-auditor and code-reviewer (VA) | `hunter-web`, `hunter-hygiene`, diff review | every code audit |
+| `netresearch-security-audit` | netresearch/security-audit-skill (NR) | OWASP and CWE references, PHP, frameworks, headers, logging | every audit |
+| `codeql` | github/codeql (tool) | run by the main thread, leads for the hunters | code in a language CodeQL analyses without a build |
+| `codeql-php` | Vozec/codeql-php (tool: PHP support for CodeQL) | run by the main thread, leads for `hunter-php` and `hunter-cms` | PHP code |
+| `claude-code-security-review` | anthropics/claude-code-security-review (CCSR) | false-positive rules for the verifier, diff review prompt | every audit |
+
+"Applies to" is decided from `recon.json` and the target, never asked. At the end of every audit,
+`scripts/knowledge.py ledger` records, for each of the eleven, whether it was **used** (by which agents or
+tools), **not applicable** (why) or **not run** (why: tool missing, timeout); the report lists it. An
+applicable source that was not run is a gap to close or to explain in `log.md`.
+
+Every hunter and the verifier list what they read in `coverage.checklists_used`, as `<short name> <file>`
+(for example `"CF HUNTING.md"`, `"NR owasp-top10.md"`); `hunter-hygiene` also lists `"nud3l-gist"`.
+
 ## Precedence (always)
 
 The vendored files are reference material written for other tools. When they say something that conflicts
@@ -28,7 +52,8 @@ files are long, and reading everything costs time without adding findings.
 | NR | `netresearch-security-audit/skills/security-audit/` (references in `references/`) |
 | SK | `secskills-core/secskills-core/skills/` |
 | SOL | `solana-auditor/solana-auditor/` |
-| WAF | `cloudflare-skills-waf/skills/cloudflare/references/waf/` |
+| WAF | `cloudflare-skills/skills/cloudflare/references/waf/` |
+| WBP | `cloudflare-skills/skills/workers-best-practices/` (references in `references/`) |
 | VA | `voltagent-subagents/categories/04-quality-security/` |
 | CCSR | `claude-code-security-review/claudecode/` |
 
@@ -42,14 +67,17 @@ files are long, and reading everything costs time without adding findings.
 | `hunter-cms` | SK `hunting-web-backdoors/SKILL.md` | NR `cve-patterns.md`, `file-upload-security.md`; NR `typo3-*.md` for TYPO3 sites |
 | `hunter-deps-secrets` | CF `SUPPLY-CHAIN-AND-RELEASE.md`, SK `auditing-supply-chain/SKILL.md` | NR `supply-chain-security.md`, `git-history-secrets.md`, `api-key-encryption.md`, `automated-scanning.md`; SK `vetting-agent-extensions/SKILL.md` for Claude Code plugins, MCP servers or IDE extensions in the project |
 | `hunter-solana` | SOL `SKILL.md`, SOL `references/hacking-agents/shared-rules.md` | SOL `references/attack-vectors/*.md` (all five), the `references/hacking-agents/*-agent.md` checklists as review angles, SOL `references/judging.md` to discard weak candidates |
-| `hunter-infra-cloudflare` | WAF `README.md`, WAF `gotchas.md`, CF `CLOUD-AND-DEPLOYMENT.md` | WAF `configuration.md`, `patterns.md`, `api.md` (read-only: never call the Cloudflare API to change anything); NR `iac-security.md`, `gha-security.md`, `ci-security-pipeline.md` |
+| `hunter-infra-cloudflare` | WBP `SKILL.md`, WAF `README.md`, WAF `gotchas.md`, CF `CLOUD-AND-DEPLOYMENT.md` | WBP `runtime-patterns.md`, `configuration.md`, `platform-apis.md`; WAF `configuration.md`, `patterns.md`, `api.md` (read-only: never call the Cloudflare API to change anything); NR `iac-security.md`, `gha-security.md`, `ci-security-pipeline.md` |
+| `hunter-hygiene` | VA `code-reviewer.md`, NR `security-logging.md`, NR `error-message-sanitization.md` | NR `automated-scanning.md`, `security-invariants.md`; CF `SUPPLY-CHAIN-AND-RELEASE.md` (dependency freshness) |
 | `hunter-server` | CF `CLOUD-AND-DEPLOYMENT.md` | NR `ssh-forced-command-hardening.md`, `security-logging.md`, `aws-security.md`, `iac-security.md` |
 | `hunter-site-passive` | NR `security-headers.md` | CF `CLIENT-SIDE.md` |
 | `forensic-files` | SK `hunting-web-backdoors/SKILL.md` | NR `supply-chain-incident-response.md` |
 | `verifier` | CF `VALIDATION-AND-REPORTING.md` (validation part), CCSR `findings_filter.py` (its hard exclusion rules: what is not a vulnerability) | SOL `references/judging.md` for Solana findings |
 | `/nexurity:audit-diff` | SK `reviewing-code-changes/SKILL.md`, CCSR `prompts.py` (the security review prompt: what to look for in a diff, what to exclude) | VA `code-reviewer.md` (security parts only) |
 
-Not routed (kept for completeness, read only when the target needs them): CF
-`MEMORY-SAFETY-AND-BINARY.md` (C, C++, unsafe Rust), CF `DESKTOP-MOBILE-AND-LOCAL-IPC.md` (desktop and mobile
-apps), NR `cvss-scoring.md` (Nexurity computes CVSS 4.0 with its own script), NR
-`indistinguishability-defences.md`, CF `report-schema.json`, SOL `references/report-formatting.md`.
+`hunter-web` also reads, when the target has them: CF `MEMORY-SAFETY-AND-BINARY.md` (C, C++, unsafe Rust,
+native extensions), CF `DESKTOP-MOBILE-AND-LOCAL-IPC.md` (Electron, Tauri, iOS, Android, local IPC) and NR
+`indistinguishability-defences.md` (login, password reset and account lookup flows).
+
+Not read on purpose: NR `cvss-scoring.md` (Nexurity computes CVSS 4.0 with its own script), CF
+`report-schema.json` and SOL `references/report-formatting.md` (Nexurity's report format applies).

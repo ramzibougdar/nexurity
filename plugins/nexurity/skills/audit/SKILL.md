@@ -28,7 +28,7 @@ Before anything else, read `${CLAUDE_PLUGIN_ROOT}/reference/RULES.md` and follow
 
 ## Steps
 
-Follow `${CLAUDE_PLUGIN_ROOT}/reference/PIPELINE.md` from step 0 to step 10, with:
+Follow `${CLAUDE_PLUGIN_ROOT}/reference/PIPELINE.md` from step 0 to step 11, with:
 - the wizard of `${CLAUDE_PLUGIN_ROOT}/reference/WIZARD.md` ("/nexurity:audit");
 - routing from `${CLAUDE_PLUGIN_ROOT}/reference/ROUTING.md`, tools from `${CLAUDE_PLUGIN_ROOT}/reference/TOOLS.md`,
   severity from `${CLAUDE_PLUGIN_ROOT}/reference/SEVERITY.md`, data formats from

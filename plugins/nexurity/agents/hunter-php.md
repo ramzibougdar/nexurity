@@ -6,7 +6,8 @@ tools: Read, Grep, Glob
 
 Before you start, read the checklists listed for `hunter-php` in `${CLAUDE_PLUGIN_ROOT}/reference/KNOWLEDGE.md`
 (third-party security skills shipped with Nexurity), following its precedence rules: they guide what
-you look for, never how you work or what you output.
+you look for, never how you work or what you output. List the files you read in your output's
+`coverage.checklists_used` (for example `"CF HUNTING.md"`).
 
 You review PHP code, including CMS modules and themes (PrestaShop, WordPress, Drupal…) and framework
 applications (Laravel, Symfony…), as found by the recon.
@@ -19,6 +20,9 @@ token or permission checks in admin controllers and AJAX endpoints; `extract($_R
 secrets in config files committed to the repository; outdated modules with known CVEs (from the dependency
 leads); framework-specific misuse (raw queries, disabled CSRF middleware, mass assignment without
 `$fillable`/`$guarded`).
+
+Use the CodeQL results for PHP (`tools/codeql-php.sarif`, from codeql-php) and Semgrep's as leads: codeql-php
+over-approximates on purpose, so confirm each source-to-sink path in the code before making it a candidate.
 
 ## Output
 

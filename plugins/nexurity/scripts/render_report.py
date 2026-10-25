@@ -383,6 +383,10 @@ def render_audit(report, labels):
     doc.add("  \n".join(lines), labels["ai_note"])
     if report.get("local_environment"):
         doc.add("*%s*" % labels["local_note"])
+    if report.get("knowledge_sources"):
+        doc.add("### " + labels["methodology_sources"], labels["methodology_intro"],
+                table(labels["ms_headers"], [[esc(s.get("name")), labels["ms_status"].get(s.get("status"), esc(s.get("status"))),
+                                              _source_detail(s, labels)] for s in report["knowledge_sources"]]))
 
     # 03
     doc.add("---", "## " + sections[2], "### " + labels["how_to_read"], labels["scale_intro"],
@@ -549,6 +553,12 @@ def render_incident(report, labels):
     return doc.text()
 
 
+def _source_detail(source, labels):
+    if source.get("status") == "used":
+        return labels["ms_used_by"].format(who=", ".join(esc(a) for a in source.get("used_by", [])))
+    return labels["ms_reasons"].get(source.get("reason"), esc(source.get("reason")))
+
+
 def _severity_phrase(sev, labels):
     label = labels["severity_long"].get(sev, esc(sev))
     phrase = labels["severity_phrase"]
@@ -582,6 +592,9 @@ def render_folder(folder):
     if not isinstance(report, dict):
         raise ReportError("the report JSON could not be read")
     config = common.read_json(os.path.join(folder, "audit-config.json"), {}) or {}
+    knowledge = common.read_json(os.path.join(folder, "knowledge.json"), {}) or {}
+    if render is render_audit and knowledge.get("sources") and not report.get("knowledge_sources"):
+        report["knowledge_sources"] = knowledge["sources"]
     lang = report.get("language") or config.get("language") or "en"
     text = render(report, load_labels(lang))
     out = os.path.join(folder, "report.md")

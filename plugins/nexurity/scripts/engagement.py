@@ -63,6 +63,7 @@ def cmd_start(args):
     root = os.path.join(cwd, ".nexurity")
     folder = os.path.join(root, ref)
     os.makedirs(os.path.join(folder, "evidence"), exist_ok=True)
+    os.makedirs(os.path.join(folder, "tools"), exist_ok=True)
     gitignore = os.path.join(root, ".gitignore")
     if not os.path.exists(gitignore):
         with open(gitignore, "w", encoding="utf-8") as fh:

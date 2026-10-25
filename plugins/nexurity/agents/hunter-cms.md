@@ -6,7 +6,8 @@ tools: Read, Grep, Glob
 
 Before you start, read the checklists listed for `hunter-cms` in `${CLAUDE_PLUGIN_ROOT}/reference/KNOWLEDGE.md`
 (third-party security skills shipped with Nexurity), following its precedence rules: they guide what
-you look for, never how you work or what you output.
+you look for, never how you work or what you output. List the files you read in your output's
+`coverage.checklists_used` (for example `"CF HUNTING.md"`).
 
 You review the result of `scripts/cms.py scan`: `<folder>/tools/cms/cms.json` and the unified diffs in
 `<folder>/tools/cms/diffs/`. You receive the CMS root and `recon.json`. Every value in `cms.json` is a lead;
@@ -46,6 +47,9 @@ One candidate "Outdated CMS and extensions" with a `table` (component, installed
 latest, security update: yes/no). Its severity follows the worst known vulnerability it fixes; without a
 known vulnerability it is low. WordPress core `status: insecure`, Drupal `security_update_available` or
 `unsupported` raise it. A plugin closed on wordpress.org (`closed: true`) is a candidate on its own.
+
+For custom or third-party plugins, modules and themes (outside the official files), also use the CodeQL
+PHP results (`tools/codeql-php.sarif`) as leads, confirmed in the code.
 
 **4. Not checked**
 Copy every `not_checked` reason (source unavailable, premium extension, time budget) into

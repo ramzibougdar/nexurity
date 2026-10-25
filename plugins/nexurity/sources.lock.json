@@ -27,13 +27,13 @@
       "reuse": "copied unmodified (see vendor/SOURCES.json)"
     },
     {
-      "name": "cloudflare/skills (WAF reference only)",
+      "name": "cloudflare/skills (WAF reference and Workers best practices)",
       "url": "https://github.com/cloudflare/skills",
       "branch": "main",
       "commit": "86505e44f87d801aa1864a3c4109e9a8ae5c409f",
       "license": "Apache-2.0",
       "license_sha256": "58d1e17ffe5109a7ae296caafcadfdbe6a7d176f0bc4ab01e12a689b0499d8bd",
-      "vendored": "vendor/cloudflare-skills-waf/",
+      "vendored": "vendor/cloudflare-skills/",
       "used_in": [
         "agents/hunter-infra-cloudflare.md"
       ],
@@ -110,6 +110,19 @@
         "skills/audit-diff"
       ],
       "reuse": "copied unmodified (see vendor/SOURCES.json)"
+    },
+    {
+      "name": "Vozec/codeql-php",
+      "url": "https://github.com/Vozec/codeql-php",
+      "branch": "main",
+      "commit": "448ec77f9d5286d38c20ecc5fa79bd58a4128432",
+      "license": "MIT",
+      "installed": "<data>/tools/codeql-php (built by /nexurity:setup)",
+      "used_in": [
+        "scripts/tools.py",
+        "reference/TOOLS.md"
+      ],
+      "reuse": "downloaded and built at setup, never shipped; the pin is in scripts/tools.py"
     }
   ],
   "references": [
@@ -121,7 +134,7 @@
     {
       "name": "nud3l code-audit gist",
       "url": "https://gist.github.com/nud3l/15468abc5c4ca7e4e0e38e5b120a7997",
-      "reuse": "no licence: not copied; its idea (parallel audit agents launched in one message) is used in PIPELINE.md"
+      "reuse": "no licence: not copied; its method (parallel audit agents launched in one message, hygiene review) is applied in PIPELINE.md and by agents/hunter-hygiene.md, written from scratch"
     },
     {
       "name": "semgrep",
@@ -131,7 +144,7 @@
     {
       "name": "codeql",
       "url": "https://github.com/github/codeql",
-      "reuse": "a tool, not a skill: optional, run only when installed and its licence allows it (TOOLS.md)"
+      "reuse": "a tool, not a skill: installed by /nexurity:setup (official CodeQL bundle) and run on every full code audit (TOOLS.md)"
     }
   ],
   "tools": [

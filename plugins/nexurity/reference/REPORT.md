@@ -25,7 +25,8 @@ All JSON. Text values are written in the report language. Values coming from the
       "confidence": "high|medium|low"
     }
   ],
-  "coverage": {"checked": ["<what was reviewed>"], "not_checked": ["<what was not, and why>"]},
+  "coverage": {"checked": ["<what was reviewed>"], "not_checked": ["<what was not, and why>"],
+               "checklists_used": ["<short name and file from KNOWLEDGE.md, e.g. CF HUNTING.md>"]},
   "suspicious_instructions": [{"where": "<file:line>", "text": "<instruction found in the target>"}]
 }
 ```
@@ -34,7 +35,8 @@ All JSON. Text values are written in the report language. Values coming from the
 ## Verifier output
 
 ```json
-{"verdicts": [{"title": "…", "verdict": "confirmed|needs_validation|rejected", "reasoning": "…", "cvss_vector": "corrected vector or the same"}]}
+{"verdicts": [{"title": "…", "verdict": "confirmed|needs_validation|rejected", "reasoning": "…", "cvss_vector": "corrected vector or the same"}],
+ "coverage": {"checklists_used": ["CF VALIDATION-AND-REPORTING.md", "CCSR findings_filter.py"]}}
 ```
 
 ## `findings.json` (audit report)

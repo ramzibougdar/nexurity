@@ -320,6 +320,49 @@ def rule_testssl(args, ctx):
             ctx.require_in_folder(value, "testssl.sh output")
 
 
+CODEQL_WITH_VALUE = ("--language", "-l", "--source-root", "-s", "--build-mode", "--output", "-o", "--format",
+                     "--codescanning-config", "--threads", "-j", "--ram", "-M", "--sarif-category",
+                     "--search-path", "--additional-packs", "--working-dir")
+CODEQL_NO_BUILD = {"javascript", "javascript-typescript", "typescript", "python", "ruby", "actions", "php"}
+
+
+def rule_codeql(args, ctx):
+    """CodeQL may only extract without building and analyze, writing into the engagement folder."""
+    pos = positional(args, with_value=CODEQL_WITH_VALUE)
+    if pos[:1] == ["version"] or pos[:2] == ["resolve", "languages"]:
+        return
+    if any(a in ("--command", "-c", "--download") or a.startswith(("--command=", "--download=")) for a in args):
+        raise Refused("codeql: no build command and no pack download (the target is never built or run)")
+    for value in option_value(args, ["--search-path", "--additional-packs"]):
+        for part in value.split(os.pathsep):
+            if not (ctx.data and common.is_within(ctx.resolve(part), os.path.join(ctx.data, "tools"))):
+                raise Refused("codeql: extractors and packs only from Nexurity's tools folder")
+    if pos[:2] == ["database", "create"]:
+        if len(pos) < 3:
+            raise Refused("codeql database create needs a database path")
+        ctx.require_in_folder(pos[2], "the CodeQL database")
+        languages = {l.strip() for v in option_value(args, ["--language", "-l"]) for l in v.split(",") if l.strip()}
+        if not languages:
+            raise Refused("codeql database create needs --language")
+        build_mode = option_value(args, ["--build-mode"])
+        if build_mode and build_mode != ["none"]:
+            raise Refused("codeql: only --build-mode=none (the target is never built)")
+        if not build_mode and not languages <= CODEQL_NO_BUILD:
+            raise Refused("codeql: compiled languages need --build-mode=none (the target is never built)")
+        return
+    if pos[:2] == ["database", "analyze"]:
+        if len(pos) < 3:
+            raise Refused("codeql database analyze needs a database path")
+        ctx.require_in_folder(pos[2], "the CodeQL database")
+        outputs = option_value(args, ["--output", "-o"])
+        if not outputs:
+            raise Refused("codeql database analyze needs --output inside the engagement folder")
+        for value in outputs:
+            ctx.require_in_folder(value, "CodeQL results")
+        return
+    raise Refused("codeql: only version, resolve languages, database create and database analyze")
+
+
 def rule_curl(args, ctx):
     bad = ("-X", "--request", "-d", "--data", "--data-raw", "--data-binary", "--data-urlencode",
            "--json", "-F", "--form", "--form-string", "-T", "--upload-file", "-K", "--config",
@@ -449,6 +492,7 @@ RULES = {
     "gitleaks": rule_gitleaks,
     "trufflehog": rule_trufflehog,
     "testssl.sh": rule_testssl,
+    "codeql": rule_codeql,
     "testssl": rule_testssl,
     "curl": rule_curl,
     "openssl": rule_openssl,
@@ -458,7 +502,7 @@ RULES = {
     "tee": rule_tee,
     "tar": rule_tar,
 }
-LOCAL_ONLY = {"mkdir", "cp", "tee", "tar"}
+LOCAL_ONLY = {"mkdir", "cp", "tee", "tar", "codeql"}
 
 SSH_WITH_VALUE = {"-p", "-i", "-l", "-o", "-F", "-J", "-E", "-b", "-c", "-m", "-S"}
 SSH_FORBIDDEN = {"-L", "-R", "-D", "-W", "-w", "-O", "-M", "-N", "-f", "-X", "-Y", "-A"}
@@ -523,6 +567,16 @@ def check_nexurity_script(name, args, ctx):
                 ctx.require_in_folder(value, "writing the CMS check")
         elif verb != "detect":
             raise Refused("cms.py: only detect and scan")
+    elif name == "knowledge.py":
+        verb = args[0] if args else ""
+        if verb == "ledger":
+            folders = option_value(args, ["--folder"])
+            if not folders:
+                raise Refused("knowledge.py ledger needs --folder (the engagement folder)")
+            for value in folders:
+                ctx.require_in_folder(value, "writing the knowledge ledger")
+        elif verb != "sources":
+            raise Refused("knowledge.py: only sources and ledger")
     elif name == "tools.py":
         if (args[0] if args else "") != "where":
             raise Refused("tools.py: only `where` during an engagement; install tools before starting it")

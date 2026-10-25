@@ -187,6 +187,8 @@ class GuardTest(unittest.TestCase):
             'python3 %s/triage_logs.py %s/evidence/access.log > %s/triage.json' % (sc, f, f),
             'python3 %s/cvss4.py --json "CVSS:4.0/AV:N"' % sc,
             'python3 %s/cms.py detect %s' % (sc, self.project),
+            'python3 %s/knowledge.py ledger --data /d --folder %s' % (sc, f),
+            'python3 %s/knowledge.py sources' % sc,
             'python3 %s/cms.py scan %s --data /d --out %s/tools/cms' % (sc, self.project, f),
         ):
             self.assertAllowed(command)
@@ -200,6 +202,8 @@ class GuardTest(unittest.TestCase):
             'python3 %s/cms.py scan %s --data /d' % (sc, self.project),
             'python3 %s/cms.py scan %s --data /d --ou /tmp/cms' % (sc, self.project),
             'python3 %s/cms.py purge' % sc,
+            'python3 %s/knowledge.py ledger --data /d --folder /tmp' % sc,
+            'python3 %s/knowledge.py ledger --data /d' % sc,
         ):
             self.assertRefused(command)
 
@@ -218,6 +222,31 @@ class GuardTest(unittest.TestCase):
         self.assertRefused("/tmp/gitleaks detect --source %s" % self.project)          # not Nexurity's folder
         self.assertAllowed("python3 %s/tools.py where --data %s" % (SCRIPTS, self.data))
         self.assertRefused("python3 %s/tools.py install --data %s" % (SCRIPTS, self.data))
+
+    def test_codeql_extracts_and_analyzes_without_building(self):
+        codeql_dir = os.path.join(self.data, "tools", "codeql")
+        os.makedirs(codeql_dir, exist_ok=True)
+        with open(os.path.join(codeql_dir, "codeql"), "w") as fh:
+            fh.write("#!/bin/sh\n")
+        c, f, p = os.path.join(codeql_dir, "codeql"), self.folder, self.project
+        self.assertAllowed("%s database create %s/tools/db-js --language=javascript-typescript --source-root %s "
+                           "--codescanning-config %s/tools/codeql-config.yml --overwrite" % (c, f, p, f))
+        self.assertAllowed("%s database create %s/tools/db-java --language=java-kotlin --build-mode=none --source-root %s" % (c, f, p))
+        self.assertAllowed("%s database analyze %s/tools/db-js codeql/javascript-queries:codeql-suites/"
+                           "javascript-security-extended.qls --format=sarif-latest --output %s/tools/js.sarif" % (c, f, f))
+        self.assertRefused("%s database create %s/tools/db --language=go --source-root %s" % (c, f, p))
+        self.assertRefused("%s database create %s/tools/db --language=java-kotlin --build-mode=autobuild --source-root %s" % (c, f, p))
+        self.assertRefused("%s database create %s/tools/db --language=python --command 'make' --source-root %s" % (c, f, p))
+        self.assertRefused("%s database create /tmp/db --language=python --source-root %s" % (c, p))
+        self.assertRefused("%s database analyze %s/tools/db-js x.qls --output /tmp/out.sarif" % (c, f))
+        self.assertRefused("%s database analyze %s/tools/db-js x.qls --download --output %s/tools/o.sarif" % (c, f, f))
+        self.assertRefused("%s pack install" % c)
+        php = os.path.join(self.data, "tools", "codeql-php")
+        self.assertAllowed("%s database create %s/tools/db-php --language=php --source-root %s --search-path %s/php" % (c, f, p, php))
+        self.assertAllowed("%s database analyze %s/tools/db-php %s/php/ql/src/codeql-suites/php-security.qls --format=sarif-latest "
+                           "--output %s/tools/codeql-php.sarif --search-path %s/php --additional-packs %s" % (c, f, php, f, php, php))
+        self.assertRefused("%s database create %s/tools/db-php --language=php --source-root %s --search-path /tmp/evil" % (c, f, p))
+        self.assertRefused("%s database analyze %s/tools/db-php x.qls --output %s/tools/o.sarif --additional-packs %s" % (c, f, f, p))
 
     def test_git_clone_with_dash_c_is_resolved(self):
         rel = os.path.relpath(self.folder, self.project)

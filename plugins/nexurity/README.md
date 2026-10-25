@@ -18,11 +18,13 @@ claude plugin install nexurity@nexurity-marketplace
 
 The plugin is installed for your user account and works in every project. Only Python 3 is required.
 
-The audit tools (`semgrep`, `pip-audit`, `gitleaks`, `trufflehog`, `lynis`, `testssl.sh`, and
+The audit tools (`semgrep`, `codeql`, `codeql-php`, `pip-audit`, `gitleaks`, `trufflehog`, `lynis`, `testssl.sh`, and
 `cargo-audit` when Rust is installed) are installed by `/nexurity:setup`, which the first audit runs
 automatically: with Homebrew when it is there, otherwise in Nexurity's data folder (private Python
-environment, official GitHub releases checked by SHA-256, official repositories), never with `sudo`.
-CodeQL is never installed (commercial licence for closed-source code). `composer` and `npm` are used when
+environment, official GitHub releases and the official CodeQL bundle checked by SHA-256, official
+repositories), never with `sudo`. CodeQL runs on every full code audit for the languages it can analyse
+without building the project; it is free for open-source code and needs a GitHub Advanced Security licence
+for closed-source code. `composer` and `npm` are used when
 present; `pandoc` exports reports to PDF or Word.
 
 Update with `claude plugin update nexurity@nexurity-marketplace`, then start a new session.
@@ -42,11 +44,20 @@ to these sources. Set `NVD_API_KEY` to speed up the NVD lookups.
 
 ## Shipped security skills
 
-`vendor/` holds security skills from other projects, copied unmodified with their licences: Cloudflare's
-security audit skill and WAF reference, Netresearch's security audit skill, the audit skills of secskills,
-Sanbir's Solana auditor, VoltAgent's security auditor and code reviewer, and Anthropic's security review
-prompt and false-positive rules. The agents read them as checklists (`reference/KNOWLEDGE.md`); Nexurity's
-rules always take precedence. Attribution and licences: `NOTICE.md`.
+Every audit goes through eleven security sources (`reference/KNOWLEDGE.md`):
+- skills shipped in `vendor/`, copied unmodified with their licences: Cloudflare's security audit skill,
+  Cloudflare's WAF reference and Workers best practices, Netresearch's security audit skill, the audit
+  skills of secskills, Sanbir's Solana auditor, VoltAgent's security auditor and code reviewer, and
+  Anthropic's security review prompt and false-positive rules;
+- three tools run on every code audit: Semgrep, CodeQL, and codeql-php (Vozec/codeql-php, PHP support for
+  CodeQL, built by `/nexurity:setup` when Rust is available);
+- one method: nud3l's parallel code audit (not copied, it has no licence), applied by the hunters launched
+  together and by `hunter-hygiene`.
+
+Generic sources apply to every code audit; Solana, Cloudflare, CodeQL and codeql-php apply when the target
+has that code. At the end, `scripts/knowledge.py` records for each source whether it was used (by which agent or
+tool), not applicable (why) or not run (why), and the report shows that table. Nexurity's rules always
+take precedence over the shipped skills. Attribution and licences: `NOTICE.md`.
 
 ## Commands
 

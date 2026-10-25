@@ -70,7 +70,8 @@ def data_dir(explicit=None):
 def managed_tool_dirs(data):
     """Folders where `tools.py install` puts the audit tools (the safeguard allows calling a tool from them)."""
     return [os.path.join(data, "bin"), os.path.join(data, "venv", "bin"),
-            os.path.join(data, "tools", "lynis"), os.path.join(data, "tools", "testssl.sh")]
+            os.path.join(data, "tools", "lynis"), os.path.join(data, "tools", "testssl.sh"),
+            os.path.join(data, "tools", "codeql")]
 
 
 def engagements_dir(data):
