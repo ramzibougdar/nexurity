@@ -8,7 +8,13 @@ Paths used below:
 Run scripts as `python3 "<plugin>/scripts/<name>.py" …`, always with `--data "<data>"` when they take it.
 Log every step: `python3 "<plugin>/scripts/engagement.py" log --data "<data>" --ref <REF> --message "…"`.
 
-0. **Update check**, unless `check_updates` is false in `<data>/config.json`:
+0. **Tools, first audit only**: `python3 "<plugin>/scripts/tools.py" install --data "<data>" --first-run`
+   (30-minute timeout, or in the background and wait). The first time, it installs the missing tools
+   without asking (Homebrew, or Nexurity's data folder; never sudo); afterwards it returns at once. Tell the
+   user in one line when it installs something, and log the result. Then get the tool paths:
+   `python3 "<plugin>/scripts/tools.py" where --data "<data>"`, and call each tool by that path (a tool
+   that is null is skipped and logged "not run: not installed, run /nexurity:setup").
+   **Update check**, unless `check_updates` is false in `<data>/config.json`:
    `python3 "<plugin>/scripts/check_updates.py" --data "<data>"` (cached 6 h, 15 s max, never blocks).
    If something is new, show it and ask: Update now (run `/nexurity:update`) · Run with the current versions ·
    Remind me next time. Never update silently. Log the result (or "updates not checked").

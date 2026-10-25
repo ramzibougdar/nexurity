@@ -2,8 +2,15 @@
 
 Run by the main thread, never by a hunter. Their results are **leads**, not verdicts: a hunter checks
 each lead before turning it into a candidate. Write every output into the engagement folder
-(`<folder>/tools/`); the safeguard refuses any other destination. A missing tool is skipped and written
-in `log.md` ("not run: not installed"); ask before installing anything, and never install it yourself.
+(`<folder>/tools/`); the safeguard refuses any other destination.
+
+**Where the tools are**: `python3 "<plugin>/scripts/tools.py" where --data "<data>"` gives each tool's path
+(from the PATH, Homebrew, or Nexurity's data folder). Call a tool by that path, for example
+`<path of semgrep> scan …`; lynis runs from its own folder (`cd <its folder> && ./lynis audit system …`).
+**Installing them**: `/nexurity:setup` installs the missing ones, and the first audit runs it once
+automatically (`PIPELINE.md`, step 0). Nothing is ever installed during an engagement, and nothing else
+than these tools is installed. A tool still missing is skipped and written in `log.md` ("not run: not
+installed").
 
 | Area | Command (examples, adapt paths) |
 |---|---|

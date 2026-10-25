@@ -17,9 +17,13 @@ claude plugin install nexurity@nexurity-marketplace
 ```
 
 The plugin is installed for your user account and works in every project. Only Python 3 is required.
-Audit tools are used when installed (`semgrep`, `gitleaks` or `trufflehog`, `lynis`, `testssl.sh`,
-`composer`, `npm`, `pip-audit`, `cargo-audit`); `pandoc` exports reports to PDF or Word. Nexurity
-never installs a tool by itself.
+
+The audit tools (`semgrep`, `pip-audit`, `gitleaks`, `trufflehog`, `lynis`, `testssl.sh`, and
+`cargo-audit` when Rust is installed) are installed by `/nexurity:setup`, which the first audit runs
+automatically: with Homebrew when it is there, otherwise in Nexurity's data folder (private Python
+environment, official GitHub releases checked by SHA-256, official repositories), never with `sudo`.
+CodeQL is never installed (commercial licence for closed-source code). `composer` and `npm` are used when
+present; `pandoc` exports reports to PDF or Word.
 
 Update with `claude plugin update nexurity@nexurity-marketplace`, then start a new session.
 
@@ -45,6 +49,7 @@ to these sources. Set `NVD_API_KEY` to speed up the NVD lookups.
 | `/nexurity:audit-diff` | Review of a diff, a branch or a pull request |
 | `/nexurity:incident` | Incident response: evidence, log triage, timeline, IOCs, GDPR deadline |
 | `/nexurity:report <REF>` | Regenerates a report from its JSON (`--pdf`, `--docx` with Pandoc) |
+| `/nexurity:setup` | Installs the missing audit tools (`--upgrade` also updates them) |
 | `/nexurity:update` | Checks for new versions of Nexurity and the tools |
 | `/nexurity:audit --close <REF>` | Closes an engagement left open by an interrupted session |
 | `/nexurity:audit --list` | Lists the engagements |
@@ -54,7 +59,7 @@ to these sources. Set `NVD_API_KEY` to speed up the NVD lookups.
 | Folder | What it holds |
 |---|---|
 | `./.nexurity/<REF>/` | Each engagement, in the folder where you started Claude Code: `audit-config.json`, `evidence/`, `findings.json` or `incident.json`, `report.md`, `log.md`. The folder ignores itself in Git. |
-| `${CLAUDE_PLUGIN_DATA}` (`~/.claude/plugins/data/…`) | Settings (`config.json`), engagement index, cached CMS release archives (`cms-baselines/`), update-check cache. Deleted if you uninstall the plugin. |
+| `${CLAUDE_PLUGIN_DATA}` (`~/.claude/plugins/data/…`) | Settings (`config.json`), engagement index, audit tools installed by `/nexurity:setup` (`venv/`, `bin/`, `tools/`), cached CMS release archives (`cms-baselines/`), update-check cache. Deleted if you uninstall the plugin. |
 
 ## Safety
 

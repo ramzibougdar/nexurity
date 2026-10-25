@@ -24,6 +24,7 @@ import urllib.request
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import common  # noqa: E402
+import tools  # noqa: E402
 
 REPO = "ramzibougdar/nexurity"
 RAW_PLUGIN_JSON = "https://raw.githubusercontent.com/%s/main/plugins/nexurity/.claude-plugin/plugin.json" % REPO
@@ -85,19 +86,20 @@ def check_source(source):
             "affects": source.get("used_in", [])}
 
 
-def installed_version(command):
-    if not shutil.which(command[0]):
+def installed_version(command, data=None):
+    path = tools.find(command[0], data) if data else shutil.which(command[0])
+    if not path:
         return None
     try:
-        result = subprocess.run(command, capture_output=True, text=True, timeout=TIMEOUT)
+        result = subprocess.run([path] + command[1:], capture_output=True, text=True, timeout=TIMEOUT)
     except (OSError, subprocess.TimeoutExpired):
         return None
     match = re.search(r"\d+\.\d+(?:\.\d+)?", result.stdout + result.stderr)
     return match.group(0) if match else "unknown"
 
 
-def check_tool(tool):
-    current = installed_version(tool["version_command"])
+def check_tool(tool, data=None):
+    current = installed_version(tool["version_command"], data)
     if current is None:
         return {"item": tool["name"], "current": None, "latest": None, "new": False, "missing": True}
     latest = None
@@ -107,14 +109,15 @@ def check_tool(tool):
         latest = http_json("https://api.github.com/repos/%s/releases/latest" % tool["repo"])["tag_name"].lstrip("v")
     newer = bool(latest) and current != "unknown" and version_tuple(latest) > version_tuple(current)
     return {"item": tool["name"], "current": current, "latest": latest, "new": newer,
-            "how": "update it with the tool's own installer (Nexurity never installs tools)" if newer else None}
+            "how": "update it with the tool's own installer, or brew upgrade (Homebrew); tools installed by "
+                   "/nexurity:setup are updated by running it again" if newer else None}
 
 
-def run_checks():
+def run_checks(data=None):
     lock = common.read_json(os.path.join(common.PLUGIN_ROOT, "sources.lock.json"), {}) or {}
     jobs = [("nexurity", check_nexurity, None)]
     jobs += [("source", check_source, s) for s in lock.get("sources", [])]
-    jobs += [("tool", check_tool, t) for t in lock.get("tools", [])]
+    jobs += [("tool", lambda t: check_tool(t, data), t) for t in lock.get("tools", [])]
     results, problems = [], []
     deadline = time.monotonic() + BUDGET
     with concurrent.futures.ThreadPoolExecutor(max_workers=8) as pool:
@@ -150,7 +153,7 @@ def main(argv=None):
         except (KeyError, ValueError):
             report = None
     if report is None:
-        report = run_checks()
+        report = run_checks(data)
         report["cached"] = False
         common.write_json(cache_path, report)
     if args.json:
@@ -164,7 +167,7 @@ def main(argv=None):
     for r in new:
         print(prefix + "New version: %s %s -> %s. %s" % (r["item"], r["current"], r["latest"], r.get("how") or ""))
     if missing:
-        print("Tools not installed: %s." % ", ".join(missing))
+        print("Tools not installed: %s. Install them with /nexurity:setup." % ", ".join(missing))
     for p in report["not_checked"]:
         print("%s: %s" % (p["item"], p["status"]))
     return 0

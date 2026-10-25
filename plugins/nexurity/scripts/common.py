@@ -67,6 +67,12 @@ def data_dir(explicit=None):
     return os.path.join(os.path.expanduser("~"), ".claude", "plugins", "data", "nexurity")
 
 
+def managed_tool_dirs(data):
+    """Folders where `tools.py install` puts the audit tools (the safeguard allows calling a tool from them)."""
+    return [os.path.join(data, "bin"), os.path.join(data, "venv", "bin"),
+            os.path.join(data, "tools", "lynis"), os.path.join(data, "tools", "testssl.sh")]
+
+
 def engagements_dir(data):
     return os.path.join(data, "engagements")
 

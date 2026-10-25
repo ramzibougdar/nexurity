@@ -17,7 +17,7 @@ Before anything else, read `${CLAUDE_PLUGIN_ROOT}/reference/RULES.md` and follow
 
 - `--close <REF>`: close that engagement (`engagement.py close`) and stop.
 
-1. Update check, as in step 0 of `${CLAUDE_PLUGIN_ROOT}/reference/PIPELINE.md`.
+1. Tools and update check, as in step 0 of `${CLAUDE_PLUGIN_ROOT}/reference/PIPELINE.md`.
 2. Short wizard of `${CLAUDE_PLUGIN_ROOT}/reference/WIZARD.md` ("/nexurity:incident"), including the time of
    awareness (for the 72-hour GDPR notification deadline). No confirmation.
 3. Show the recap and start the engagement with `--kind incident`.

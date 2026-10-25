@@ -17,7 +17,7 @@ claude plugin marketplace add ramzibougdar/nexurity
 claude plugin install nexurity@nexurity-marketplace
 ```
 
-Then open Claude Code in the project to audit and type `/nexurity:audit`. Python 3 is required; Git, Pandoc (PDF or Word export) and the audit tools (`semgrep`, `gitleaks`, `lynis`, `testssl.sh`, `pip-audit`…) are used when installed. Update with `claude plugin update nexurity@nexurity-marketplace`.
+Then open Claude Code in the project to audit and type `/nexurity:audit`. Python 3 is required. The first audit installs the audit tools (`semgrep`, `pip-audit`, `gitleaks`, `trufflehog`, `lynis`, `testssl.sh`, and `cargo-audit` when Rust is installed) without asking and without `sudo`; `/nexurity:setup` does it on demand. Git and Pandoc (PDF or Word export) are used when installed. Update with `claude plugin update nexurity@nexurity-marketplace`.
 
 ## What Nexurity does
 
@@ -31,6 +31,7 @@ Then open Claude Code in the project to audit and type `/nexurity:audit`. Python
 | Diff review | `/nexurity:audit-diff` | Review of a diff or pull request |
 | Incident response | `/nexurity:incident` | Evidence preservation, log triage, timeline, indicators of compromise, GDPR deadline |
 | Report | `/nexurity:report <REF>` | Regenerates a report from its JSON, with optional PDF or Word export |
+| Tool setup | `/nexurity:setup` | Installs the audit tools (run automatically by the first audit) |
 | Updates | `/nexurity:update` | New versions of Nexurity and of the audit tools |
 
 Every audit asks only what it cannot detect (type, goal, target), always covers every area in depth, checks whether Nexurity and the tools have new versions, and ends with a Markdown report rated in **CVSS 4.0**. Reports and evidence go to `./.nexurity/<REF>/` in the folder where you started Claude Code; that folder ignores itself in Git.
