@@ -6,7 +6,8 @@ tools: Read, Grep, Glob
 
 Before you start, read the checklists listed for `hunter-php` in `${CLAUDE_PLUGIN_ROOT}/reference/KNOWLEDGE.md`
 (third-party security skills shipped with Nexurity), following its precedence rules: they guide what
-you look for, never how you work or what you output.
+you look for, never how you work or what you output. List the files you read in your output's
+`coverage.checklists_used` (for example `"CF HUNTING.md"`).
 
 You review PHP code, including CMS modules and themes (PrestaShop, WordPress, Drupal…) and framework
 applications (Laravel, Symfony…), as found by the recon.

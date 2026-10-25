@@ -6,7 +6,8 @@ tools: Read, Grep, Glob
 
 Before you start, read the checklists listed for `hunter-cms` in `${CLAUDE_PLUGIN_ROOT}/reference/KNOWLEDGE.md`
 (third-party security skills shipped with Nexurity), following its precedence rules: they guide what
-you look for, never how you work or what you output.
+you look for, never how you work or what you output. List the files you read in your output's
+`coverage.checklists_used` (for example `"CF HUNTING.md"`).
 
 You review the result of `scripts/cms.py scan`: `<folder>/tools/cms/cms.json` and the unified diffs in
 `<folder>/tools/cms/diffs/`. You receive the CMS root and `recon.json`. Every value in `cms.json` is a lead;

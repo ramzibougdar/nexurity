@@ -4,18 +4,21 @@ The recon agent detects the stack (never asked in the wizard) and writes `recon.
 
 | Detected | Agents |
 |---|---|
+| **Every code audit** | `hunter-web` (any language: generic hunting from every shipped skill), `hunter-deps-secrets`, `hunter-hygiene`; Semgrep and CodeQL run before them (`TOOLS.md`) |
 | CMS (WordPress, PrestaShop, Drupal, Joomla, Magento) | + `hunter-cms`, after `cms.py scan` (see below) |
-| PHP | `hunter-php` + `hunter-web` + `hunter-deps-secrets` |
-| JS / Node / front end | `hunter-web` + `hunter-deps-secrets` |
-| Python | `hunter-web` + `hunter-deps-secrets` (Python rules) |
-| Solana / Anchor / Rust | `hunter-solana` + `hunter-deps-secrets` |
-| `wrangler.toml` present | + `hunter-infra-cloudflare` |
+| PHP | + `hunter-php` |
+| JS / Node / front end, Python, Ruby, Java, C#, Go | the language rules of `hunter-web` |
+| Solana / Anchor / Rust | + `hunter-solana` |
+| C, C++, unsafe Rust, native extensions, desktop or mobile apps | the memory-safety and desktop/mobile guides of `hunter-web` (`KNOWLEDGE.md`) |
+| `wrangler.toml`, `wrangler.json` or `wrangler.jsonc` present, or Cloudflare WAF/Access rules as code | + `hunter-infra-cloudflare` |
 | Server | `recon-server` + `hunter-server` (SSH, web server, PHP-FPM, database, firewall, updates, accounts, sudoers, crons, Docker, permissions, backups) |
 | Live website | `recon-site` + `hunter-site-passive` (headers, TLS, cookies, DNS/SPF/DKIM/DMARC, well-known exposed files with one HEAD/GET request each, visible versions) |
 | Local website | same as live website, adapted (see below) |
 | Quick audit | one hunter only, the first one routing selects for the main stack (`hunter-cms` for a CMS), plus one verifier; no CodeQL |
 
 A project with several stacks gets the union of the hunters. Code audits always run `recon-code` first.
+Every audit ends with the knowledge ledger (`KNOWLEDGE.md`): the ten shipped sources, each used, not
+applicable or not run, listed in the report.
 
 ## CMS
 

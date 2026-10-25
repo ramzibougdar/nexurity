@@ -563,6 +563,16 @@ def check_nexurity_script(name, args, ctx):
                 ctx.require_in_folder(value, "writing the CMS check")
         elif verb != "detect":
             raise Refused("cms.py: only detect and scan")
+    elif name == "knowledge.py":
+        verb = args[0] if args else ""
+        if verb == "ledger":
+            folders = option_value(args, ["--folder"])
+            if not folders:
+                raise Refused("knowledge.py ledger needs --folder (the engagement folder)")
+            for value in folders:
+                ctx.require_in_folder(value, "writing the knowledge ledger")
+        elif verb != "sources":
+            raise Refused("knowledge.py: only sources and ledger")
     elif name == "tools.py":
         if (args[0] if args else "") != "where":
             raise Refused("tools.py: only `where` during an engagement; install tools before starting it")

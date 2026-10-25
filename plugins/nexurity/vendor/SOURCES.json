@@ -17,8 +17,8 @@
       ]
     },
     {
-      "dir": "cloudflare-skills-waf",
-      "name": "cloudflare/skills (WAF reference only)",
+      "dir": "cloudflare-skills",
+      "name": "cloudflare/skills (WAF reference and Workers best practices)",
       "repo": "https://github.com/cloudflare/skills",
       "branch": "main",
       "commit": "86505e44f87d801aa1864a3c4109e9a8ae5c409f",
@@ -27,7 +27,9 @@
         "LICENSE"
       ],
       "include": [
-        "skills/cloudflare/references/waf/*.md"
+        "skills/cloudflare/references/waf/*.md",
+        "skills/workers-best-practices/SKILL.md",
+        "skills/workers-best-practices/references/*.md"
       ]
     },
     {
@@ -119,7 +121,7 @@
     {
       "name": "nud3l code-audit gist",
       "url": "https://gist.github.com/nud3l/15468abc5c4ca7e4e0e38e5b120a7997",
-      "why": "no licence: not copied; its idea (parallel audit agents launched in one message) is used in PIPELINE.md"
+      "why": "no licence: not copied; its method (parallel audit agents launched in one message, hygiene review) is applied in PIPELINE.md and by agents/hunter-hygiene.md, written from scratch"
     },
     {
       "name": "semgrep",

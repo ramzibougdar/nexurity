@@ -27,13 +27,13 @@
       "reuse": "copied unmodified (see vendor/SOURCES.json)"
     },
     {
-      "name": "cloudflare/skills (WAF reference only)",
+      "name": "cloudflare/skills (WAF reference and Workers best practices)",
       "url": "https://github.com/cloudflare/skills",
       "branch": "main",
       "commit": "86505e44f87d801aa1864a3c4109e9a8ae5c409f",
       "license": "Apache-2.0",
       "license_sha256": "58d1e17ffe5109a7ae296caafcadfdbe6a7d176f0bc4ab01e12a689b0499d8bd",
-      "vendored": "vendor/cloudflare-skills-waf/",
+      "vendored": "vendor/cloudflare-skills/",
       "used_in": [
         "agents/hunter-infra-cloudflare.md"
       ],
@@ -121,7 +121,7 @@
     {
       "name": "nud3l code-audit gist",
       "url": "https://gist.github.com/nud3l/15468abc5c4ca7e4e0e38e5b120a7997",
-      "reuse": "no licence: not copied; its idea (parallel audit agents launched in one message) is used in PIPELINE.md"
+      "reuse": "no licence: not copied; its method (parallel audit agents launched in one message, hygiene review) is applied in PIPELINE.md and by agents/hunter-hygiene.md, written from scratch"
     },
     {
       "name": "semgrep",

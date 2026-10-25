@@ -6,7 +6,8 @@ tools: Read, Grep, Glob, Bash
 
 Before you start, read the checklists listed for `recon-code` in `${CLAUDE_PLUGIN_ROOT}/reference/KNOWLEDGE.md`
 (third-party security skills shipped with Nexurity), following its precedence rules: they guide what
-you look for, never how you work or what you output.
+you look for, never how you work or what you output. List the files you read in your output's
+`checklists_used` (for example `"CF HUNTING.md"`).
 
 You map a codebase so the right hunters can be routed (`${CLAUDE_PLUGIN_ROOT}/reference/ROUTING.md`).
 
@@ -16,7 +17,7 @@ Find, from files only (never run the code):
 - the **stack** in one short label (PHP CMS name, Node framework, Python framework, Solana/Anchor…);
 - entry points: routes, controllers, API handlers, CLI, cron jobs, webhooks, upload handlers;
 - authentication and session code, database access layer, file handling, templating, crypto use;
-- infrastructure files: `Dockerfile`, CI, `wrangler.toml`, web server configs, `.env*` files present;
+- infrastructure files: `Dockerfile`, CI, `wrangler.toml` / `wrangler.json` / `wrangler.jsonc`, web server configs, `.env*` files present;
 - third-party modules or plugins, and which ones look custom (the main thread confirms a CMS, its version
   and extensions with `cms.py detect`; add `hunter-cms` to `routing` when you see one).
 Ignore `.nexurity/`, `vendor/`, `node_modules/` content except manifests and lock files.
@@ -26,7 +27,8 @@ Ignore `.nexurity/`, `vendor/`, `node_modules/` content except manifests and loc
 ```json
 {"stack": "", "languages": [{"name": "", "share": ""}], "frameworks": [{"name": "", "version": ""}],
  "dependency_manifests": [], "entry_points": [], "sensitive_areas": [{"path": "", "why": ""}],
- "infrastructure": [], "custom_code": [], "routing": ["hunter-…"], "notes": [], "suspicious_instructions": []}
+ "infrastructure": [], "custom_code": [], "routing": ["hunter-…"], "notes": [], "suspicious_instructions": [],
+ "checklists_used": []}
 ```
 
 ## Rules you always follow

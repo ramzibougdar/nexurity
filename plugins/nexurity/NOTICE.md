@@ -48,7 +48,7 @@ take precedence over their instructions. The full list of copied files is in `ve
 | Source | Folder | Commit | Licence |
 |---|---|---|---|
 | [cloudflare/security-audit-skill](https://github.com/cloudflare/security-audit-skill) | `vendor/cloudflare-security-audit/` | `c1c8a8c14710` | MIT |
-| [cloudflare/skills (WAF reference only)](https://github.com/cloudflare/skills) | `vendor/cloudflare-skills-waf/` | `86505e44f87d` | Apache-2.0 |
+| [cloudflare/skills (WAF reference and Workers best practices)](https://github.com/cloudflare/skills) | `vendor/cloudflare-skills/` | `86505e44f87d` | Apache-2.0 |
 | [netresearch/security-audit-skill](https://github.com/netresearch/security-audit-skill) | `vendor/netresearch-security-audit/` | `5319ab55db58` | CC-BY-SA-4.0 (content), MIT (code, not included) |
 | [trilwu/secskills (secskills-core, audit skills only)](https://github.com/trilwu/secskills) | `vendor/secskills-core/` | `ca53957bcd8e` | MIT |
 | [sanbir/solana-auditor-skills](https://github.com/sanbir/solana-auditor-skills) | `vendor/solana-auditor/` | `e501915ff495` | MIT |
@@ -59,7 +59,8 @@ take precedence over their instructions. The full list of copied files is in `ve
   (https://creativecommons.org/licenses/by-sa/4.0/); included unmodified. Only its content files (skill
   definition, references, checkpoints) are included, none of its scripts.
 - **cloudflare/skills**: Copyright Cloudflare, Inc., Apache License 2.0; only the WAF reference
-  (`skills/cloudflare/references/waf/`) is included, unmodified.
+  (`skills/cloudflare/references/waf/`) and the Workers best practices (`skills/workers-best-practices/`)
+  are included, unmodified; the other skills are product guides for building on Cloudflare, not audits.
 - **anthropics/claude-code-security-review**: two files of its Python package (`prompts.py`,
   `findings_filter.py`) are included as reading material for the verifier and the diff review; they are
   never executed.
@@ -71,7 +72,7 @@ take precedence over their instructions. The full list of copied files is in `ve
 
 | Project | Why |
 |---|---|
-| https://gist.github.com/nud3l/15468abc5c4ca7e4e0e38e5b120a7997 | no licence: not copied; its idea (parallel audit agents launched in one message) is used in PIPELINE.md |
+| https://gist.github.com/nud3l/15468abc5c4ca7e4e0e38e5b120a7997 | no licence: not copied; its method (parallel audit agents launched in one message, hygiene review) is applied in PIPELINE.md and by `agents/hunter-hygiene.md`, written from scratch |
 | https://github.com/semgrep/semgrep | a tool, not a skill: installed by /nexurity:setup and run by the main thread (TOOLS.md) |
 | https://github.com/github/codeql | a tool, not a skill: installed by /nexurity:setup (official CodeQL bundle) and run on every full code audit (TOOLS.md) |
 

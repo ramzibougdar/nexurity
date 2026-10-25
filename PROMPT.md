@@ -236,12 +236,12 @@ The plugin is installed globally, so its hook runs in **every** Claude Code sess
 - Only the CMS and extension names and versions are sent to these sources; a time budget (5 minutes by default) bounds the network checks, and everything not checked is listed. Results are leads: the `hunter-cms` agent reads the diffs and the code, keeps the CVEs that really apply, and writes the candidates (malicious change → `/nexurity:incident`). On a server, the site root is first copied read-only into the engagement folder; on a live website, the CVEs and updates of the publicly visible version are listed.
 
 **Routing (`ROUTING.md`)**
+- **Every code audit** → `hunter-web` (generic, any language) + `hunter-deps-secrets` + `hunter-hygiene` (logging, error handling, divergent security checks, disabled security linters, insecure defaults, untested security code, stale dependencies), after Semgrep and CodeQL
 - CMS → + `hunter-cms` (after `cms.py scan`)
-- PHP → `hunter-php` + `hunter-web` + `hunter-deps-secrets`
-- JS / Node / front end → `hunter-web` + `hunter-deps-secrets`
-- Python → `hunter-web` + `hunter-deps-secrets` (Python rules)
-- Solana / Anchor / Rust → `hunter-solana` + `hunter-deps-secrets`
-- `wrangler.toml` present → + `hunter-infra-cloudflare`
+- PHP → + `hunter-php`
+- Solana / Anchor / Rust → + `hunter-solana`
+- `wrangler.toml`, `wrangler.json` or `wrangler.jsonc` present → + `hunter-infra-cloudflare`
+- **Every audit goes through the ten sources** listed in stage 1 (the shipped skills, Semgrep, CodeQL and the nud3l method): each agent reads the checklists of its area and lists them in its JSON (`checklists_used`); at the end, `scripts/knowledge.py ledger` records for each source "used" (by whom), "not applicable" (why) or "not run" (why), and the report shows this table.
 - Server → `recon-server` + `hunter-server` (SSH, web server, PHP-FPM, database, firewall, updates, accounts, sudoers, crons, Docker, permissions, backups)
 - Live website → `recon-site` + `hunter-site-passive` (headers, TLS, cookies, DNS/SPF/DKIM/DMARC, well-known exposed files such as `.git/` or `.env` checked with a single HEAD/GET request, visible versions)
 - **Local website** → same agents, adapted. A URL is local when its host is `localhost`, `127.0.0.1` or `::1`, ends with `.test`, `.local`, `.localhost` or `.internal`, or resolves to a loopback or private address (`127.0.0.0/8`, `::1`, `10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`); `recon-site` records it in `recon.json`. For a local site:

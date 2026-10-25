@@ -44,11 +44,19 @@ to these sources. Set `NVD_API_KEY` to speed up the NVD lookups.
 
 ## Shipped security skills
 
-`vendor/` holds security skills from other projects, copied unmodified with their licences: Cloudflare's
-security audit skill and WAF reference, Netresearch's security audit skill, the audit skills of secskills,
-Sanbir's Solana auditor, VoltAgent's security auditor and code reviewer, and Anthropic's security review
-prompt and false-positive rules. The agents read them as checklists (`reference/KNOWLEDGE.md`); Nexurity's
-rules always take precedence. Attribution and licences: `NOTICE.md`.
+Every audit goes through ten security sources (`reference/KNOWLEDGE.md`):
+- skills shipped in `vendor/`, copied unmodified with their licences: Cloudflare's security audit skill,
+  Cloudflare's WAF reference and Workers best practices, Netresearch's security audit skill, the audit
+  skills of secskills, Sanbir's Solana auditor, VoltAgent's security auditor and code reviewer, and
+  Anthropic's security review prompt and false-positive rules;
+- two tools run on every code audit: Semgrep and CodeQL;
+- one method: nud3l's parallel code audit (not copied, it has no licence), applied by the hunters launched
+  together and by `hunter-hygiene`.
+
+Generic sources apply to every code audit; Solana, Cloudflare and CodeQL apply when the target has that
+code. At the end, `scripts/knowledge.py` records for each source whether it was used (by which agent or
+tool), not applicable (why) or not run (why), and the report shows that table. Nexurity's rules always
+take precedence over the shipped skills. Attribution and licences: `NOTICE.md`.
 
 ## Commands
 

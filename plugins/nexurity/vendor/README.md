@@ -8,7 +8,7 @@ Nothing here is ever executed.
 | Folder | Source | Licence |
 |---|---|---|
 | `cloudflare-security-audit/` | cloudflare/security-audit-skill | MIT |
-| `cloudflare-skills-waf/` | cloudflare/skills, WAF reference only | Apache-2.0 |
+| `cloudflare-skills/` | cloudflare/skills, WAF reference and Workers best practices | Apache-2.0 |
 | `netresearch-security-audit/` | netresearch/security-audit-skill, content only | CC BY-SA 4.0 |
 | `secskills-core/` | trilwu/secskills, audit skills of secskills-core only | MIT |
 | `solana-auditor/` | sanbir/solana-auditor-skills | MIT |
